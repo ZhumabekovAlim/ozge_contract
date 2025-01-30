@@ -210,7 +210,7 @@ func (h *IndividualHandler) CreateIndividual(w http.ResponseWriter, r *http.Requ
 		http.Error(w, "Unable to parse form data", http.StatusBadRequest)
 		return
 	}
-	fmt.Println(r.Body)
+	fmt.Println(r)
 	// Retrieve form values
 	fullName := r.FormValue("full_name")
 	iin := r.FormValue("iin")
@@ -219,11 +219,18 @@ func (h *IndividualHandler) CreateIndividual(w http.ResponseWriter, r *http.Requ
 	actualAddress := r.FormValue("actual_address")
 	contactDetails := r.FormValue("contact_details")
 	email := r.FormValue("email")
-
 	// File field mapping to table headers
 	fileFieldNames := map[string]string{
 		"id_file": "Удостоверение_личности_или_паспорт.pdf",
 	}
+
+	fmt.Println("Full Name:", fullName)
+	fmt.Println("IIN:", iin)
+	fmt.Println("Email:", email)
+	fmt.Println("Legal Address:", legalAddress)
+	fmt.Println("Contact Details:", contactDetails)
+	fmt.Println("Bank Details:", bankDetails)
+	fmt.Println("file:", fileFieldNames["id_file"])
 
 	// Save files
 	savedFiles := map[string]string{}
