@@ -22,7 +22,7 @@ func LoadConfig() Config {
 	var cfg Config
 
 	// Read config file
-	data, err := os.ReadFile("C:\\Users\\alimz\\GolandProjects\\ozge\\config\\config.yaml")
+	data, err := os.ReadFile("/root/handyman/config/config.yaml")
 	if err != nil {
 		log.Fatalf("Failed to read config file: %v", err)
 	}
