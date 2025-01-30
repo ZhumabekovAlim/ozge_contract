@@ -204,7 +204,9 @@ type IndividualHandler struct {
 func (h *IndividualHandler) CreateIndividual(w http.ResponseWriter, r *http.Request) {
 	// Parse the form-data
 	err := r.ParseMultipartForm(10 << 20) // Limit upload size to 10MB
+
 	if err != nil {
+		fmt.Println("12332221")
 		http.Error(w, "Unable to parse form data", http.StatusBadRequest)
 		return
 	}
