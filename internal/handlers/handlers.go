@@ -206,7 +206,7 @@ func (h *IndividualHandler) CreateIndividual(w http.ResponseWriter, r *http.Requ
 	err := r.ParseMultipartForm(10 << 20) // Limit upload size to 10MB
 
 	if err != nil {
-		fmt.Println("12332221")
+		fmt.Println(r)
 		http.Error(w, "Unable to parse form data", http.StatusBadRequest)
 		return
 	}
