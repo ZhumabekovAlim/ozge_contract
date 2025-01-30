@@ -210,7 +210,7 @@ func (h *IndividualHandler) CreateIndividual(w http.ResponseWriter, r *http.Requ
 		http.Error(w, "Unable to parse form data", http.StatusBadRequest)
 		return
 	}
-	fmt.Println(r)
+	fmt.Println(r.Body)
 	// Retrieve form values
 	fullName := r.FormValue("full_name")
 	iin := r.FormValue("iin")
