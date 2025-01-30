@@ -41,16 +41,18 @@ func main() {
 	app := initializeApp(db, errorLog, infoLog)
 
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"*"},
-		AllowedMethods:   []string{"GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
-		AllowCredentials: true,
-		AllowedHeaders:   []string{"*"},
+		AllowedOrigins:   []string{"*"}, // Разрешает запросы с любых доменов (небезопасно, лучше указывать конкретные)
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowCredentials: true,          // Если используете куки или JWT
+		AllowedHeaders:   []string{"*"}, // Разрешить все заголовки
+		ExposedHeaders:   []string{"Content-Length"},
+		MaxAge:           600, // Кэширование preflight-запросов (секунды)
 	})
 
 	srv := &http.Server{
 		Addr:         *addr,
 		ErrorLog:     errorLog,
-		Handler:      addSecurityHeaders(c.Handler(app.routes())),
+		Handler:      c.Handler(app.routes()),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
