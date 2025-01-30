@@ -3,4 +3,4 @@ server:
 
 database:
   driver: "mysql"
-  url: "root:NuSaCO$Rp123_@tcp(localhost:3306)/handyman?parseTime=true"
+  url: "root:NuSaCO$Rp123_@tcp(localhost:3306)/ozge_contract?parseTime=true"
