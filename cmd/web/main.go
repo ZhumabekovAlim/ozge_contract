@@ -19,10 +19,10 @@ func main() {
 	if port != "" {
 		port = ":" + port
 	} else {
-		port = ":4000"
+		port = ":443"
 	}
 
-	addr := flag.String("addr", port, "HTTP network address")
+	addr := flag.String("addr", port, "HTTPS network address")
 	flag.Parse()
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
@@ -58,9 +58,9 @@ func main() {
 		WriteTimeout: 10 * time.Second,
 	}
 
-	// Пути к SSL-сертификатам (замените на свои)
-	certFile := "/etc/ssl/myserver/selfsigned.crt"
-	keyFile := "/etc/ssl/myserver/selfsigned.key"
+	// Пути к SSL-сертификатам Let's Encrypt
+	certFile := "/etc/letsencrypt/live/infosite.kz/fullchain.pem"
+	keyFile := "/etc/letsencrypt/live/infosite.kz/privkey.pem"
 
 	infoLog.Printf("Starting HTTPS server on %s", *addr)
 
