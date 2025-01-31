@@ -58,10 +58,16 @@ func main() {
 		WriteTimeout: 10 * time.Second,
 	}
 
-	err = srv.ListenAndServe()
+	// Пути к SSL-сертификатам (замените на свои)
+	certFile := "/etc/ssl/myserver/selfsigned.crt"
+	keyFile := "/etc/ssl/myserver/selfsigned.key"
+
+	infoLog.Printf("Starting HTTPS server on %s", *addr)
+
+	err = srv.ListenAndServeTLS(certFile, keyFile)
 	if err != nil {
 		errorLog.Fatal(err)
 	}
-	infoLog.Printf("Starting server on %s", *addr)
+
 	select {}
 }
