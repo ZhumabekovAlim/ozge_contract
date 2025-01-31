@@ -49,6 +49,15 @@ func main() {
 		MaxAge:           600, // Кэширование preflight-запросов (секунды)
 	})
 
+	go func() {
+		err := http.ListenAndServe(":80", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "https://"+r.Host+r.RequestURI, http.StatusMovedPermanently)
+		}))
+		if err != nil {
+			return
+		}
+	}()
+
 	srv := &http.Server{
 		Addr:         *addr,
 		ErrorLog:     errorLog,
@@ -70,4 +79,5 @@ func main() {
 	}
 
 	select {}
+
 }
