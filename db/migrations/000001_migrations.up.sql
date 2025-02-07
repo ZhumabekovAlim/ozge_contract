@@ -16,7 +16,8 @@ CREATE TABLE TOO (
                      contact_details TEXT NOT NULL,
                      email VARCHAR(255) NOT NULL,
                      egov_file TEXT NOT NULL,
-                     company_card TEXT NOT NULL
+                     company_card TEXT NOT NULL,
+                     company_code VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE IP (
@@ -31,7 +32,8 @@ CREATE TABLE IP (
                     actual_address TEXT NOT NULL,
                     contact_details TEXT NOT NULL,
                     email VARCHAR(255) NOT NULL,
-                    company_card TEXT NOT NULL
+                    company_card TEXT NOT NULL,
+                    company_code VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE Individual (
@@ -43,5 +45,6 @@ CREATE TABLE Individual (
                             legal_address TEXT NOT NULL,
                             actual_address TEXT NOT NULL,
                             contact_details TEXT NOT NULL,
-                            email VARCHAR(255) NOT NULL
+                            email VARCHAR(255) NOT NULL,
+                            company_code VARCHAR(255) NOT NULL
 );

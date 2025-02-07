@@ -17,6 +17,7 @@ type TOO struct {
 	Email             string `json:"email"`
 	EgovFile          string `json:"egov_file"`
 	CompanyCard       string `json:"company_card"`
+	CompanyCode       string `json:"company_code"`
 }
 
 type IP struct {
@@ -32,6 +33,7 @@ type IP struct {
 	ContactDetails    string `json:"contact_details"`
 	Email             string `json:"email"`
 	CompanyCard       string `json:"company_card"`
+	CompanyCode       string `json:"company_code"`
 }
 
 type Individual struct {
@@ -44,4 +46,5 @@ type Individual struct {
 	ActualAddress  string `json:"actual_address"`
 	ContactDetails string `json:"contact_details"`
 	Email          string `json:"email"`
+	CompanyCode    string `json:"company_code"`
 }

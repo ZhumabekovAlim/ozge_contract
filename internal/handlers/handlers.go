@@ -33,6 +33,7 @@ func (h *TOOHandler) CreateTOO(w http.ResponseWriter, r *http.Request) {
 	actualAddress := r.FormValue("actual_address")
 	contactDetails := r.FormValue("contact_details")
 	email := r.FormValue("email")
+	companyCode := r.FormValue("company_code")
 
 	// File field mapping to table headers
 	fileFieldNames := map[string]string{
@@ -92,6 +93,7 @@ func (h *TOOHandler) CreateTOO(w http.ResponseWriter, r *http.Request) {
 		Email:             email,
 		EgovFile:          savedFiles["egov_file"],
 		CompanyCard:       savedFiles["company_card"],
+		CompanyCode:       companyCode,
 	}
 
 	// Call the service layer to save the TOO
@@ -129,6 +131,7 @@ func (h *IPHandler) CreateIP(w http.ResponseWriter, r *http.Request) {
 	actualAddress := r.FormValue("actual_address")
 	contactDetails := r.FormValue("contact_details")
 	email := r.FormValue("email")
+	companyCode := r.FormValue("company_code")
 
 	// File field mapping to table headers
 	fileFieldNames := map[string]string{
@@ -181,6 +184,7 @@ func (h *IPHandler) CreateIP(w http.ResponseWriter, r *http.Request) {
 		ContactDetails:    contactDetails,
 		Email:             email,
 		CompanyCard:       savedFiles["company_card"],
+		CompanyCode:       companyCode,
 	}
 
 	// Call the service layer to save the IP
@@ -223,6 +227,7 @@ func (h *IndividualHandler) CreateIndividual(w http.ResponseWriter, r *http.Requ
 	fileFieldNames := map[string]string{
 		"id_file": "Удостоверение_личности_или_паспорт.pdf",
 	}
+	companyCode := r.FormValue("company_code")
 
 	fmt.Println("Full Name:", fullName)
 	fmt.Println("IIN:", iin)
@@ -272,6 +277,7 @@ func (h *IndividualHandler) CreateIndividual(w http.ResponseWriter, r *http.Requ
 		ActualAddress:  actualAddress,
 		ContactDetails: contactDetails,
 		Email:          email,
+		CompanyCode:    companyCode,
 	}
 
 	// Call the service layer to save the individual
