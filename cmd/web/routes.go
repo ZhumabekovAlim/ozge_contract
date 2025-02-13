@@ -19,9 +19,9 @@ func (app *application) routes() http.Handler {
 	mux.Post("/ip", dynamicMiddleware.ThenFunc(app.ipHandler.CreateIP))
 	mux.Post("/individual", dynamicMiddleware.ThenFunc(app.individualHandler.CreateIndividual))
 
-	mux.Get("/search/too/:bin", dynamicMiddleware.ThenFunc(app.tooHandler.SearchTOO))
-	mux.Get("/search/ip/:iin", dynamicMiddleware.ThenFunc(app.ipHandler.SearchIP))
-	mux.Get("/search/individual/:iin", dynamicMiddleware.ThenFunc(app.individualHandler.SearchIndividual))
+	mux.Get("/search/too/:bin", dynamicMiddleware.ThenFunc(app.tooHandler.SearchTOOs))
+	mux.Get("/search/ip/:iin", dynamicMiddleware.ThenFunc(app.ipHandler.SearchIPs))
+	mux.Get("/search/individual/:iin", dynamicMiddleware.ThenFunc(app.individualHandler.SearchIndividuals))
 
 	return standardMiddleware.Then(mux)
 }
