@@ -74,7 +74,7 @@ func (r *IndividualRepository) CreateIndividual(ctx context.Context, individual 
 // For TOO (search by BIN)
 func (r *TOORepository) GetTOOsByBIN(ctx context.Context, bin string) ([]models.TOO, error) {
 	query := `
-		SELECT id, name, bin, ceo_name, bank_details, legal_address, actual_address, contact_details, email, company_code
+		SELECT id, name, bin, ceo_name, bank_details, legal_address, actual_address, contact_details, email, company_code, created_at, updated_at
 		FROM TOO
 		WHERE bin = ?
 	`
@@ -98,6 +98,8 @@ func (r *TOORepository) GetTOOsByBIN(ctx context.Context, bin string) ([]models.
 			&t.ContactDetails,
 			&t.Email,
 			&t.CompanyCode,
+			&t.CreatedAt,
+			&t.UpdatedAt,
 		)
 		if err != nil {
 			return nil, err
@@ -110,7 +112,7 @@ func (r *TOORepository) GetTOOsByBIN(ctx context.Context, bin string) ([]models.
 // For IP (search by IIN)
 func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin string) ([]models.IP, error) {
 	query := `
-		SELECT id, name, iin, bank_details, legal_address, actual_address, contact_details, email, company_code
+		SELECT id, name, iin, bank_details, legal_address, actual_address, contact_details, email, company_code, created_at, updated_at
 		FROM IP
 		WHERE iin = ?
 	`
@@ -133,6 +135,8 @@ func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin string) ([]models.IP
 			&ip.ContactDetails,
 			&ip.Email,
 			&ip.CompanyCode,
+			&ip.CreatedAt,
+			&ip.UpdatedAt,
 		)
 		if err != nil {
 			return nil, err
@@ -145,7 +149,7 @@ func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin string) ([]models.IP
 // For Individual (search by IIN)
 func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin string) ([]models.Individual, error) {
 	query := `
-		SELECT id, full_name, iin, bank_details, legal_address, actual_address, contact_details, email, company_code
+		SELECT id, full_name, iin, bank_details, legal_address, actual_address, contact_details, email, company_code, created_at, updated_at
 		FROM Individual
 		WHERE iin = ?
 	`
@@ -168,6 +172,8 @@ func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin stri
 			&ind.ContactDetails,
 			&ind.Email,
 			&ind.CompanyCode,
+			&ind.CreatedAt,
+			&ind.UpdatedAt,
 		)
 		if err != nil {
 			return nil, err
