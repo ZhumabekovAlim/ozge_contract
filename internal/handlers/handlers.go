@@ -292,3 +292,58 @@ func (h *IndividualHandler) CreateIndividual(w http.ResponseWriter, r *http.Requ
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(createdIndividual)
 }
+
+// Search TOO by BIN
+func (h *TOOHandler) SearchTOO(w http.ResponseWriter, r *http.Request) {
+	bin := r.URL.Query().Get(":bin")
+	if bin == "" {
+		http.Error(w, "Missing 'bin' parameter", http.StatusBadRequest)
+		return
+	}
+
+	too, err := h.Service.SearchTOOByBIN(r.Context(), bin)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Return only the data (no file paths)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(too)
+}
+
+// Search IP by IIN
+func (h *IPHandler) SearchIP(w http.ResponseWriter, r *http.Request) {
+	iin := r.URL.Query().Get(":iin")
+	if iin == "" {
+		http.Error(w, "Missing 'iin' parameter", http.StatusBadRequest)
+		return
+	}
+
+	ip, err := h.Service.SearchIPByIIN(r.Context(), iin)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(ip)
+}
+
+// Search Individual by IIN
+func (h *IndividualHandler) SearchIndividual(w http.ResponseWriter, r *http.Request) {
+	iin := r.URL.Query().Get(":iin")
+	if iin == "" {
+		http.Error(w, "Missing 'iin' parameter", http.StatusBadRequest)
+		return
+	}
+
+	individual, err := h.Service.SearchIndividualByIIN(r.Context(), iin)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(individual)
+}

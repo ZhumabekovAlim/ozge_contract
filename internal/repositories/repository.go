@@ -70,3 +70,43 @@ func (r *IndividualRepository) CreateIndividual(ctx context.Context, individual 
 	id, err := result.LastInsertId()
 	return int(id), err
 }
+
+// For TOO (search by BIN)
+func (r *TOORepository) GetTOOByBIN(ctx context.Context, bin string) (models.TOO, error) {
+	var too models.TOO
+	// Only select columns that are not file paths
+	err := r.Db.QueryRowContext(ctx, `
+		SELECT id, name, bin, ceo_name, bank_details, legal_address, actual_address, contact_details, email, company_code
+		FROM TOO
+		WHERE bin = ?`, bin).Scan(
+		&too.ID, &too.Name, &too.BIN, &too.CEOName, &too.BankDetails,
+		&too.LegalAddress, &too.ActualAddress, &too.ContactDetails, &too.Email, &too.CompanyCode,
+	)
+	return too, err
+}
+
+// For IP (search by IIN)
+func (r *IPRepository) GetIPByIIN(ctx context.Context, iin string) (models.IP, error) {
+	var ip models.IP
+	err := r.Db.QueryRowContext(ctx, `
+		SELECT id, name, iin, bank_details, legal_address, actual_address, contact_details, email, company_code
+		FROM IP
+		WHERE iin = ?`, iin).Scan(
+		&ip.ID, &ip.Name, &ip.IIN, &ip.BankDetails,
+		&ip.LegalAddress, &ip.ActualAddress, &ip.ContactDetails, &ip.Email, &ip.CompanyCode,
+	)
+	return ip, err
+}
+
+// For Individual (search by IIN)
+func (r *IndividualRepository) GetIndividualByIIN(ctx context.Context, iin string) (models.Individual, error) {
+	var individual models.Individual
+	err := r.Db.QueryRowContext(ctx, `
+		SELECT id, full_name, iin, bank_details, legal_address, actual_address, contact_details, email, company_code
+		FROM Individual
+		WHERE iin = ?`, iin).Scan(
+		&individual.ID, &individual.FullName, &individual.IIN, &individual.BankDetails,
+		&individual.LegalAddress, &individual.ActualAddress, &individual.ContactDetails, &individual.Email, &individual.CompanyCode,
+	)
+	return individual, err
+}

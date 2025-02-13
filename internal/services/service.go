@@ -50,3 +50,18 @@ func (s *IndividualService) CreateIndividual(ctx context.Context, individual mod
 	individual.ID = id
 	return individual, nil
 }
+
+// In TOOService
+func (s *TOOService) SearchTOOByBIN(ctx context.Context, bin string) (models.TOO, error) {
+	return s.Repo.GetTOOByBIN(ctx, bin)
+}
+
+// In IPService
+func (s *IPService) SearchIPByIIN(ctx context.Context, iin string) (models.IP, error) {
+	return s.Repo.GetIPByIIN(ctx, iin)
+}
+
+// In IndividualService
+func (s *IndividualService) SearchIndividualByIIN(ctx context.Context, iin string) (models.Individual, error) {
+	return s.Repo.GetIndividualByIIN(ctx, iin)
+}
