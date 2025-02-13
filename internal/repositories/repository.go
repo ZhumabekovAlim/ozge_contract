@@ -77,6 +77,7 @@ func (r *TOORepository) GetTOOsByBIN(ctx context.Context, bin string) ([]models.
 		SELECT id, name, bin, ceo_name, bank_details, legal_address, actual_address, contact_details, email, company_code, created_at, updated_at
 		FROM TOO
 		WHERE bin = ?
+		ORDER BY created_at DESC
 	`
 	rows, err := r.Db.QueryContext(ctx, query, bin)
 	if err != nil {
@@ -115,6 +116,7 @@ func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin string) ([]models.IP
 		SELECT id, name, iin, bank_details, legal_address, actual_address, contact_details, email, company_code, created_at, updated_at
 		FROM IP
 		WHERE iin = ?
+		ORDER BY created_at DESC
 	`
 	rows, err := r.Db.QueryContext(ctx, query, iin)
 	if err != nil {
@@ -152,6 +154,7 @@ func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin stri
 		SELECT id, full_name, iin, bank_details, legal_address, actual_address, contact_details, email, company_code, created_at, updated_at
 		FROM Individual
 		WHERE iin = ?
+		ORDER BY created_at DESC
 	`
 	rows, err := r.Db.QueryContext(ctx, query, iin)
 	if err != nil {
