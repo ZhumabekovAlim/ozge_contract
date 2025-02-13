@@ -72,41 +72,107 @@ func (r *IndividualRepository) CreateIndividual(ctx context.Context, individual 
 }
 
 // For TOO (search by BIN)
-func (r *TOORepository) GetTOOByBIN(ctx context.Context, bin string) (models.TOO, error) {
-	var too models.TOO
-	// Only select columns that are not file paths
-	err := r.Db.QueryRowContext(ctx, `
-		SELECT id, name, bin, ceo_name, bank_details, legal_address, actual_address, contact_details, email, company_code, created_at, updated_at
+func (r *TOORepository) GetTOOsByBIN(ctx context.Context, bin string) ([]models.TOO, error) {
+	query := `
+		SELECT id, name, bin, ceo_name, bank_details, legal_address, actual_address, contact_details, email, company_code
 		FROM TOO
-		WHERE bin = ?`, bin).Scan(
-		&too.ID, &too.Name, &too.BIN, &too.CEOName, &too.BankDetails,
-		&too.LegalAddress, &too.ActualAddress, &too.ContactDetails, &too.Email, &too.CompanyCode, &too.CreatedAt, &too.UpdatedAt,
-	)
-	return too, err
+		WHERE bin = ?
+	`
+	rows, err := r.Db.QueryContext(ctx, query, bin)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var toos []models.TOO
+	for rows.Next() {
+		var t models.TOO
+		err = rows.Scan(
+			&t.ID,
+			&t.Name,
+			&t.BIN,
+			&t.CEOName,
+			&t.BankDetails,
+			&t.LegalAddress,
+			&t.ActualAddress,
+			&t.ContactDetails,
+			&t.Email,
+			&t.CompanyCode,
+		)
+		if err != nil {
+			return nil, err
+		}
+		toos = append(toos, t)
+	}
+	return toos, rows.Err()
 }
 
 // For IP (search by IIN)
-func (r *IPRepository) GetIPByIIN(ctx context.Context, iin string) (models.IP, error) {
-	var ip models.IP
-	err := r.Db.QueryRowContext(ctx, `
-		SELECT id, name, iin, bank_details, legal_address, actual_address, contact_details, email, company_code, created_at, updated_at
+func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin string) ([]models.IP, error) {
+	query := `
+		SELECT id, name, iin, bank_details, legal_address, actual_address, contact_details, email, company_code
 		FROM IP
-		WHERE iin = ?`, iin).Scan(
-		&ip.ID, &ip.Name, &ip.IIN, &ip.BankDetails,
-		&ip.LegalAddress, &ip.ActualAddress, &ip.ContactDetails, &ip.Email, &ip.CompanyCode, &ip.CreatedAt, &ip.UpdatedAt,
-	)
-	return ip, err
+		WHERE iin = ?
+	`
+	rows, err := r.Db.QueryContext(ctx, query, iin)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var ips []models.IP
+	for rows.Next() {
+		var ip models.IP
+		err = rows.Scan(
+			&ip.ID,
+			&ip.Name,
+			&ip.IIN,
+			&ip.BankDetails,
+			&ip.LegalAddress,
+			&ip.ActualAddress,
+			&ip.ContactDetails,
+			&ip.Email,
+			&ip.CompanyCode,
+		)
+		if err != nil {
+			return nil, err
+		}
+		ips = append(ips, ip)
+	}
+	return ips, rows.Err()
 }
 
 // For Individual (search by IIN)
-func (r *IndividualRepository) GetIndividualByIIN(ctx context.Context, iin string) (models.Individual, error) {
-	var individual models.Individual
-	err := r.Db.QueryRowContext(ctx, `
-		SELECT id, full_name, iin, bank_details, legal_address, actual_address, contact_details, email, company_code, created_at, updated_at
+func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin string) ([]models.Individual, error) {
+	query := `
+		SELECT id, full_name, iin, bank_details, legal_address, actual_address, contact_details, email, company_code
 		FROM Individual
-		WHERE iin = ?`, iin).Scan(
-		&individual.ID, &individual.FullName, &individual.IIN, &individual.BankDetails,
-		&individual.LegalAddress, &individual.ActualAddress, &individual.ContactDetails, &individual.Email, &individual.CompanyCode, &individual.CreatedAt, &individual.UpdatedAt,
-	)
-	return individual, err
+		WHERE iin = ?
+	`
+	rows, err := r.Db.QueryContext(ctx, query, iin)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var individuals []models.Individual
+	for rows.Next() {
+		var ind models.Individual
+		err = rows.Scan(
+			&ind.ID,
+			&ind.FullName,
+			&ind.IIN,
+			&ind.BankDetails,
+			&ind.LegalAddress,
+			&ind.ActualAddress,
+			&ind.ContactDetails,
+			&ind.Email,
+			&ind.CompanyCode,
+		)
+		if err != nil {
+			return nil, err
+		}
+		individuals = append(individuals, ind)
+	}
+	return individuals, rows.Err()
 }

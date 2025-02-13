@@ -294,56 +294,56 @@ func (h *IndividualHandler) CreateIndividual(w http.ResponseWriter, r *http.Requ
 }
 
 // Search TOO by BIN
-func (h *TOOHandler) SearchTOO(w http.ResponseWriter, r *http.Request) {
+func (h *TOOHandler) SearchTOOs(w http.ResponseWriter, r *http.Request) {
 	bin := r.URL.Query().Get(":bin")
 	if bin == "" {
-		http.Error(w, "Missing 'bin' parameter", http.StatusBadRequest)
+		http.Error(w, "Не указан параметр 'bin'", http.StatusBadRequest)
 		return
 	}
 
-	too, err := h.Service.SearchTOOByBIN(r.Context(), bin)
+	toos, err := h.Service.SearchTOOsByBIN(r.Context(), bin)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	// Return only the data (no file paths)
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(too)
+	json.NewEncoder(w).Encode(toos)
 }
 
 // Search IP by IIN
-func (h *IPHandler) SearchIP(w http.ResponseWriter, r *http.Request) {
+func (h *IPHandler) SearchIPs(w http.ResponseWriter, r *http.Request) {
 	iin := r.URL.Query().Get(":iin")
 	if iin == "" {
-		http.Error(w, "Missing 'iin' parameter", http.StatusBadRequest)
+		http.Error(w, "Не указан параметр 'iin'", http.StatusBadRequest)
 		return
 	}
 
-	ip, err := h.Service.SearchIPByIIN(r.Context(), iin)
+	ips, err := h.Service.SearchIPsByIIN(r.Context(), iin)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(ip)
+	json.NewEncoder(w).Encode(ips)
 }
 
 // Search Individual by IIN
-func (h *IndividualHandler) SearchIndividual(w http.ResponseWriter, r *http.Request) {
+
+func (h *IndividualHandler) SearchIndividuals(w http.ResponseWriter, r *http.Request) {
 	iin := r.URL.Query().Get(":iin")
 	if iin == "" {
-		http.Error(w, "Missing 'iin' parameter", http.StatusBadRequest)
+		http.Error(w, "Не указан параметр 'iin'", http.StatusBadRequest)
 		return
 	}
 
-	individual, err := h.Service.SearchIndividualByIIN(r.Context(), iin)
+	individuals, err := h.Service.SearchIndividualsByIIN(r.Context(), iin)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(individual)
+	json.NewEncoder(w).Encode(individuals)
 }

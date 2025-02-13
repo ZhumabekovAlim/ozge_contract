@@ -52,16 +52,16 @@ func (s *IndividualService) CreateIndividual(ctx context.Context, individual mod
 }
 
 // In TOOService
-func (s *TOOService) SearchTOOByBIN(ctx context.Context, bin string) (models.TOO, error) {
-	return s.Repo.GetTOOByBIN(ctx, bin)
+func (s *TOOService) SearchTOOsByBIN(ctx context.Context, bin string) ([]models.TOO, error) {
+	return s.Repo.GetTOOsByBIN(ctx, bin)
 }
 
 // In IPService
-func (s *IPService) SearchIPByIIN(ctx context.Context, iin string) (models.IP, error) {
-	return s.Repo.GetIPByIIN(ctx, iin)
+func (s *IPService) SearchIPsByIIN(ctx context.Context, iin string) ([]models.IP, error) {
+	return s.Repo.GetIPsByIIN(ctx, iin)
 }
 
 // In IndividualService
-func (s *IndividualService) SearchIndividualByIIN(ctx context.Context, iin string) (models.Individual, error) {
-	return s.Repo.GetIndividualByIIN(ctx, iin)
+func (s *IndividualService) SearchIndividualsByIIN(ctx context.Context, iin string) ([]models.Individual, error) {
+	return s.Repo.GetIndividualsByIIN(ctx, iin)
 }
