@@ -23,5 +23,7 @@ func (app *application) routes() http.Handler {
 	mux.Get("/search/ip/:iin", dynamicMiddleware.ThenFunc(app.ipHandler.SearchIPs))
 	mux.Get("/search/individual/:iin", dynamicMiddleware.ThenFunc(app.individualHandler.SearchIndividuals))
 
+	mux.Get("/health", dynamicMiddleware.ThenFunc(app.healthCheck))
+
 	return standardMiddleware.Then(mux)
 }
