@@ -17,7 +17,22 @@ func (s *TOOService) CreateTOO(ctx context.Context, too models.TOO) (models.TOO,
 		return models.TOO{}, err
 	}
 
+	createdAt, err := s.Repo.GetCreatedAt(ctx, id)
+	if err != nil {
+		return models.TOO{}, err
+	}
+
 	too.ID = id
+	too.CreatedAt = createdAt
+	return too, nil
+}
+
+func (s *TOOService) UpdateContractTOO(ctx context.Context, too models.TOO) (models.TOO, error) {
+	err := s.Repo.UpdateContractTOO(ctx, too)
+	if err != nil {
+		return models.TOO{}, err
+	}
+
 	return too, nil
 }
 
@@ -32,7 +47,22 @@ func (s *IPService) CreateIP(ctx context.Context, ip models.IP) (models.IP, erro
 		return models.IP{}, err
 	}
 
+	createdAt, err := s.Repo.GetCreatedAt(ctx, id)
+	if err != nil {
+		return models.IP{}, err
+	}
+
 	ip.ID = id
+	ip.CreatedAt = createdAt
+	return ip, nil
+}
+
+func (s *IPService) UpdateContractIP(ctx context.Context, ip models.IP) (models.IP, error) {
+	err := s.Repo.UpdateContractIP(ctx, ip)
+	if err != nil {
+		return models.IP{}, err
+	}
+
 	return ip, nil
 }
 
@@ -47,7 +77,22 @@ func (s *IndividualService) CreateIndividual(ctx context.Context, individual mod
 		return models.Individual{}, err
 	}
 
+	createdAt, err := s.Repo.GetCreatedAt(ctx, id)
+	if err != nil {
+		return models.Individual{}, err
+	}
+
 	individual.ID = id
+	individual.CreatedAt = createdAt
+	return individual, nil
+}
+
+func (s *IndividualService) UpdateContractIndividual(ctx context.Context, individual models.Individual) (models.Individual, error) {
+	err := s.Repo.UpdateContractIndividual(ctx, individual)
+	if err != nil {
+		return models.Individual{}, err
+	}
+
 	return individual, nil
 }
 

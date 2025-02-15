@@ -9,6 +9,7 @@ import (
 	"ozge/internal/models"
 	"ozge/internal/services"
 	"path/filepath"
+	"strconv"
 )
 
 // TOO Handler
@@ -111,6 +112,76 @@ func (h *TOOHandler) CreateTOO(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(createdTOO)
 }
 
+func (h *TOOHandler) UpdateUserContract(w http.ResponseWriter, r *http.Request) {
+	// Parse the form-data
+	err := r.ParseMultipartForm(10 << 20) // Limit upload size to 10MB
+	if err != nil {
+		http.Error(w, "Unable to parse form data", http.StatusBadRequest)
+		return
+	}
+
+	id := r.FormValue("id")
+	bin := r.FormValue("bin")
+	// File field mapping to table headers
+	fileFieldNames := map[string]string{
+		"user_contract": "Подписанный_договор_пользователя.pdf",
+	}
+
+	// Save files
+	savedFiles := map[string]string{}
+	for formField, fileName := range fileFieldNames {
+		file, _, err := r.FormFile(formField)
+		if err == nil {
+			defer file.Close()
+
+			filePath := fmt.Sprintf("uploads/TOO/%s/%s", bin, fileName)
+			err = os.MkdirAll(filepath.Dir(filePath), os.ModePerm)
+			if err != nil {
+				http.Error(w, "Unable to create directory", http.StatusInternalServerError)
+				return
+			}
+
+			out, err := os.Create(filePath)
+			if err != nil {
+				http.Error(w, "Unable to save file", http.StatusInternalServerError)
+				return
+			}
+			defer out.Close()
+
+			_, err = io.Copy(out, file)
+			if err != nil {
+				http.Error(w, "Unable to save file content", http.StatusInternalServerError)
+				return
+			}
+			savedFiles[formField] = filePath
+		}
+	}
+
+	idInt, err := strconv.ParseInt(id, 10, 64)
+
+	// Create a TOO object
+	too := models.TOO{
+		ID:           int(idInt),
+		BIN:          bin,
+		UserContract: savedFiles["user_contract"],
+	}
+
+	// Call the service layer to save the TOO
+	createdTOO, err := h.Service.UpdateContractTOO(r.Context(), too)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Respond with the created TOO
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	err = json.NewEncoder(w).Encode(createdTOO)
+	if err != nil {
+		return
+	}
+}
+
 // IP Handler
 type IPHandler struct {
 	Service *services.IPService
@@ -202,6 +273,76 @@ func (h *IPHandler) CreateIP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(createdIP)
+}
+
+func (h *IPHandler) UpdateUserContract(w http.ResponseWriter, r *http.Request) {
+	// Parse the form-data
+	err := r.ParseMultipartForm(10 << 20) // Limit upload size to 10MB
+	if err != nil {
+		http.Error(w, "Unable to parse form data", http.StatusBadRequest)
+		return
+	}
+
+	id := r.FormValue("id")
+	iin := r.FormValue("iin")
+	// File field mapping to table headers
+	fileFieldNames := map[string]string{
+		"user_contract": "Подписанный_договор_пользователя.pdf",
+	}
+
+	// Save files
+	savedFiles := map[string]string{}
+	for formField, fileName := range fileFieldNames {
+		file, _, err := r.FormFile(formField)
+		if err == nil {
+			defer file.Close()
+
+			filePath := fmt.Sprintf("uploads/IP/%s/%s", iin, fileName)
+			err = os.MkdirAll(filepath.Dir(filePath), os.ModePerm)
+			if err != nil {
+				http.Error(w, "Unable to create directory", http.StatusInternalServerError)
+				return
+			}
+
+			out, err := os.Create(filePath)
+			if err != nil {
+				http.Error(w, "Unable to save file", http.StatusInternalServerError)
+				return
+			}
+			defer out.Close()
+
+			_, err = io.Copy(out, file)
+			if err != nil {
+				http.Error(w, "Unable to save file content", http.StatusInternalServerError)
+				return
+			}
+			savedFiles[formField] = filePath
+		}
+	}
+
+	idInt, err := strconv.ParseInt(id, 10, 64)
+
+	// Create a TOO object
+	ip := models.IP{
+		ID:           int(idInt),
+		IIN:          iin,
+		UserContract: savedFiles["user_contract"],
+	}
+
+	// Call the service layer to save the TOO
+	createdIP, err := h.Service.UpdateContractIP(r.Context(), ip)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Respond with the created TOO
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	err = json.NewEncoder(w).Encode(createdIP)
+	if err != nil {
+		return
+	}
 }
 
 // Individual Handler
@@ -297,6 +438,76 @@ func (h *IndividualHandler) CreateIndividual(w http.ResponseWriter, r *http.Requ
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(createdIndividual)
+}
+
+func (h *IndividualHandler) UpdateUserContract(w http.ResponseWriter, r *http.Request) {
+	// Parse the form-data
+	err := r.ParseMultipartForm(10 << 20) // Limit upload size to 10MB
+	if err != nil {
+		http.Error(w, "Unable to parse form data", http.StatusBadRequest)
+		return
+	}
+
+	id := r.FormValue("id")
+	iin := r.FormValue("iin")
+	// File field mapping to table headers
+	fileFieldNames := map[string]string{
+		"user_contract": "Подписанный_договор_пользователя.pdf",
+	}
+
+	// Save files
+	savedFiles := map[string]string{}
+	for formField, fileName := range fileFieldNames {
+		file, _, err := r.FormFile(formField)
+		if err == nil {
+			defer file.Close()
+
+			filePath := fmt.Sprintf("uploads/Individual/%s/%s", iin, fileName)
+			err = os.MkdirAll(filepath.Dir(filePath), os.ModePerm)
+			if err != nil {
+				http.Error(w, "Unable to create directory", http.StatusInternalServerError)
+				return
+			}
+
+			out, err := os.Create(filePath)
+			if err != nil {
+				http.Error(w, "Unable to save file", http.StatusInternalServerError)
+				return
+			}
+			defer out.Close()
+
+			_, err = io.Copy(out, file)
+			if err != nil {
+				http.Error(w, "Unable to save file content", http.StatusInternalServerError)
+				return
+			}
+			savedFiles[formField] = filePath
+		}
+	}
+
+	idInt, err := strconv.ParseInt(id, 10, 64)
+
+	// Create a TOO object
+	individual := models.Individual{
+		ID:           int(idInt),
+		IIN:          iin,
+		UserContract: savedFiles["user_contract"],
+	}
+
+	// Call the service layer to save the TOO
+	createdIndividual, err := h.Service.UpdateContractIndividual(r.Context(), individual)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Respond with the created TOO
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	err = json.NewEncoder(w).Encode(createdIndividual)
+	if err != nil {
+		return
+	}
 }
 
 // Search TOO by BIN

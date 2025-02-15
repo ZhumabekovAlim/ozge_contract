@@ -18,7 +18,7 @@ type TOO struct {
 	EgovFile          string `json:"egov_file"`
 	CompanyCard       string `json:"company_card"`
 	CompanyCode       string `json:"company_code"`
-	UserContract      string `json:"user_contract"`
+	UserContract      string `json:"user_contract,omitempty"`
 	CreatedAt         string `json:"created_at,omitempty"`
 	UpdatedAt         string `json:"updated_at,omitempty"`
 }
@@ -37,7 +37,7 @@ type IP struct {
 	Email             string `json:"email"`
 	CompanyCard       string `json:"company_card"`
 	CompanyCode       string `json:"company_code"`
-	UserContract      string `json:"user_contract"`
+	UserContract      string `json:"user_contract,omitempty"`
 	CreatedAt         string `json:"created_at,omitempty"`
 	UpdatedAt         string `json:"updated_at,omitempty"`
 }
@@ -53,7 +53,7 @@ type Individual struct {
 	ContactDetails string `json:"contact_details"`
 	Email          string `json:"email"`
 	CompanyCode    string `json:"company_code"`
-	UserContract   string `json:"user_contract"`
+	UserContract   string `json:"user_contract,omitempty"`
 	CreatedAt      string `json:"created_at,omitempty"`
 	UpdatedAt      string `json:"updated_at,omitempty"`
 }

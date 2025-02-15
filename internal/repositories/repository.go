@@ -29,6 +29,26 @@ func (r *TOORepository) CreateTOO(ctx context.Context, too models.TOO) (int, err
 	return int(id), err
 }
 
+func (r *TOORepository) GetCreatedAt(ctx context.Context, id int) (string, error) {
+	var created string
+	err := r.Db.QueryRowContext(ctx, "SELECT created_at FROM TOO WHERE id = ?", id).Scan(&created)
+	return created, err
+}
+
+func (r *TOORepository) UpdateContractTOO(ctx context.Context, too models.TOO) error {
+	_, err := r.Db.ExecContext(ctx, `
+		UPDATE TOO
+		SET user_contract = ?
+		WHERE id = ?`,
+		too.UserContract, too.ID,
+	)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
 // IP Repository
 type IPRepository struct {
 	Db *sql.DB
@@ -50,6 +70,26 @@ func (r *IPRepository) CreateIP(ctx context.Context, ip models.IP) (int, error) 
 	return int(id), err
 }
 
+func (r *IPRepository) GetCreatedAt(ctx context.Context, id int) (string, error) {
+	var created string
+	err := r.Db.QueryRowContext(ctx, "SELECT created_at FROM IP WHERE id = ?", id).Scan(&created)
+	return created, err
+}
+
+func (r *IPRepository) UpdateContractIP(ctx context.Context, ip models.IP) error {
+	_, err := r.Db.ExecContext(ctx, `
+		UPDATE IP
+		SET user_contract = ?
+		WHERE id = ?`,
+		ip.UserContract, ip.ID,
+	)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
 // Individual Repository
 type IndividualRepository struct {
 	Db *sql.DB
@@ -69,6 +109,26 @@ func (r *IndividualRepository) CreateIndividual(ctx context.Context, individual 
 
 	id, err := result.LastInsertId()
 	return int(id), err
+}
+
+func (r *IndividualRepository) GetCreatedAt(ctx context.Context, id int) (string, error) {
+	var created string
+	err := r.Db.QueryRowContext(ctx, "SELECT created_at FROM Individual WHERE id = ?", id).Scan(&created)
+	return created, err
+}
+
+func (r *IndividualRepository) UpdateContractIndividual(ctx context.Context, individual models.Individual) error {
+	_, err := r.Db.ExecContext(ctx, `
+		UPDATE Individual
+		SET user_contract = ?
+		WHERE id = ?`,
+		individual.UserContract, individual.ID,
+	)
+	if err != nil {
+		return err
+	}
+
+	return err
 }
 
 // For TOO (search by BIN)
