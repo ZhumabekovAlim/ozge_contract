@@ -57,8 +57,8 @@ type IPRepository struct {
 func (r *IPRepository) CreateIP(ctx context.Context, ip models.IP) (int, error) {
 	result, err := r.Db.ExecContext(ctx, `
 		INSERT INTO IP (name, iin, registration_file, representative_poa, representative_id, 
-		bank_details, legal_address, actual_address, contact_details, email, company_card, company_code, user_contract) 
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		bank_details, legal_address, actual_address, contact_details, email, company_card, company_code) 
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		ip.Name, ip.IIN, ip.RegistrationFile, ip.RepresentativePOA, ip.RepresentativeID,
 		ip.BankDetails, ip.LegalAddress, ip.ActualAddress, ip.ContactDetails, ip.Email, ip.CompanyCard, ip.CompanyCode,
 	)
@@ -98,8 +98,8 @@ type IndividualRepository struct {
 func (r *IndividualRepository) CreateIndividual(ctx context.Context, individual models.Individual) (int, error) {
 	result, err := r.Db.ExecContext(ctx, `
 		INSERT INTO Individual (full_name, iin, id_file, bank_details, legal_address, 
-		actual_address, contact_details, email, company_code, user_contract) 
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		actual_address, contact_details, email, company_code) 
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		individual.FullName, individual.IIN, individual.IDFile, individual.BankDetails,
 		individual.LegalAddress, individual.ActualAddress, individual.ContactDetails, individual.Email, individual.CompanyCode,
 	)
