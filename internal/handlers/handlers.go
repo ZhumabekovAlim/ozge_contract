@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"ozge/internal/models"
@@ -540,19 +542,49 @@ func (h *IPHandler) SearchIPs(w http.ResponseWriter, r *http.Request) {
 
 // Search Individual by IIN
 
+// SearchIndividuals ищет пользователя по IIN и возвращает JSON + PDF (если есть)
 func (h *IndividualHandler) SearchIndividuals(w http.ResponseWriter, r *http.Request) {
 	iin := r.URL.Query().Get(":iin")
 	if iin == "" {
-		http.Error(w, "Не указан параметр 'iin'", http.StatusBadRequest)
+		http.Error(w, `{"error": "Не указан параметр 'iin'"}`, http.StatusBadRequest)
 		return
 	}
 
+	// Получаем данные из сервиса
 	individuals, err := h.Service.SearchIndividualsByIIN(r.Context(), iin)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	if err != nil || len(individuals) == 0 {
+		http.Error(w, `{"error": "Пользователь не найден"}`, http.StatusNotFound)
 		return
 	}
 
+	// Добавляем PDF в Base64, если есть файл
+	if individuals[0].UserContract != "" {
+		fileData, err := readPDFAsBase64(individuals[0].UserContract)
+		if err == nil {
+			individuals[0].UserContract = fileData
+		} else {
+			fmt.Println("Ошибка при чтении PDF:", err)
+		}
+	}
+
+	// Отправляем JSON-ответ
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(individuals)
+}
+
+// Читает PDF-файл и кодирует его в Base64
+func readPDFAsBase64(filePath string) (string, error) {
+	// Проверяем, существует ли файл
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		return "", fmt.Errorf("файл не найден")
+	}
+
+	// Читаем содержимое файла
+	fileData, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return "", err
+	}
+
+	// Кодируем в Base64
+	return base64.StdEncoding.EncodeToString(fileData), nil
 }
