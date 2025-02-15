@@ -44,6 +44,7 @@ func (h *TOOHandler) CreateTOO(w http.ResponseWriter, r *http.Request) {
 		"representative_id":  "Удостоверение_представителя.pdf",
 		"egov_file":          "Адресная_справка.pdf",
 		"company_card":       "Карточка_предприятия.pdf",
+		"user_contract":      "Подписанный_договор_пользователя.pdf",
 	}
 
 	// Save files
@@ -94,6 +95,7 @@ func (h *TOOHandler) CreateTOO(w http.ResponseWriter, r *http.Request) {
 		EgovFile:          savedFiles["egov_file"],
 		CompanyCard:       savedFiles["company_card"],
 		CompanyCode:       companyCode,
+		UserContract:      savedFiles["user_contract"],
 	}
 
 	// Call the service layer to save the TOO
@@ -139,6 +141,7 @@ func (h *IPHandler) CreateIP(w http.ResponseWriter, r *http.Request) {
 		"representative_poa": "Доверенность_представителя.pdf",
 		"representative_id":  "Удостоверение_личности_представителя_по_доверенности.pdf",
 		"company_card":       "Карточка_предприятия.pdf",
+		"user_contract":      "Подписанный_договор_пользователя.pdf",
 	}
 
 	// Save files
@@ -185,6 +188,7 @@ func (h *IPHandler) CreateIP(w http.ResponseWriter, r *http.Request) {
 		Email:             email,
 		CompanyCard:       savedFiles["company_card"],
 		CompanyCode:       companyCode,
+		UserContract:      savedFiles["user_contract"],
 	}
 
 	// Call the service layer to save the IP
@@ -225,7 +229,8 @@ func (h *IndividualHandler) CreateIndividual(w http.ResponseWriter, r *http.Requ
 	email := r.FormValue("email")
 	// File field mapping to table headers
 	fileFieldNames := map[string]string{
-		"id_file": "Удостоверение_личности_или_паспорт.pdf",
+		"id_file":       "Удостоверение_личности_или_паспорт.pdf",
+		"user_contract": "Подписанный_договор_пользователя.pdf",
 	}
 	companyCode := r.FormValue("company_code")
 
@@ -278,6 +283,7 @@ func (h *IndividualHandler) CreateIndividual(w http.ResponseWriter, r *http.Requ
 		ContactDetails: contactDetails,
 		Email:          email,
 		CompanyCode:    companyCode,
+		UserContract:   savedFiles["user_contract"],
 	}
 
 	// Call the service layer to save the individual
