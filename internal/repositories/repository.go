@@ -211,7 +211,7 @@ func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin string) ([]models.IP
 // For Individual (search by IIN)
 func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin string) ([]models.Individual, error) {
 	query := `
-		SELECT id, full_name, iin, bank_details, legal_address, actual_address, contact_details, email, company_code, created_at, updated_at
+		SELECT id, full_name, iin, bank_details, legal_address, actual_address, contact_details, email, company_code, user_contract, created_at, updated_at
 		FROM Individual
 		WHERE iin = ?
 		ORDER BY created_at DESC
@@ -235,6 +235,7 @@ func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin stri
 			&ind.ContactDetails,
 			&ind.Email,
 			&ind.CompanyCode,
+			&ind.UserContract,
 			&ind.CreatedAt,
 			&ind.UpdatedAt,
 		)
