@@ -117,14 +117,6 @@ func (r *IndividualRepository) GetCreatedAt(ctx context.Context, id int) (string
 	return created, err
 }
 
-func (r *IndividualRepository) UpdateToken(ctx context.Context, id int, token string) error {
-	_, err := r.Db.ExecContext(ctx, `
-		UPDATE Individual SET token = ? WHERE id = ?`,
-		token, id,
-	)
-	return err
-}
-
 func (r *IndividualRepository) UpdateContractIndividual(ctx context.Context, individual models.Individual) error {
 	_, err := r.Db.ExecContext(ctx, `
 		UPDATE Individual
@@ -253,4 +245,76 @@ func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin stri
 		individuals = append(individuals, ind)
 	}
 	return individuals, rows.Err()
+}
+
+func (r *TOORepository) UpdateToken(ctx context.Context, id int, token string) error {
+	_, err := r.Db.ExecContext(ctx, `UPDATE TOO SET token = ? WHERE id = ?`, token, id)
+	return err
+}
+
+func (r *IPRepository) UpdateToken(ctx context.Context, id int, token string) error {
+	_, err := r.Db.ExecContext(ctx, `UPDATE IP SET token = ? WHERE id = ?`, token, id)
+	return err
+}
+
+func (r *IndividualRepository) UpdateToken(ctx context.Context, id int, token string) error {
+	_, err := r.Db.ExecContext(ctx, `
+		UPDATE Individual SET token = ? WHERE id = ?`,
+		token, id,
+	)
+	return err
+}
+
+func (r *TOORepository) FindByToken(ctx context.Context, token string) (models.TOO, error) {
+	var too models.TOO
+
+	err := r.Db.QueryRowContext(ctx, `
+		SELECT id, name, bin, ceo_name, bank_details, legal_address, actual_address, 
+		contact_details, email, company_code, user_contract, created_at, updated_at
+		FROM TOO WHERE token = ?`, token).
+		Scan(&too.ID, &too.Name, &too.BIN, &too.CEOName, &too.BankDetails, &too.LegalAddress,
+			&too.ActualAddress, &too.ContactDetails, &too.Email, &too.CompanyCode,
+			&too.CreatedAt, &too.UpdatedAt)
+
+	if err != nil {
+		return models.TOO{}, err
+	}
+
+	return too, nil
+}
+
+func (r *IPRepository) FindByToken(ctx context.Context, token string) (models.IP, error) {
+	var ip models.IP
+
+	err := r.Db.QueryRowContext(ctx, `
+		SELECT id, name, iin, bank_details, legal_address, actual_address, contact_details, 
+		email, company_code, user_contract, created_at, updated_at
+		FROM IP WHERE token = ?`, token).
+		Scan(&ip.ID, &ip.Name, &ip.IIN, &ip.BankDetails, &ip.LegalAddress, &ip.ActualAddress,
+			&ip.ContactDetails, &ip.Email, &ip.CompanyCode, &ip.CreatedAt, &ip.UpdatedAt)
+
+	if err != nil {
+		return models.IP{}, err
+	}
+
+	return ip, nil
+}
+
+func (r *IndividualRepository) FindByToken(ctx context.Context, token string) (models.Individual, error) {
+	var individual models.Individual
+
+	err := r.Db.QueryRowContext(ctx, `
+		SELECT id, full_name, iin, bank_details, legal_address, actual_address, contact_details, 
+		email, company_code, user_contract, created_at, updated_at
+		FROM Individual WHERE token = ?`, token).
+		Scan(&individual.ID, &individual.FullName, &individual.IIN, &individual.BankDetails,
+			&individual.LegalAddress, &individual.ActualAddress, &individual.ContactDetails,
+			&individual.Email, &individual.CompanyCode, &individual.UserContract,
+			&individual.CreatedAt, &individual.UpdatedAt)
+
+	if err != nil {
+		return models.Individual{}, err
+	}
+
+	return individual, nil
 }

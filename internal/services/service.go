@@ -26,8 +26,18 @@ func (s *TOOService) CreateTOO(ctx context.Context, too models.TOO) (models.TOO,
 		return models.TOO{}, err
 	}
 
+	strCreatedAt, err := time.Parse("2006-01-02 15:04:05", createdAt)
+
+	token := generateToken(id, strCreatedAt)
+
+	err = s.Repo.UpdateToken(ctx, id, token)
+	if err != nil {
+		return models.TOO{}, err
+	}
+
 	too.ID = id
 	too.CreatedAt = createdAt
+	too.Token = token
 	return too, nil
 }
 
@@ -56,8 +66,18 @@ func (s *IPService) CreateIP(ctx context.Context, ip models.IP) (models.IP, erro
 		return models.IP{}, err
 	}
 
+	strCreatedAt, err := time.Parse("2006-01-02 15:04:05", createdAt)
+
+	token := generateToken(id, strCreatedAt)
+
+	err = s.Repo.UpdateToken(ctx, id, token)
+	if err != nil {
+		return models.IP{}, err
+	}
+
 	ip.ID = id
 	ip.CreatedAt = createdAt
+	ip.Token = token
 	return ip, nil
 }
 
@@ -123,6 +143,18 @@ func (s *IPService) SearchIPsByIIN(ctx context.Context, iin string) ([]models.IP
 // In IndividualService
 func (s *IndividualService) SearchIndividualsByIIN(ctx context.Context, iin string) ([]models.Individual, error) {
 	return s.Repo.GetIndividualsByIIN(ctx, iin)
+}
+
+func (s *TOOService) SearchTOOByToken(ctx context.Context, token string) (models.TOO, error) {
+	return s.Repo.FindByToken(ctx, token)
+}
+
+func (s *IPService) SearchIPByToken(ctx context.Context, token string) (models.IP, error) {
+	return s.Repo.FindByToken(ctx, token)
+}
+
+func (s *IndividualService) SearchIndividualByToken(ctx context.Context, token string) (models.Individual, error) {
+	return s.Repo.FindByToken(ctx, token)
 }
 
 // generateToken создает токен на основе ID и времени создания

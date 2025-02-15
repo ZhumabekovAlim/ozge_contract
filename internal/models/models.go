@@ -19,6 +19,7 @@ type TOO struct {
 	CompanyCard       string `json:"company_card"`
 	CompanyCode       string `json:"company_code"`
 	UserContract      string `json:"user_contract,omitempty"`
+	Token             string `json:"token,omitempty"`
 	CreatedAt         string `json:"created_at,omitempty"`
 	UpdatedAt         string `json:"updated_at,omitempty"`
 }
@@ -38,6 +39,7 @@ type IP struct {
 	CompanyCard       string `json:"company_card"`
 	CompanyCode       string `json:"company_code"`
 	UserContract      string `json:"user_contract,omitempty"`
+	Token             string `json:"token,omitempty"`
 	CreatedAt         string `json:"created_at,omitempty"`
 	UpdatedAt         string `json:"updated_at,omitempty"`
 }

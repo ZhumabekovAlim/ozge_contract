@@ -1,11 +1,9 @@
 package handlers
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"ozge/internal/models"
@@ -96,6 +94,7 @@ func (h *TOOHandler) CreateTOO(w http.ResponseWriter, r *http.Request) {
 		Email:             email,
 		EgovFile:          savedFiles["egov_file"],
 		CompanyCard:       savedFiles["company_card"],
+		Token:             "",
 		CompanyCode:       companyCode,
 	}
 
@@ -256,6 +255,7 @@ func (h *IPHandler) CreateIP(w http.ResponseWriter, r *http.Request) {
 		ContactDetails:    contactDetails,
 		Email:             email,
 		CompanyCard:       savedFiles["company_card"],
+		Token:             "",
 	}
 
 	// Call the service layer to save the IP
@@ -563,19 +563,41 @@ func (h *IndividualHandler) SearchIndividuals(w http.ResponseWriter, r *http.Req
 	json.NewEncoder(w).Encode(individuals)
 }
 
-// Читает PDF-файл и кодирует его в Base64
-func readPDFAsBase64(filePath string) (string, error) {
-	// Проверяем, существует ли файл
-	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		return "", fmt.Errorf("файл не найден")
-	}
+func (h *TOOHandler) SearchTOOsByToken(w http.ResponseWriter, r *http.Request) {
+	token := r.PathValue(":token") // Получаем токен из URL
 
-	// Читаем содержимое файла
-	fileData, err := ioutil.ReadFile(filePath)
+	too, err := h.Service.SearchTOOByToken(r.Context(), token)
 	if err != nil {
-		return "", err
+		http.Error(w, "TOO not found", http.StatusNotFound)
+		return
 	}
 
-	// Кодируем в Base64
-	return base64.StdEncoding.EncodeToString(fileData), nil
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(too)
+}
+
+func (h *IPHandler) SearchIPsByToken(w http.ResponseWriter, r *http.Request) {
+	token := r.PathValue(":token") // Получаем токен из URL
+
+	ip, err := h.Service.SearchIPByToken(r.Context(), token)
+	if err != nil {
+		http.Error(w, "IP not found", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(ip)
+}
+
+func (h *IndividualHandler) SearchIndividualsByToken(w http.ResponseWriter, r *http.Request) {
+	token := r.PathValue(":token") // Получаем токен из URL
+
+	individual, err := h.Service.SearchIndividualByToken(r.Context(), token)
+	if err != nil {
+		http.Error(w, "Individual not found", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(individual)
 }
