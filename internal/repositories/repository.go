@@ -309,7 +309,7 @@ func (r *IndividualRepository) FindByToken(ctx context.Context, token string) (m
 		FROM Individual WHERE token = ?`, token).
 		Scan(&individual.ID, &individual.FullName, &individual.IIN, &individual.BankDetails,
 			&individual.LegalAddress, &individual.ActualAddress, &individual.ContactDetails,
-			&individual.Email, &individual.CompanyCode, &individual.UserContract, &individual.UserContract,
+			&individual.Email, &individual.CompanyCode, &individual.UserContract,
 			&individual.CreatedAt, &individual.UpdatedAt)
 
 	if err != nil {
