@@ -2,8 +2,12 @@ package services
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
+	"fmt"
 	"ozge/internal/models"
 	"ozge/internal/repositories"
+	"time"
 )
 
 // TOO Service
@@ -82,8 +86,18 @@ func (s *IndividualService) CreateIndividual(ctx context.Context, individual mod
 		return models.Individual{}, err
 	}
 
+	strCreatedAt, err := time.Parse("2006-01-02 15:04:05", createdAt)
+
+	token := generateToken(id, strCreatedAt)
+
+	err = s.Repo.UpdateToken(ctx, id, token)
+	if err != nil {
+		return models.Individual{}, err
+	}
+
 	individual.ID = id
 	individual.CreatedAt = createdAt
+	individual.Token = token
 	return individual, nil
 }
 
@@ -109,4 +123,11 @@ func (s *IPService) SearchIPsByIIN(ctx context.Context, iin string) ([]models.IP
 // In IndividualService
 func (s *IndividualService) SearchIndividualsByIIN(ctx context.Context, iin string) ([]models.Individual, error) {
 	return s.Repo.GetIndividualsByIIN(ctx, iin)
+}
+
+// generateToken создает токен на основе ID и времени создания
+func generateToken(id int, createdAt time.Time) string {
+	data := fmt.Sprintf("%d:%d", id, createdAt.Unix())
+	hash := sha256.Sum256([]byte(data))
+	return hex.EncodeToString(hash[:])
 }

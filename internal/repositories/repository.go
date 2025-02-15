@@ -117,6 +117,14 @@ func (r *IndividualRepository) GetCreatedAt(ctx context.Context, id int) (string
 	return created, err
 }
 
+func (r *IndividualRepository) UpdateToken(ctx context.Context, id int, token string) error {
+	_, err := r.Db.ExecContext(ctx, `
+		UPDATE Individual SET token = ? WHERE id = ?`,
+		token, id,
+	)
+	return err
+}
+
 func (r *IndividualRepository) UpdateContractIndividual(ctx context.Context, individual models.Individual) error {
 	_, err := r.Db.ExecContext(ctx, `
 		UPDATE Individual

@@ -54,6 +54,7 @@ type Individual struct {
 	Email          string `json:"email"`
 	CompanyCode    string `json:"company_code"`
 	UserContract   string `json:"user_contract,omitempty"`
+	Token          string `json:"token,omitempty"`
 	CreatedAt      string `json:"created_at,omitempty"`
 	UpdatedAt      string `json:"updated_at,omitempty"`
 }

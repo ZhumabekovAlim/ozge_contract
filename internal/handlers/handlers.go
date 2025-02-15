@@ -419,6 +419,7 @@ func (h *IndividualHandler) CreateIndividual(w http.ResponseWriter, r *http.Requ
 		ContactDetails: contactDetails,
 		Email:          email,
 		CompanyCode:    companyCode,
+		Token:          "",
 	}
 
 	// Call the service layer to save the individual
@@ -555,16 +556,6 @@ func (h *IndividualHandler) SearchIndividuals(w http.ResponseWriter, r *http.Req
 	if err != nil || len(individuals) == 0 {
 		http.Error(w, `{"error": "Пользователь не найден"}`, http.StatusNotFound)
 		return
-	}
-
-	// Добавляем PDF в Base64, если есть файл
-	if individuals[0].UserContract != "" {
-		fileData, err := readPDFAsBase64(individuals[0].UserContract)
-		if err == nil {
-			individuals[0].UserContract = fileData
-		} else {
-			fmt.Println("Ошибка при чтении PDF:", err)
-		}
 	}
 
 	// Отправляем JSON-ответ
