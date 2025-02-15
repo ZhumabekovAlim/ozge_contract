@@ -564,7 +564,7 @@ func (h *IndividualHandler) SearchIndividuals(w http.ResponseWriter, r *http.Req
 }
 
 func (h *TOOHandler) SearchTOOsByToken(w http.ResponseWriter, r *http.Request) {
-	token := r.PathValue("token") // Получаем токен из URL
+	token := r.URL.Query().Get(":token")
 
 	too, err := h.Service.SearchTOOByToken(r.Context(), token)
 	if err != nil {
@@ -577,7 +577,7 @@ func (h *TOOHandler) SearchTOOsByToken(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *IPHandler) SearchIPsByToken(w http.ResponseWriter, r *http.Request) {
-	token := r.PathValue("token") // Получаем токен из URL
+	token := r.URL.Query().Get(":token")
 
 	ip, err := h.Service.SearchIPByToken(r.Context(), token)
 	if err != nil {
@@ -590,7 +590,7 @@ func (h *IPHandler) SearchIPsByToken(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *IndividualHandler) SearchIndividualsByToken(w http.ResponseWriter, r *http.Request) {
-	token := r.PathValue("token") // Получаем токен из URL
+	token := r.URL.Query().Get(":token")
 
 	individual, err := h.Service.SearchIndividualByToken(r.Context(), token)
 	if err != nil {
