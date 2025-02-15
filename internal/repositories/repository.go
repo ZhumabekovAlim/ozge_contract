@@ -273,7 +273,7 @@ func (r *TOORepository) FindByToken(ctx context.Context, token string) (models.T
 		contact_details, email, company_code, user_contract, created_at, updated_at
 		FROM TOO WHERE token = ?`, token).
 		Scan(&too.ID, &too.Name, &too.BIN, &too.CEOName, &too.BankDetails, &too.LegalAddress,
-			&too.ActualAddress, &too.ContactDetails, &too.Email, &too.CompanyCode,
+			&too.ActualAddress, &too.ContactDetails, &too.Email, &too.CompanyCode, &too.UserContract,
 			&too.CreatedAt, &too.UpdatedAt)
 
 	if err != nil {
@@ -291,7 +291,7 @@ func (r *IPRepository) FindByToken(ctx context.Context, token string) (models.IP
 		email, company_code, user_contract, created_at, updated_at
 		FROM IP WHERE token = ?`, token).
 		Scan(&ip.ID, &ip.Name, &ip.IIN, &ip.BankDetails, &ip.LegalAddress, &ip.ActualAddress,
-			&ip.ContactDetails, &ip.Email, &ip.CompanyCode, &ip.CreatedAt, &ip.UpdatedAt)
+			&ip.ContactDetails, &ip.Email, &ip.CompanyCode, &ip.UserContract, &ip.CreatedAt, &ip.UpdatedAt)
 
 	if err != nil {
 		return models.IP{}, err
@@ -309,7 +309,7 @@ func (r *IndividualRepository) FindByToken(ctx context.Context, token string) (m
 		FROM Individual WHERE token = ?`, token).
 		Scan(&individual.ID, &individual.FullName, &individual.IIN, &individual.BankDetails,
 			&individual.LegalAddress, &individual.ActualAddress, &individual.ContactDetails,
-			&individual.Email, &individual.CompanyCode, &individual.UserContract,
+			&individual.Email, &individual.CompanyCode, &individual.UserContract, &individual.UserContract,
 			&individual.CreatedAt, &individual.UpdatedAt)
 
 	if err != nil {
