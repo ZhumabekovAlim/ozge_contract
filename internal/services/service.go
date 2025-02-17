@@ -131,18 +131,18 @@ func (s *IndividualService) UpdateContractIndividual(ctx context.Context, indivi
 }
 
 // In TOOService
-func (s *TOOService) SearchTOOsByBIN(ctx context.Context, bin string) ([]models.TOO, error) {
-	return s.Repo.GetTOOsByBIN(ctx, bin)
+func (s *TOOService) SearchTOOsByBIN(ctx context.Context, bin, code string) ([]models.TOO, error) {
+	return s.Repo.GetTOOsByBIN(ctx, bin, code)
 }
 
 // In IPService
-func (s *IPService) SearchIPsByIIN(ctx context.Context, iin string) ([]models.IP, error) {
-	return s.Repo.GetIPsByIIN(ctx, iin)
+func (s *IPService) SearchIPsByIIN(ctx context.Context, iin, code string) ([]models.IP, error) {
+	return s.Repo.GetIPsByIIN(ctx, iin, code)
 }
 
 // In IndividualService
-func (s *IndividualService) SearchIndividualsByIIN(ctx context.Context, iin string) ([]models.Individual, error) {
-	return s.Repo.GetIndividualsByIIN(ctx, iin)
+func (s *IndividualService) SearchIndividualsByIIN(ctx context.Context, iin, code string) ([]models.Individual, error) {
+	return s.Repo.GetIndividualsByIIN(ctx, iin, code)
 }
 
 func (s *TOOService) SearchTOOByToken(ctx context.Context, token string) (models.TOO, error) {

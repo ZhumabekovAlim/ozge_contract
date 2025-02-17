@@ -132,14 +132,14 @@ func (r *IndividualRepository) UpdateContractIndividual(ctx context.Context, ind
 }
 
 // For TOO (search by BIN)
-func (r *TOORepository) GetTOOsByBIN(ctx context.Context, bin string) ([]models.TOO, error) {
+func (r *TOORepository) GetTOOsByBIN(ctx context.Context, bin, code string) ([]models.TOO, error) {
 	query := `
 		SELECT id, name, bin, ceo_name, bank_details, legal_address, actual_address, contact_details, email, company_code, created_at, updated_at
 		FROM TOO
-		WHERE bin = ?
+		WHERE bin = ? AND company_code = ?
 		ORDER BY created_at DESC
 	`
-	rows, err := r.Db.QueryContext(ctx, query, bin)
+	rows, err := r.Db.QueryContext(ctx, query, bin, code)
 	if err != nil {
 		return nil, err
 	}
@@ -171,14 +171,14 @@ func (r *TOORepository) GetTOOsByBIN(ctx context.Context, bin string) ([]models.
 }
 
 // For IP (search by IIN)
-func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin string) ([]models.IP, error) {
+func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin, code string) ([]models.IP, error) {
 	query := `
 		SELECT id, name, iin, bank_details, legal_address, actual_address, contact_details, email, company_code, created_at, updated_at
 		FROM IP
-		WHERE iin = ?
+		WHERE iin = ? AND company_code = ?
 		ORDER BY created_at DESC
 	`
-	rows, err := r.Db.QueryContext(ctx, query, iin)
+	rows, err := r.Db.QueryContext(ctx, query, iin, code)
 	if err != nil {
 		return nil, err
 	}
@@ -209,14 +209,14 @@ func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin string) ([]models.IP
 }
 
 // For Individual (search by IIN)
-func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin string) ([]models.Individual, error) {
+func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, code string) ([]models.Individual, error) {
 	query := `
 		SELECT id, full_name, iin, bank_details, legal_address, actual_address, contact_details, email, company_code, user_contract, created_at, updated_at
 		FROM Individual
-		WHERE iin = ?
+		WHERE iin = ? AND company_code = ?
 		ORDER BY created_at DESC
 	`
-	rows, err := r.Db.QueryContext(ctx, query, iin)
+	rows, err := r.Db.QueryContext(ctx, query, iin, code)
 	if err != nil {
 		return nil, err
 	}

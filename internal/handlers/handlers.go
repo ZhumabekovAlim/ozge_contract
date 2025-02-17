@@ -513,7 +513,13 @@ func (h *TOOHandler) SearchTOOs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	toos, err := h.Service.SearchTOOsByBIN(r.Context(), bin)
+	code := r.URL.Query().Get(":code")
+	if code == "" {
+		http.Error(w, "Не указан параметр 'bin'", http.StatusBadRequest)
+		return
+	}
+
+	toos, err := h.Service.SearchTOOsByBIN(r.Context(), bin, code)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -531,7 +537,13 @@ func (h *IPHandler) SearchIPs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ips, err := h.Service.SearchIPsByIIN(r.Context(), iin)
+	code := r.URL.Query().Get(":code")
+	if code == "" {
+		http.Error(w, "Не указан параметр 'bin'", http.StatusBadRequest)
+		return
+	}
+
+	ips, err := h.Service.SearchIPsByIIN(r.Context(), iin, code)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -551,8 +563,14 @@ func (h *IndividualHandler) SearchIndividuals(w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	code := r.URL.Query().Get(":code")
+	if code == "" {
+		http.Error(w, "Не указан параметр 'bin'", http.StatusBadRequest)
+		return
+	}
+
 	// Получаем данные из сервиса
-	individuals, err := h.Service.SearchIndividualsByIIN(r.Context(), iin)
+	individuals, err := h.Service.SearchIndividualsByIIN(r.Context(), iin, code)
 	if err != nil || len(individuals) == 0 {
 		http.Error(w, `{"error": "Пользователь не найден"}`, http.StatusNotFound)
 		return
