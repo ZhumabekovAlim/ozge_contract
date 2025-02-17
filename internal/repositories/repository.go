@@ -136,7 +136,7 @@ func (r *TOORepository) GetTOOsByBIN(ctx context.Context, bin, code string) ([]m
 	query := `
 		SELECT id, name, bin, ceo_name, bank_details, legal_address, actual_address, contact_details, email, company_code, created_at, updated_at
 		FROM TOO
-		WHERE bin = ? AND company_code = ?
+		WHERE bin = ? AND company_code LIKE CONCAT('%', ?, '%')
 		ORDER BY created_at DESC
 	`
 	rows, err := r.Db.QueryContext(ctx, query, bin, code)
@@ -175,7 +175,7 @@ func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin, code string) ([]mod
 	query := `
 		SELECT id, name, iin, bank_details, legal_address, actual_address, contact_details, email, company_code, created_at, updated_at
 		FROM IP
-		WHERE iin = ? AND company_code = ?
+		WHERE iin = ? AND company_code LIKE CONCAT('%', ?, '%')
 		ORDER BY created_at DESC
 	`
 	rows, err := r.Db.QueryContext(ctx, query, iin, code)
@@ -213,7 +213,7 @@ func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, cod
 	query := `
 		SELECT id, full_name, iin, bank_details, legal_address, actual_address, contact_details, email, company_code, user_contract, created_at, updated_at
 		FROM Individual
-		WHERE iin = ? AND company_code = ?
+		WHERE iin = ? AND company_code LIKE CONCAT('%', ?, '%')
 		ORDER BY created_at DESC
 	`
 	rows, err := r.Db.QueryContext(ctx, query, iin, code)
