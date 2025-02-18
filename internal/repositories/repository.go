@@ -38,9 +38,9 @@ func (r *TOORepository) GetCreatedAt(ctx context.Context, id int) (string, error
 func (r *TOORepository) UpdateContractTOO(ctx context.Context, too models.TOO) error {
 	_, err := r.Db.ExecContext(ctx, `
 		UPDATE TOO
-		SET user_contract = ? AND status = 2
+		SET user_contract = ? AND status = 2 AND company_code = ?
 		WHERE id = ?`,
-		too.UserContract, too.ID,
+		too.UserContract, too.ID, too.CompanyCode,
 	)
 	if err != nil {
 		return err
@@ -79,9 +79,9 @@ func (r *IPRepository) GetCreatedAt(ctx context.Context, id int) (string, error)
 func (r *IPRepository) UpdateContractIP(ctx context.Context, ip models.IP) error {
 	_, err := r.Db.ExecContext(ctx, `
 		UPDATE IP
-		SET user_contract = ? AND status = 2
+		SET user_contract = ? AND status = 2 AND company_code = ?
 		WHERE id = ?`,
-		ip.UserContract, ip.ID,
+		ip.UserContract, ip.ID, ip.CompanyCode,
 	)
 	if err != nil {
 		return err
@@ -120,9 +120,9 @@ func (r *IndividualRepository) GetCreatedAt(ctx context.Context, id int) (string
 func (r *IndividualRepository) UpdateContractIndividual(ctx context.Context, individual models.Individual) error {
 	_, err := r.Db.ExecContext(ctx, `
 		UPDATE Individual
-		SET user_contract = ? AND status = 2
+		SET user_contract = ? AND status = 2  AND company_code = ?
 		WHERE id = ?`,
-		individual.UserContract, individual.ID,
+		individual.UserContract, individual.ID, individual.CompanyCode,
 	)
 	if err != nil {
 		return err

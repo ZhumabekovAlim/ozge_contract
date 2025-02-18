@@ -123,6 +123,7 @@ func (h *TOOHandler) UpdateUserContract(w http.ResponseWriter, r *http.Request) 
 
 	id := r.FormValue("id")
 	bin := r.FormValue("bin")
+	company_code := r.FormValue("company_code")
 	// File field mapping to table headers
 	fileFieldNames := map[string]string{
 		"user_contract": "Подписанный_договор_пользователя.pdf",
@@ -164,6 +165,7 @@ func (h *TOOHandler) UpdateUserContract(w http.ResponseWriter, r *http.Request) 
 	too := models.TOO{
 		ID:           int(idInt),
 		BIN:          bin,
+		CompanyCode:  company_code,
 		UserContract: savedFiles["user_contract"],
 	}
 
@@ -285,6 +287,7 @@ func (h *IPHandler) UpdateUserContract(w http.ResponseWriter, r *http.Request) {
 
 	id := r.FormValue("id")
 	iin := r.FormValue("iin")
+	company_code := r.FormValue("company_code")
 	// File field mapping to table headers
 	fileFieldNames := map[string]string{
 		"user_contract": "Подписанный_договор_пользователя.pdf",
@@ -326,6 +329,7 @@ func (h *IPHandler) UpdateUserContract(w http.ResponseWriter, r *http.Request) {
 	ip := models.IP{
 		ID:           int(idInt),
 		IIN:          iin,
+		CompanyCode:  company_code,
 		UserContract: savedFiles["user_contract"],
 	}
 
@@ -449,6 +453,7 @@ func (h *IndividualHandler) UpdateUserContract(w http.ResponseWriter, r *http.Re
 
 	id := r.FormValue("id")
 	iin := r.FormValue("iin")
+	company_code := r.FormValue("company_code")
 	// File field mapping to table headers
 	fileFieldNames := map[string]string{
 		"user_contract": "Подписанный_договор_пользователя.pdf",
@@ -490,6 +495,7 @@ func (h *IndividualHandler) UpdateUserContract(w http.ResponseWriter, r *http.Re
 	individual := models.Individual{
 		ID:           int(idInt),
 		IIN:          iin,
+		CompanyCode:  company_code,
 		UserContract: savedFiles["user_contract"],
 	}
 
