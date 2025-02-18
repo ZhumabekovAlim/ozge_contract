@@ -211,14 +211,15 @@ func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin, code string) ([]mod
 
 // For Individual (search by IIN)
 func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, code string) ([]models.Individual, error) {
+	pattern := "%" + code + "%"
 	query := `
-		SELECT id, full_name, iin, bank_details, legal_address, actual_address, contact_details, email, company_code, user_contract, created_at, updated_at
-		FROM Individual
-		WHERE iin = ? AND company_code LIKE CONCAT('%', ?, '%')
-		ORDER BY created_at DESC
-	`
-	rows, err := r.Db.QueryContext(ctx, query, iin, code)
-	fmt.Println("iin 1:", iin, " code 1:", code)
+    SELECT id, full_name, iin, bank_details, legal_address, actual_address, contact_details, email, company_code, user_contract, created_at, updated_at
+    FROM Individual
+    WHERE iin = ? AND company_code LIKE ?
+    ORDER BY created_at DESC
+`
+	rows, err := r.Db.QueryContext(ctx, query, iin, pattern)
+
 	fmt.Println("rows 1: ", rows)
 	if err != nil {
 		return nil, err
