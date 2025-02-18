@@ -48,12 +48,12 @@ type Individual struct {
 	ID             int    `json:"id"`
 	FullName       string `json:"full_name"`
 	IIN            string `json:"iin"`
-	IDFile         string `json:"id_file"`
-	BankDetails    string `json:"bank_details"`
-	LegalAddress   string `json:"legal_address"`
-	ActualAddress  string `json:"actual_address"`
-	ContactDetails string `json:"contact_details"`
-	Email          string `json:"email"`
+	IDFile         string `json:"id_file,omitempty"`
+	BankDetails    string `json:"bank_details,omitempty"`
+	LegalAddress   string `json:"legal_address,omitempty"`
+	ActualAddress  string `json:"actual_address,omitempty"`
+	ContactDetails string `json:"contact_details,omitempty"`
+	Email          string `json:"email,omitempty"`
 	CompanyCode    string `json:"company_code"`
 	UserContract   string `json:"user_contract,omitempty"`
 	Token          string `json:"token,omitempty"`
