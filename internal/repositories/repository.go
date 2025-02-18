@@ -3,6 +3,7 @@ package repositories
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"ozge/internal/models"
 )
 
@@ -222,6 +223,8 @@ func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, cod
 	}
 	defer rows.Close()
 
+	fmt.Println("rows: ", rows)
+
 	var individuals []models.Individual
 	for rows.Next() {
 		var ind models.Individual
@@ -244,6 +247,7 @@ func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, cod
 		}
 		individuals = append(individuals, ind)
 	}
+	fmt.Println("individuals: ", individuals)
 	return individuals, rows.Err()
 }
 
