@@ -218,13 +218,17 @@ func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, cod
 		ORDER BY created_at DESC
 	`
 	rows, err := r.Db.QueryContext(ctx, query, iin, code)
-	fmt.Println("iin:", iin, " code:", code)
+	fmt.Println("iin 1:", iin, " code 1:", code)
+	fmt.Println("rows 1: ", rows)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
-
-	fmt.Println("rows: ", rows)
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			fmt.Println("rows close error: ", err)
+		}
+	}(rows)
 
 	var individuals []models.Individual
 	for rows.Next() {
