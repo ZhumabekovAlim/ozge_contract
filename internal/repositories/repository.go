@@ -218,6 +218,7 @@ func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, cod
 		ORDER BY created_at DESC
 	`
 	rows, err := r.Db.QueryContext(ctx, query, iin, code)
+	fmt.Println("iin:", iin, " code:", code)
 	if err != nil {
 		return nil, err
 	}

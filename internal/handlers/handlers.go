@@ -570,8 +570,6 @@ func (h *IndividualHandler) SearchIndividuals(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	fmt.Println("iin:", iin, " code:", code)
-
 	// Получаем данные из сервиса
 	individuals, err := h.Service.SearchIndividualsByIIN(r.Context(), iin, code)
 	fmt.Println("ind: ", individuals)
