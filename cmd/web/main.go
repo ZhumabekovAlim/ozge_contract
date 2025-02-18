@@ -1,11 +1,13 @@
 package main
 
 import (
+	"crypto/tls"
 	"database/sql"
 	"flag"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/rs/cors"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"ozge/internal/config"
@@ -58,6 +60,24 @@ func main() {
 		}
 	}()
 
+	tlsConfig := &tls.Config{
+		MinVersion: tls.VersionTLS13,
+		// Дополнительно можно настроить сессионные тикеты, ключи и прочее
+	}
+
+	// Создаем TCP-листенер с заданным адресом
+	ln, err := net.Listen("tcp", *addr)
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+	// Убеждаемся, что listener является TCPListener-ом
+	tcpListener, ok := ln.(*net.TCPListener)
+	if !ok {
+		errorLog.Fatal("listener не является TCPListener")
+	}
+	// Оборачиваем listener для установки TCP keep-alive
+	listener := tcpKeepAliveListener{tcpListener}
+
 	srv := &http.Server{
 		Addr:         *addr,
 		ErrorLog:     errorLog,
@@ -65,6 +85,7 @@ func main() {
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
+		TLSConfig:    tlsConfig,
 	}
 
 	// Пути к SSL-сертификатам Let's Encrypt
@@ -73,13 +94,33 @@ func main() {
 
 	infoLog.Printf("Starting HTTPS server on %s", *addr)
 
-	err = srv.ListenAndServeTLS(certFile, keyFile)
+	err = srv.ServeTLS(listener, certFile, keyFile)
 	if err != nil {
 		errorLog.Fatal(err)
 	}
 
 	select {}
 
+}
+
+type tcpKeepAliveListener struct {
+	*net.TCPListener
+}
+
+func (ln tcpKeepAliveListener) Accept() (net.Conn, error) {
+	tc, err := ln.AcceptTCP()
+	if err != nil {
+		return nil, err
+	}
+	err = tc.SetKeepAlive(true)
+	if err != nil {
+		return nil, err
+	}
+	err = tc.SetKeepAlivePeriod(3 * time.Minute)
+	if err != nil {
+		return nil, err
+	}
+	return tc, nil
 }
 
 func (app *application) healthCheck(w http.ResponseWriter, r *http.Request) {
