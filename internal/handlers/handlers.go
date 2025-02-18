@@ -557,6 +557,7 @@ func (h *IPHandler) SearchIPs(w http.ResponseWriter, r *http.Request) {
 
 // SearchIndividuals ищет пользователя по IIN и возвращает JSON + PDF (если есть)
 func (h *IndividualHandler) SearchIndividuals(w http.ResponseWriter, r *http.Request) {
+
 	iin := r.URL.Query().Get(":iin")
 	if iin == "" {
 		http.Error(w, `{"error": "Не указан параметр 'iin'"}`, http.StatusBadRequest)
@@ -569,8 +570,11 @@ func (h *IndividualHandler) SearchIndividuals(w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	fmt.Println("iin:", iin, " code:", code)
+
 	// Получаем данные из сервиса
 	individuals, err := h.Service.SearchIndividualsByIIN(r.Context(), iin, code)
+	fmt.Println("ind: ", individuals)
 	if err != nil || len(individuals) == 0 {
 		http.Error(w, `{"error": "Пользователь не найден"}`, http.StatusNotFound)
 		return
