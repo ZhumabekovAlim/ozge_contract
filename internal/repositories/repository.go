@@ -215,12 +215,11 @@ func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, cod
 	query := `
     SELECT id, full_name, iin, bank_details, legal_address, actual_address, contact_details, email, company_code, user_contract, created_at, updated_at
     FROM Individual
-    WHERE iin = ?
+    WHERE iin = ? AND company_code LIKE CONCAT('%', ?, '%')
     ORDER BY created_at DESC
 `
-	rows, err := r.Db.QueryContext(ctx, query, iin)
+	rows, err := r.Db.QueryContext(ctx, query, "040102550784", "3.1")
 
-	fmt.Println("rows 1: ", rows)
 	if err != nil {
 		return nil, err
 	}
@@ -253,7 +252,7 @@ func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, cod
 		}
 		individuals = append(individuals, ind)
 	}
-	fmt.Println("individuals: ", individuals)
+
 	return individuals, rows.Err()
 }
 

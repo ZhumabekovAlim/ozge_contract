@@ -203,6 +203,7 @@ func (h *IPHandler) CreateIP(w http.ResponseWriter, r *http.Request) {
 	actualAddress := r.FormValue("actual_address")
 	contactDetails := r.FormValue("contact_details")
 	email := r.FormValue("email")
+	companyCode := r.FormValue("company_code")
 
 	// File field mapping to table headers
 	fileFieldNames := map[string]string{
@@ -255,6 +256,7 @@ func (h *IPHandler) CreateIP(w http.ResponseWriter, r *http.Request) {
 		ContactDetails:    contactDetails,
 		Email:             email,
 		CompanyCard:       savedFiles["company_card"],
+		CompanyCode:       companyCode,
 		Token:             "",
 	}
 
