@@ -98,6 +98,8 @@ func (h *TOOHandler) CreateTOO(w http.ResponseWriter, r *http.Request) {
 		CompanyCode:       companyCode,
 	}
 
+	fmt.Println(too)
+
 	// Call the service layer to save the TOO
 	createdTOO, err := h.Service.CreateTOO(r.Context(), too)
 	if err != nil {
