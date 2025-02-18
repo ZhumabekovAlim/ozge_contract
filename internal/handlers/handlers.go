@@ -18,6 +18,12 @@ type TOOHandler struct {
 }
 
 func (h *TOOHandler) CreateTOO(w http.ResponseWriter, r *http.Request) {
+	// Parse the form-data
+	err := r.ParseMultipartForm(30 << 20) // Limit upload size to 10MB
+	if err != nil {
+		http.Error(w, "Unable to parse form data", http.StatusInternalServerError)
+		return
+	}
 
 	// Retrieve form values
 	name := r.FormValue("name")

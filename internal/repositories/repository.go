@@ -38,7 +38,7 @@ func (r *TOORepository) GetCreatedAt(ctx context.Context, id int) (string, error
 func (r *TOORepository) UpdateContractTOO(ctx context.Context, too models.TOO) error {
 	_, err := r.Db.ExecContext(ctx, `
 		UPDATE TOO
-		SET user_contract = ?
+		SET user_contract = ? AND status = 2
 		WHERE id = ?`,
 		too.UserContract, too.ID,
 	)
@@ -79,7 +79,7 @@ func (r *IPRepository) GetCreatedAt(ctx context.Context, id int) (string, error)
 func (r *IPRepository) UpdateContractIP(ctx context.Context, ip models.IP) error {
 	_, err := r.Db.ExecContext(ctx, `
 		UPDATE IP
-		SET user_contract = ?
+		SET user_contract = ? AND status = 2
 		WHERE id = ?`,
 		ip.UserContract, ip.ID,
 	)
@@ -120,7 +120,7 @@ func (r *IndividualRepository) GetCreatedAt(ctx context.Context, id int) (string
 func (r *IndividualRepository) UpdateContractIndividual(ctx context.Context, individual models.Individual) error {
 	_, err := r.Db.ExecContext(ctx, `
 		UPDATE Individual
-		SET user_contract = ?
+		SET user_contract = ? AND status = 2
 		WHERE id = ?`,
 		individual.UserContract, individual.ID,
 	)
@@ -136,7 +136,7 @@ func (r *TOORepository) GetTOOsByBIN(ctx context.Context, bin, code string) ([]m
 	query := `
 		SELECT id, name, bin, ceo_name, bank_details, legal_address, actual_address, contact_details, email, company_code, created_at, updated_at
 		FROM TOO
-		WHERE bin = ? AND company_code LIKE CONCAT('%', ?, '%')
+		WHERE bin = ? AND company_code LIKE CONCAT('%', ?, '%') AND status = 2
 		ORDER BY created_at DESC
 	`
 	rows, err := r.Db.QueryContext(ctx, query, bin, code)
@@ -175,7 +175,7 @@ func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin, code string) ([]mod
 	query := `
 		SELECT id, name, iin, bank_details, legal_address, actual_address, contact_details, email, company_code, created_at, updated_at
 		FROM IP
-		WHERE iin = ? AND company_code LIKE CONCAT('%', ?, '%')
+		WHERE iin = ? AND company_code LIKE CONCAT('%', ?, '%') AND status = 2
 		ORDER BY created_at DESC
 	`
 	rows, err := r.Db.QueryContext(ctx, query, iin, code)
@@ -226,7 +226,7 @@ func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, cod
 			created_at,
 			updated_at
 		FROM Individual
-		WHERE iin = ? AND company_code LIKE CONCAT('%', ?, '%')
+		WHERE iin = ? AND company_code LIKE CONCAT('%', ?, '%') AND status = 2
 		ORDER BY created_at DESC
 	`
 	rows, err := r.Db.QueryContext(ctx, query, iin, code)

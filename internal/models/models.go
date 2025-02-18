@@ -20,6 +20,7 @@ type TOO struct {
 	CompanyCode       string `json:"company_code"`
 	UserContract      string `json:"user_contract,omitempty"`
 	Token             string `json:"token,omitempty"`
+	Status            int    `json:"status"`
 	CreatedAt         string `json:"created_at,omitempty"`
 	UpdatedAt         string `json:"updated_at,omitempty"`
 }
@@ -40,6 +41,7 @@ type IP struct {
 	CompanyCode       string `json:"company_code"`
 	UserContract      string `json:"user_contract,omitempty"`
 	Token             string `json:"token,omitempty"`
+	Status            int    `json:"status"`
 	CreatedAt         string `json:"created_at,omitempty"`
 	UpdatedAt         string `json:"updated_at,omitempty"`
 }
@@ -57,6 +59,7 @@ type Individual struct {
 	CompanyCode    string `json:"company_code"`
 	UserContract   string `json:"user_contract,omitempty"`
 	Token          string `json:"token,omitempty"`
+	Status         int    `json:"status"`
 	CreatedAt      string `json:"created_at,omitempty"`
 	UpdatedAt      string `json:"updated_at,omitempty"`
 }
