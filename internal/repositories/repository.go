@@ -218,7 +218,7 @@ func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, cod
     WHERE iin = ? AND company_code LIKE CONCAT('%', ?, '%')
     ORDER BY created_at DESC
 `
-	rows, err := r.Db.QueryContext(ctx, query, "040102550784", "3.1")
+	rows, err := r.Db.QueryContext(ctx, query, iin, code)
 
 	if err != nil {
 		return nil, err
