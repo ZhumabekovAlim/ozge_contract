@@ -3,7 +3,6 @@ package repositories
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"ozge/internal/models"
 )
 
@@ -211,24 +210,30 @@ func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin, code string) ([]mod
 
 // For Individual (search by IIN)
 func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, code string) ([]models.Individual, error) {
-	//pattern := "%" + code + "%"
 	query := `
-    SELECT id, full_name, iin, bank_details, legal_address, actual_address, contact_details, email, company_code, user_contract, created_at, updated_at
-    FROM Individual
-    WHERE iin = ? AND company_code LIKE CONCAT('%', ?, '%')
-    ORDER BY created_at DESC
-`
+		SELECT 
+			id, 
+			full_name, 
+			iin, 
+			COALESCE(id_file, '') as id_file,
+			COALESCE(bank_details, '') as bank_details,
+			COALESCE(legal_address, '') as legal_address,
+			COALESCE(actual_address, '') as actual_address,
+			COALESCE(contact_details, '') as contact_details,
+			COALESCE(email, '') as email,
+			company_code,
+			COALESCE(user_contract, '') as user_contract,
+			created_at,
+			updated_at
+		FROM Individual
+		WHERE iin = ? AND company_code LIKE CONCAT('%', ?, '%')
+		ORDER BY created_at DESC
+	`
 	rows, err := r.Db.QueryContext(ctx, query, iin, code)
-
 	if err != nil {
 		return nil, err
 	}
-	defer func(rows *sql.Rows) {
-		err := rows.Close()
-		if err != nil {
-			fmt.Println("rows close error: ", err)
-		}
-	}(rows)
+	defer rows.Close()
 
 	var individuals []models.Individual
 	for rows.Next() {
@@ -237,6 +242,7 @@ func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, cod
 			&ind.ID,
 			&ind.FullName,
 			&ind.IIN,
+			&ind.IDFile,
 			&ind.BankDetails,
 			&ind.LegalAddress,
 			&ind.ActualAddress,
@@ -252,7 +258,6 @@ func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, cod
 		}
 		individuals = append(individuals, ind)
 	}
-
 	return individuals, rows.Err()
 }
 
