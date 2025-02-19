@@ -3,6 +3,7 @@ package repositories
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"ozge/internal/models"
 )
 
@@ -317,6 +318,8 @@ func (r *IPRepository) FindByToken(ctx context.Context, token string) (models.IP
 func (r *IndividualRepository) FindByToken(ctx context.Context, token string) (models.Individual, error) {
 	var individual models.Individual
 
+	fmt.Println(token)
+
 	err := r.Db.QueryRowContext(ctx, `
 		SELECT 
 			id, 
@@ -333,14 +336,25 @@ func (r *IndividualRepository) FindByToken(ctx context.Context, token string) (m
 			created_at,
 			updated_at
 		FROM Individual WHERE token = ?`, token).
-		Scan(&individual.ID, &individual.FullName, &individual.IIN, &individual.BankDetails,
-			&individual.LegalAddress, &individual.ActualAddress, &individual.ContactDetails,
-			&individual.Email, &individual.CompanyCode, &individual.UserContract,
-			&individual.CreatedAt, &individual.UpdatedAt)
+		Scan(&individual.ID,
+			&individual.FullName,
+			&individual.IIN,
+			&individual.IDFile,
+			&individual.BankDetails,
+			&individual.LegalAddress,
+			&individual.ActualAddress,
+			&individual.ContactDetails,
+			&individual.Email,
+			&individual.CompanyCode,
+			&individual.UserContract,
+			&individual.CreatedAt,
+			&individual.UpdatedAt)
 
 	if err != nil {
 		return models.Individual{}, err
 	}
+
+	fmt.Println(individual)
 
 	return individual, nil
 }
