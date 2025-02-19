@@ -470,12 +470,14 @@ func (h *IndividualHandler) UpdateUserContract(w http.ResponseWriter, r *http.Re
 			err = os.MkdirAll(filepath.Dir(filePath), os.ModePerm)
 			if err != nil {
 				http.Error(w, "Unable to create directory", http.StatusInternalServerError)
+				fmt.Println("1")
 				return
 			}
 
 			out, err := os.Create(filePath)
 			if err != nil {
 				http.Error(w, "Unable to save file", http.StatusInternalServerError)
+				fmt.Println("2")
 				return
 			}
 			defer out.Close()
@@ -483,13 +485,14 @@ func (h *IndividualHandler) UpdateUserContract(w http.ResponseWriter, r *http.Re
 			_, err = io.Copy(out, file)
 			if err != nil {
 				http.Error(w, "Unable to save file content", http.StatusInternalServerError)
+				fmt.Println("3")
 				return
 			}
 			savedFiles[formField] = filePath
 		}
 	}
 
-	fmt.Println("company_code:", savedFiles["user_contract"])
+	fmt.Println("user_contarct:", savedFiles["user_contract"])
 
 	idInt, err := strconv.ParseInt(id, 10, 64)
 
