@@ -41,7 +41,7 @@ func (r *TOORepository) UpdateContractTOO(ctx context.Context, too models.TOO) e
 		UPDATE TOO
 		SET user_contract = ? AND status = 2 AND company_code = ?
 		WHERE id = ?`,
-		too.UserContract, too.ID, too.CompanyCode,
+		too.UserContract, too.CompanyCode, too.ID,
 	)
 	if err != nil {
 		return err
@@ -82,7 +82,7 @@ func (r *IPRepository) UpdateContractIP(ctx context.Context, ip models.IP) error
 		UPDATE IP
 		SET user_contract = ? AND status = 2 AND company_code = ?
 		WHERE id = ?`,
-		ip.UserContract, ip.ID, ip.CompanyCode,
+		ip.UserContract, ip.CompanyCode, ip.ID,
 	)
 	if err != nil {
 		return err
@@ -123,7 +123,7 @@ func (r *IndividualRepository) UpdateContractIndividual(ctx context.Context, ind
 		UPDATE Individual
 		SET user_contract = ? AND status = 2  AND company_code = ?
 		WHERE id = ?`,
-		individual.UserContract, individual.ID, individual.CompanyCode,
+		individual.UserContract, individual.CompanyCode, individual.ID,
 	)
 	if err != nil {
 		return err
