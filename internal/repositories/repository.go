@@ -285,7 +285,7 @@ func (r *TOORepository) FindByToken(ctx context.Context, token string) (models.T
 
 	err := r.Db.QueryRowContext(ctx, `
 		SELECT id, name, bin, ceo_name, bank_details, legal_address, actual_address, 
-		contact_details, email, company_code, user_contract, created_at, updated_at
+		contact_details, email, company_code,   COALESCE(user_contract, '') as user_contract, created_at, updated_at
 		FROM TOO WHERE token = ?`, token).
 		Scan(&too.ID, &too.Name, &too.BIN, &too.CEOName, &too.BankDetails, &too.LegalAddress,
 			&too.ActualAddress, &too.ContactDetails, &too.Email, &too.CompanyCode, &too.UserContract,
@@ -303,7 +303,7 @@ func (r *IPRepository) FindByToken(ctx context.Context, token string) (models.IP
 
 	err := r.Db.QueryRowContext(ctx, `
 		SELECT id, name, iin, bank_details, legal_address, actual_address, contact_details, 
-		email, company_code, user_contract, created_at, updated_at
+		email, company_code,   COALESCE(user_contract, '') as user_contract, created_at, updated_at
 		FROM IP WHERE token = ?`, token).
 		Scan(&ip.ID, &ip.Name, &ip.IIN, &ip.BankDetails, &ip.LegalAddress, &ip.ActualAddress,
 			&ip.ContactDetails, &ip.Email, &ip.CompanyCode, &ip.UserContract, &ip.CreatedAt, &ip.UpdatedAt)
