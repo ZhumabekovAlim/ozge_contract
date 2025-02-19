@@ -283,19 +283,8 @@ func (r *TOORepository) FindByToken(ctx context.Context, token string) (models.T
 	var too models.TOO
 
 	err := r.Db.QueryRowContext(ctx, `
-		SELECT id, 
-		       COALESCE(name, ''), 
-		       COALESCE(bin, ''), 
-		       COALESCE(ceo_name, ''), 
-		       COALESCE(bank_details, ''), 
-		       COALESCE(legal_address, ''), 
-		       COALESCE(actual_address, ''), 
-		       COALESCE(contact_details, ''), 
-		       COALESCE(email, ''), 
-		       COALESCE(company_code, ''), 
-		       COALESCE(user_contract, ''), 
-		       created_at, 
-		       updated_at
+		SELECT id, name, bin, ceo_name, bank_details, legal_address, actual_address, 
+		contact_details, email, company_code, user_contract, created_at, updated_at
 		FROM TOO WHERE token = ?`, token).
 		Scan(&too.ID, &too.Name, &too.BIN, &too.CEOName, &too.BankDetails, &too.LegalAddress,
 			&too.ActualAddress, &too.ContactDetails, &too.Email, &too.CompanyCode, &too.UserContract,
@@ -312,18 +301,8 @@ func (r *IPRepository) FindByToken(ctx context.Context, token string) (models.IP
 	var ip models.IP
 
 	err := r.Db.QueryRowContext(ctx, `
-		SELECT id, 
-		       COALESCE(name, ''), 
-		       COALESCE(iin, ''), 
-		       COALESCE(bank_details, ''), 
-		       COALESCE(legal_address, ''), 
-		       COALESCE(actual_address, ''), 
-		       COALESCE(contact_details, ''), 
-		       COALESCE(email, ''), 
-		       COALESCE(company_code, ''), 
-		       COALESCE(user_contract, ''), 
-		       created_at, 
-		       updated_at
+		SELECT id, name, iin, bank_details, legal_address, actual_address, contact_details, 
+		email, company_code, user_contract, created_at, updated_at
 		FROM IP WHERE token = ?`, token).
 		Scan(&ip.ID, &ip.Name, &ip.IIN, &ip.BankDetails, &ip.LegalAddress, &ip.ActualAddress,
 			&ip.ContactDetails, &ip.Email, &ip.CompanyCode, &ip.UserContract, &ip.CreatedAt, &ip.UpdatedAt)
@@ -339,18 +318,20 @@ func (r *IndividualRepository) FindByToken(ctx context.Context, token string) (m
 	var individual models.Individual
 
 	err := r.Db.QueryRowContext(ctx, `
-		SELECT id, 
-		       COALESCE(full_name, ''), 
-		       COALESCE(iin, ''), 
-		       COALESCE(bank_details, ''), 
-		       COALESCE(legal_address, ''), 
-		       COALESCE(actual_address, ''), 
-		       COALESCE(contact_details, ''), 
-		       COALESCE(email, ''), 
-		       COALESCE(company_code, ''), 
-		       COALESCE(user_contract, ''), 
-		       created_at, 
-		       updated_at
+		SELECT 
+			id, 
+			full_name, 
+			iin, 
+			COALESCE(id_file, '') as id_file,
+			COALESCE(bank_details, '') as bank_details,
+			COALESCE(legal_address, '') as legal_address,
+			COALESCE(actual_address, '') as actual_address,
+			COALESCE(contact_details, '') as contact_details,
+			COALESCE(email, '') as email,
+			company_code,
+			COALESCE(user_contract, '') as user_contract,
+			created_at,
+			updated_at
 		FROM Individual WHERE token = ?`, token).
 		Scan(&individual.ID, &individual.FullName, &individual.IIN, &individual.BankDetails,
 			&individual.LegalAddress, &individual.ActualAddress, &individual.ContactDetails,
