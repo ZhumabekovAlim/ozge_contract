@@ -489,6 +489,8 @@ func (h *IndividualHandler) UpdateUserContract(w http.ResponseWriter, r *http.Re
 		}
 	}
 
+	fmt.Println("company_code:", savedFiles["user_contract"])
+
 	idInt, err := strconv.ParseInt(id, 10, 64)
 
 	// Create a TOO object
