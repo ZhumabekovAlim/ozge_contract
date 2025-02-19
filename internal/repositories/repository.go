@@ -16,11 +16,11 @@ func (r *TOORepository) CreateTOO(ctx context.Context, too models.TOO) (int, err
 	result, err := r.Db.ExecContext(ctx, `
 		INSERT INTO TOO (name, bin, registration_file, ceo_name, ceo_order_file, ceo_id_file, 
 		representative_poa, representative_id, bank_details, legal_address, actual_address, 
-		contact_details, email, egov_file, company_card, company_code) 
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		contact_details, email, egov_file, company_card, company_code, additional_information) 
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		too.Name, too.BIN, too.RegistrationFile, too.CEOName, too.CEOOrderFile, too.CEOIDFile,
 		too.RepresentativePOA, too.RepresentativeID, too.BankDetails, too.LegalAddress,
-		too.ActualAddress, too.ContactDetails, too.Email, too.EgovFile, too.CompanyCard, too.CompanyCode,
+		too.ActualAddress, too.ContactDetails, too.Email, too.EgovFile, too.CompanyCard, too.CompanyCode, too.AdditionalInformation,
 	)
 	if err != nil {
 		return 0, err
@@ -58,10 +58,10 @@ type IPRepository struct {
 func (r *IPRepository) CreateIP(ctx context.Context, ip models.IP) (int, error) {
 	result, err := r.Db.ExecContext(ctx, `
 		INSERT INTO IP (name, iin, registration_file, representative_poa, representative_id, 
-		bank_details, legal_address, actual_address, contact_details, email, company_card, company_code) 
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		bank_details, legal_address, actual_address, contact_details, email, company_card, company_code,additional_information) 
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		ip.Name, ip.IIN, ip.RegistrationFile, ip.RepresentativePOA, ip.RepresentativeID,
-		ip.BankDetails, ip.LegalAddress, ip.ActualAddress, ip.ContactDetails, ip.Email, ip.CompanyCard, ip.CompanyCode,
+		ip.BankDetails, ip.LegalAddress, ip.ActualAddress, ip.ContactDetails, ip.Email, ip.CompanyCard, ip.CompanyCode, ip.AdditionalInformation,
 	)
 	if err != nil {
 		return 0, err
@@ -99,10 +99,10 @@ type IndividualRepository struct {
 func (r *IndividualRepository) CreateIndividual(ctx context.Context, individual models.Individual) (int, error) {
 	result, err := r.Db.ExecContext(ctx, `
 		INSERT INTO Individual (full_name, iin, id_file, bank_details, legal_address, 
-		actual_address, contact_details, email, company_code) 
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		actual_address, contact_details, email, company_code, additional_information) 
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		individual.FullName, individual.IIN, individual.IDFile, individual.BankDetails,
-		individual.LegalAddress, individual.ActualAddress, individual.ContactDetails, individual.Email, individual.CompanyCode,
+		individual.LegalAddress, individual.ActualAddress, individual.ContactDetails, individual.Email, individual.CompanyCode, individual.AdditionalInformation,
 	)
 	if err != nil {
 		return 0, err
@@ -135,7 +135,7 @@ func (r *IndividualRepository) UpdateContractIndividual(ctx context.Context, ind
 // For TOO (search by BIN)
 func (r *TOORepository) GetTOOsByBIN(ctx context.Context, bin, code string) ([]models.TOO, error) {
 	query := `
-		SELECT id, name, bin, ceo_name, bank_details, legal_address, actual_address, contact_details, email, company_code, created_at, updated_at
+		SELECT id, name, bin, ceo_name, bank_details, legal_address, actual_address, contact_details, email, company_code, additional_information, created_at, updated_at
 		FROM TOO
 		WHERE bin = ? AND company_code LIKE CONCAT('%', ?, '%') AND status = 2
 		ORDER BY created_at DESC
@@ -160,6 +160,7 @@ func (r *TOORepository) GetTOOsByBIN(ctx context.Context, bin, code string) ([]m
 			&t.ContactDetails,
 			&t.Email,
 			&t.CompanyCode,
+			&t.AdditionalInformation,
 			&t.CreatedAt,
 			&t.UpdatedAt,
 		)
@@ -174,7 +175,7 @@ func (r *TOORepository) GetTOOsByBIN(ctx context.Context, bin, code string) ([]m
 // For IP (search by IIN)
 func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin, code string) ([]models.IP, error) {
 	query := `
-		SELECT id, name, iin, bank_details, legal_address, actual_address, contact_details, email, company_code, created_at, updated_at
+		SELECT id, name, iin, bank_details, legal_address, actual_address, contact_details, email, company_code, COALESCE(additional_information, '') as additional_information, created_at, updated_at
 		FROM IP
 		WHERE iin = ? AND company_code LIKE CONCAT('%', ?, '%') AND status = 2
 		ORDER BY created_at DESC
@@ -198,6 +199,7 @@ func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin, code string) ([]mod
 			&ip.ContactDetails,
 			&ip.Email,
 			&ip.CompanyCode,
+			&ip.AdditionalInformation,
 			&ip.CreatedAt,
 			&ip.UpdatedAt,
 		)
@@ -224,6 +226,7 @@ func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, cod
 			COALESCE(email, '') as email,
 			company_code,
 			COALESCE(user_contract, '') as user_contract,
+			COALESCE(additional_information, '') as additional_information,
 			created_at,
 			updated_at
 		FROM Individual
@@ -251,6 +254,7 @@ func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, cod
 			&ind.Email,
 			&ind.CompanyCode,
 			&ind.UserContract,
+			&ind.AdditionalInformation,
 			&ind.CreatedAt,
 			&ind.UpdatedAt,
 		)
@@ -285,10 +289,10 @@ func (r *TOORepository) FindByToken(ctx context.Context, token string) (models.T
 
 	err := r.Db.QueryRowContext(ctx, `
 		SELECT id, name, bin, ceo_name, bank_details, legal_address, actual_address, 
-		contact_details, email, company_code,   COALESCE(user_contract, '') as user_contract, created_at, updated_at
+		contact_details, email, company_code,   COALESCE(user_contract, '') as user_contract, COALESCE(additional_information, '') as additional_information, created_at, updated_at
 		FROM TOO WHERE token = ?`, token).
 		Scan(&too.ID, &too.Name, &too.BIN, &too.CEOName, &too.BankDetails, &too.LegalAddress,
-			&too.ActualAddress, &too.ContactDetails, &too.Email, &too.CompanyCode, &too.UserContract,
+			&too.ActualAddress, &too.ContactDetails, &too.Email, &too.CompanyCode, &too.UserContract, &too.AdditionalInformation,
 			&too.CreatedAt, &too.UpdatedAt)
 
 	if err != nil {
@@ -303,10 +307,10 @@ func (r *IPRepository) FindByToken(ctx context.Context, token string) (models.IP
 
 	err := r.Db.QueryRowContext(ctx, `
 		SELECT id, name, iin, bank_details, legal_address, actual_address, contact_details, 
-		email, company_code,   COALESCE(user_contract, '') as user_contract, created_at, updated_at
+		email, company_code,   COALESCE(user_contract, '') as user_contract, COALESCE(additional_information, '') as additional_information, created_at, updated_at
 		FROM IP WHERE token = ?`, token).
 		Scan(&ip.ID, &ip.Name, &ip.IIN, &ip.BankDetails, &ip.LegalAddress, &ip.ActualAddress,
-			&ip.ContactDetails, &ip.Email, &ip.CompanyCode, &ip.UserContract, &ip.CreatedAt, &ip.UpdatedAt)
+			&ip.ContactDetails, &ip.Email, &ip.CompanyCode, &ip.UserContract, &ip.AdditionalInformation, &ip.CreatedAt, &ip.UpdatedAt)
 
 	if err != nil {
 		return models.IP{}, err
@@ -333,6 +337,7 @@ func (r *IndividualRepository) FindByToken(ctx context.Context, token string) (m
 			COALESCE(email, '') as email,
 			company_code,
 			COALESCE(user_contract, '') as user_contract,
+			COALESCE(additional_information, '') as additional_information,
 			created_at,
 			updated_at
 		FROM Individual WHERE token = ?`, token).
@@ -347,6 +352,7 @@ func (r *IndividualRepository) FindByToken(ctx context.Context, token string) (m
 			&individual.Email,
 			&individual.CompanyCode,
 			&individual.UserContract,
+			&individual.AdditionalInformation,
 			&individual.CreatedAt,
 			&individual.UpdatedAt)
 

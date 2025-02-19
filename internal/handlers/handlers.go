@@ -35,6 +35,7 @@ func (h *TOOHandler) CreateTOO(w http.ResponseWriter, r *http.Request) {
 	contactDetails := r.FormValue("contact_details")
 	email := r.FormValue("email")
 	companyCode := r.FormValue("company_code")
+	additional_information := r.FormValue("additional_information")
 
 	// File field mapping to table headers
 	fileFieldNames := map[string]string{
@@ -79,23 +80,24 @@ func (h *TOOHandler) CreateTOO(w http.ResponseWriter, r *http.Request) {
 
 	// Create a TOO object
 	too := models.TOO{
-		Name:              name,
-		BIN:               bin,
-		RegistrationFile:  savedFiles["registration_file"],
-		CEOName:           ceo_name,
-		CEOOrderFile:      savedFiles["ceo_order_file"],
-		CEOIDFile:         savedFiles["ceo_id_file"],
-		RepresentativePOA: savedFiles["representative_poa"],
-		RepresentativeID:  savedFiles["representative_id"],
-		BankDetails:       bankDetails,
-		LegalAddress:      legalAddress,
-		ActualAddress:     actualAddress,
-		ContactDetails:    contactDetails,
-		Email:             email,
-		EgovFile:          savedFiles["egov_file"],
-		CompanyCard:       savedFiles["company_card"],
-		Token:             "",
-		CompanyCode:       companyCode,
+		Name:                  name,
+		BIN:                   bin,
+		RegistrationFile:      savedFiles["registration_file"],
+		CEOName:               ceo_name,
+		CEOOrderFile:          savedFiles["ceo_order_file"],
+		CEOIDFile:             savedFiles["ceo_id_file"],
+		RepresentativePOA:     savedFiles["representative_poa"],
+		RepresentativeID:      savedFiles["representative_id"],
+		BankDetails:           bankDetails,
+		LegalAddress:          legalAddress,
+		ActualAddress:         actualAddress,
+		ContactDetails:        contactDetails,
+		Email:                 email,
+		EgovFile:              savedFiles["egov_file"],
+		CompanyCard:           savedFiles["company_card"],
+		Token:                 "",
+		CompanyCode:           companyCode,
+		AdditionalInformation: additional_information,
 	}
 
 	fmt.Println(too)
@@ -208,6 +210,7 @@ func (h *IPHandler) CreateIP(w http.ResponseWriter, r *http.Request) {
 	contactDetails := r.FormValue("contact_details")
 	email := r.FormValue("email")
 	companyCode := r.FormValue("company_code")
+	additional_information := r.FormValue("additional_information")
 
 	// File field mapping to table headers
 	fileFieldNames := map[string]string{
@@ -249,19 +252,20 @@ func (h *IPHandler) CreateIP(w http.ResponseWriter, r *http.Request) {
 
 	// Create an IP object
 	ip := models.IP{
-		Name:              name,
-		IIN:               iin,
-		RegistrationFile:  savedFiles["registration_file"],
-		RepresentativePOA: savedFiles["representative_poa"],
-		RepresentativeID:  savedFiles["representative_id"],
-		BankDetails:       bankDetails,
-		LegalAddress:      legalAddress,
-		ActualAddress:     actualAddress,
-		ContactDetails:    contactDetails,
-		Email:             email,
-		CompanyCard:       savedFiles["company_card"],
-		CompanyCode:       companyCode,
-		Token:             "",
+		Name:                  name,
+		IIN:                   iin,
+		RegistrationFile:      savedFiles["registration_file"],
+		RepresentativePOA:     savedFiles["representative_poa"],
+		RepresentativeID:      savedFiles["representative_id"],
+		BankDetails:           bankDetails,
+		LegalAddress:          legalAddress,
+		ActualAddress:         actualAddress,
+		ContactDetails:        contactDetails,
+		Email:                 email,
+		CompanyCard:           savedFiles["company_card"],
+		CompanyCode:           companyCode,
+		Token:                 "",
+		AdditionalInformation: additional_information,
 	}
 
 	// Call the service layer to save the IP
@@ -377,6 +381,7 @@ func (h *IndividualHandler) CreateIndividual(w http.ResponseWriter, r *http.Requ
 		"id_file": "Удостоверение_личности_или_паспорт.pdf",
 	}
 	companyCode := r.FormValue("company_code")
+	additional_information := r.FormValue("additional_information")
 
 	fmt.Println("Full Name:", fullName)
 	fmt.Println("IIN:", iin)
@@ -418,16 +423,17 @@ func (h *IndividualHandler) CreateIndividual(w http.ResponseWriter, r *http.Requ
 
 	// Create an Individual object
 	individual := models.Individual{
-		FullName:       fullName,
-		IIN:            iin,
-		IDFile:         savedFiles["id_file"],
-		BankDetails:    bankDetails,
-		LegalAddress:   legalAddress,
-		ActualAddress:  actualAddress,
-		ContactDetails: contactDetails,
-		Email:          email,
-		CompanyCode:    companyCode,
-		Token:          "",
+		FullName:              fullName,
+		IIN:                   iin,
+		IDFile:                savedFiles["id_file"],
+		BankDetails:           bankDetails,
+		LegalAddress:          legalAddress,
+		ActualAddress:         actualAddress,
+		ContactDetails:        contactDetails,
+		Email:                 email,
+		CompanyCode:           companyCode,
+		Token:                 "",
+		AdditionalInformation: additional_information,
 	}
 
 	// Call the service layer to save the individual
