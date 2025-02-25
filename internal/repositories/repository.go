@@ -283,7 +283,7 @@ func (r *IPRepository) FindByToken(ctx context.Context, token string) (models.IP
 	err := r.Db.QueryRowContext(ctx, `
 		SELECT id, name, bin, bank_details, email, signer, iin, company_code,   COALESCE(user_contract, '') as user_contract, COALESCE(additional_information, '') as additional_information, created_at, updated_at
 		FROM IP WHERE token = ?`, token).
-		Scan(&ip.ID, &ip.Name, &ip.BIN, &ip.BankDetails, &ip.Email, &ip.Email, &ip.IIN, &ip.CompanyCode, &ip.UserContract, &ip.AdditionalInformation, &ip.CreatedAt, &ip.UpdatedAt)
+		Scan(&ip.ID, &ip.Name, &ip.BIN, &ip.BankDetails, &ip.Email, &ip.Signer, &ip.IIN, &ip.CompanyCode, &ip.UserContract, &ip.AdditionalInformation, &ip.CreatedAt, &ip.UpdatedAt)
 
 	if err != nil {
 		return models.IP{}, err
