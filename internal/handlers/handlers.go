@@ -28,79 +28,25 @@ func (h *TOOHandler) CreateTOO(w http.ResponseWriter, r *http.Request) {
 	// Retrieve form values
 	name := r.FormValue("name")
 	bin := r.FormValue("bin")
-	ceo_name := r.FormValue("ceo_name")
 	bankDetails := r.FormValue("bank_details")
-	legalAddress := r.FormValue("legal_address")
-	actualAddress := r.FormValue("actual_address")
-	contactDetails := r.FormValue("contact_details")
 	email := r.FormValue("email")
+	signer := r.FormValue("signer")
+	iin := r.FormValue("iin")
 	companyCode := r.FormValue("company_code")
-	additional_information := r.FormValue("additional_information")
-
-	// File field mapping to table headers
-	fileFieldNames := map[string]string{
-		"registration_file":  "Справка_о_регистрации.pdf",
-		"ceo_order_file":     "Приказ_о_назначении.pdf",
-		"ceo_id_file":        "Удостоверение_руководителя.pdf",
-		"representative_poa": "Доверенность_представителя.pdf",
-		"representative_id":  "Удостоверение_представителя.pdf",
-		"egov_file":          "Адресная_справка.pdf",
-		"company_card":       "Карточка_предприятия.pdf",
-	}
-
-	// Save files
-	savedFiles := map[string]string{}
-	for formField, fileName := range fileFieldNames {
-		file, _, err := r.FormFile(formField)
-		if err == nil {
-			defer file.Close()
-
-			filePath := fmt.Sprintf("uploads/TOO/%s/%s", bin, fileName)
-			err = os.MkdirAll(filepath.Dir(filePath), os.ModePerm)
-			if err != nil {
-				http.Error(w, "Unable to create directory", http.StatusInternalServerError)
-				return
-			}
-
-			out, err := os.Create(filePath)
-			if err != nil {
-				http.Error(w, "Unable to save file", http.StatusInternalServerError)
-				return
-			}
-			defer out.Close()
-
-			_, err = io.Copy(out, file)
-			if err != nil {
-				http.Error(w, "Unable to save file content", http.StatusInternalServerError)
-				return
-			}
-			savedFiles[formField] = filePath
-		}
-	}
+	additionalInformation := r.FormValue("additional_information")
 
 	// Create a TOO object
 	too := models.TOO{
 		Name:                  name,
 		BIN:                   bin,
-		RegistrationFile:      savedFiles["registration_file"],
-		CEOName:               ceo_name,
-		CEOOrderFile:          savedFiles["ceo_order_file"],
-		CEOIDFile:             savedFiles["ceo_id_file"],
-		RepresentativePOA:     savedFiles["representative_poa"],
-		RepresentativeID:      savedFiles["representative_id"],
 		BankDetails:           bankDetails,
-		LegalAddress:          legalAddress,
-		ActualAddress:         actualAddress,
-		ContactDetails:        contactDetails,
 		Email:                 email,
-		EgovFile:              savedFiles["egov_file"],
-		CompanyCard:           savedFiles["company_card"],
+		Signer:                signer,
+		IIN:                   iin,
 		Token:                 "",
 		CompanyCode:           companyCode,
-		AdditionalInformation: additional_information,
+		AdditionalInformation: additionalInformation,
 	}
-
-	fmt.Println(too)
 
 	// Call the service layer to save the TOO
 	createdTOO, err := h.Service.CreateTOO(r.Context(), too)
@@ -203,69 +149,25 @@ func (h *IPHandler) CreateIP(w http.ResponseWriter, r *http.Request) {
 
 	// Retrieve form values
 	name := r.FormValue("name")
-	iin := r.FormValue("iin")
+	bin := r.FormValue("bin")
 	bankDetails := r.FormValue("bank_details")
-	legalAddress := r.FormValue("legal_address")
-	actualAddress := r.FormValue("actual_address")
-	contactDetails := r.FormValue("contact_details")
 	email := r.FormValue("email")
+	signer := r.FormValue("signer")
+	iin := r.FormValue("iin")
 	companyCode := r.FormValue("company_code")
-	additional_information := r.FormValue("additional_information")
-
-	// File field mapping to table headers
-	fileFieldNames := map[string]string{
-		"registration_file":  "Талон_о_регистрации.pdf",
-		"representative_poa": "Доверенность_представителя.pdf",
-		"representative_id":  "Удостоверение_личности_представителя_по_доверенности.pdf",
-		"company_card":       "Карточка_предприятия.pdf",
-	}
-
-	// Save files
-	savedFiles := map[string]string{}
-	for formField, fileName := range fileFieldNames {
-		file, _, err := r.FormFile(formField)
-		if err == nil {
-			defer file.Close()
-
-			filePath := fmt.Sprintf("uploads/IP/%s/%s", iin, fileName)
-			err = os.MkdirAll(filepath.Dir(filePath), os.ModePerm)
-			if err != nil {
-				http.Error(w, "Unable to create directory", http.StatusInternalServerError)
-				return
-			}
-
-			out, err := os.Create(filePath)
-			if err != nil {
-				http.Error(w, "Unable to save file", http.StatusInternalServerError)
-				return
-			}
-			defer out.Close()
-
-			_, err = io.Copy(out, file)
-			if err != nil {
-				http.Error(w, "Unable to save file content", http.StatusInternalServerError)
-				return
-			}
-			savedFiles[formField] = filePath
-		}
-	}
+	additionalInformation := r.FormValue("additional_information")
 
 	// Create an IP object
 	ip := models.IP{
 		Name:                  name,
-		IIN:                   iin,
-		RegistrationFile:      savedFiles["registration_file"],
-		RepresentativePOA:     savedFiles["representative_poa"],
-		RepresentativeID:      savedFiles["representative_id"],
+		BIN:                   bin,
 		BankDetails:           bankDetails,
-		LegalAddress:          legalAddress,
-		ActualAddress:         actualAddress,
-		ContactDetails:        contactDetails,
 		Email:                 email,
-		CompanyCard:           savedFiles["company_card"],
-		CompanyCode:           companyCode,
+		Signer:                signer,
+		IIN:                   iin,
 		Token:                 "",
-		AdditionalInformation: additional_information,
+		CompanyCode:           companyCode,
+		AdditionalInformation: additionalInformation,
 	}
 
 	// Call the service layer to save the IP
@@ -371,65 +273,15 @@ func (h *IndividualHandler) CreateIndividual(w http.ResponseWriter, r *http.Requ
 	// Retrieve form values
 	fullName := r.FormValue("full_name")
 	iin := r.FormValue("iin")
-	bankDetails := r.FormValue("bank_details")
-	legalAddress := r.FormValue("legal_address")
-	actualAddress := r.FormValue("actual_address")
-	contactDetails := r.FormValue("contact_details")
 	email := r.FormValue("email")
 	// File field mapping to table headers
-	fileFieldNames := map[string]string{
-		"id_file": "Удостоверение_личности_или_паспорт.pdf",
-	}
 	companyCode := r.FormValue("company_code")
 	additional_information := r.FormValue("additional_information")
-
-	fmt.Println("Full Name:", fullName)
-	fmt.Println("IIN:", iin)
-	fmt.Println("Email:", email)
-	fmt.Println("Legal Address:", legalAddress)
-	fmt.Println("Contact Details:", contactDetails)
-	fmt.Println("Bank Details:", bankDetails)
-	fmt.Println("file:", fileFieldNames["id_file"])
-
-	// Save files
-	savedFiles := map[string]string{}
-	for formField, fileName := range fileFieldNames {
-		file, _, err := r.FormFile(formField)
-		if err == nil {
-			defer file.Close()
-
-			filePath := fmt.Sprintf("uploads/Individual/%s/%s", iin, fileName)
-			err = os.MkdirAll(filepath.Dir(filePath), os.ModePerm)
-			if err != nil {
-				http.Error(w, "Unable to create directory", http.StatusInternalServerError)
-				return
-			}
-
-			out, err := os.Create(filePath)
-			if err != nil {
-				http.Error(w, "Unable to save file", http.StatusInternalServerError)
-				return
-			}
-			defer out.Close()
-
-			_, err = io.Copy(out, file)
-			if err != nil {
-				http.Error(w, "Unable to save file content", http.StatusInternalServerError)
-				return
-			}
-			savedFiles[formField] = filePath
-		}
-	}
 
 	// Create an Individual object
 	individual := models.Individual{
 		FullName:              fullName,
 		IIN:                   iin,
-		IDFile:                savedFiles["id_file"],
-		BankDetails:           bankDetails,
-		LegalAddress:          legalAddress,
-		ActualAddress:         actualAddress,
-		ContactDetails:        contactDetails,
 		Email:                 email,
 		CompanyCode:           companyCode,
 		Token:                 "",
