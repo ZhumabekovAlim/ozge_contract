@@ -139,8 +139,10 @@ func (r *TOORepository) GetTOOsByBIN(ctx context.Context, bin, code string) ([]m
 	defer rows.Close()
 
 	var toos []models.TOO
+
 	for rows.Next() {
 		var t models.TOO
+		t.Status = 2
 		err = rows.Scan(
 			&t.ID,
 			&t.Name,
@@ -154,12 +156,15 @@ func (r *TOORepository) GetTOOsByBIN(ctx context.Context, bin, code string) ([]m
 			&t.UserContract,
 			&t.CreatedAt,
 			&t.UpdatedAt,
+			&t.Status,
 		)
+
 		if err != nil {
 			return nil, err
 		}
 		toos = append(toos, t)
 	}
+
 	return toos, rows.Err()
 }
 
@@ -180,6 +185,7 @@ func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin, code string) ([]mod
 	var ips []models.IP
 	for rows.Next() {
 		var ip models.IP
+		ip.Status = 2
 		err = rows.Scan(
 			&ip.ID,
 			&ip.Name,
@@ -228,6 +234,7 @@ func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, cod
 	var individuals []models.Individual
 	for rows.Next() {
 		var ind models.Individual
+		ind.Status = 2
 		err = rows.Scan(
 			&ind.ID,
 			&ind.FullName,
