@@ -129,7 +129,7 @@ func (r *TOORepository) GetTOOsByBIN(ctx context.Context, bin, code string) ([]m
 	query := `
 		SELECT id, name, bin, bank_details, email, signer, iin, company_code, additional_information, user_contract, status, created_at, updated_at
 		FROM TOO
-		WHERE bin = ? AND company_code LIKE CONCAT('%', ?, '%') AND status = 2
+		WHERE bin = ? AND company_code LIKE CONCAT('%', ?, '%') AND status = 2 AND status = 3
 		ORDER BY created_at DESC
 	`
 	rows, err := r.Db.QueryContext(ctx, query, bin, code)
@@ -172,7 +172,7 @@ func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin, code string) ([]mod
 	query := `
 		SELECT id, name, bin, bank_details, email, signer, iin, company_code, additional_information,user_contract, statusm created_at, updated_at
 		FROM IP
-		WHERE iin = ? AND company_code LIKE CONCAT('%', ?, '%') AND status = 2
+		WHERE iin = ? AND company_code LIKE CONCAT('%', ?, '%') AND status = 2 AND status = 3
 		ORDER BY created_at DESC
 	`
 	rows, err := r.Db.QueryContext(ctx, query, iin, code)
@@ -222,7 +222,7 @@ func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, cod
 			created_at,
 			updated_at
 		FROM Individual
-		WHERE iin = ? AND company_code LIKE CONCAT('%', ?, '%') AND status = 2
+		WHERE iin = ? AND company_code LIKE CONCAT('%', ?, '%') AND status = 2 AND status = 3
 		ORDER BY created_at DESC
 	`
 	rows, err := r.Db.QueryContext(ctx, query, iin, code)
@@ -343,9 +343,9 @@ func (r *TOORepository) FindByID(ctx context.Context, id string) (models.TOO, er
 	var too models.TOO
 
 	err := r.Db.QueryRowContext(ctx, `
-		SELECT id, name, bin, bank_details, email, signer, iin, company_code,   COALESCE(user_contract, '') as user_contract, COALESCE(additional_information, '') as additional_information, token, created_at, updated_at
+		SELECT id, name, bin, bank_details, email, signer, iin, company_code,   COALESCE(user_contract, '') as user_contract, COALESCE(additional_information, '') as additional_information, token, status, created_at, updated_at
 		FROM TOO WHERE id = ?`, id).
-		Scan(&too.ID, &too.Name, &too.BIN, &too.BankDetails, &too.Email, &too.Signer, &too.IIN, &too.CompanyCode, &too.UserContract, &too.AdditionalInformation, &too.Token, &too.CreatedAt, &too.UpdatedAt)
+		Scan(&too.ID, &too.Name, &too.BIN, &too.BankDetails, &too.Email, &too.Signer, &too.IIN, &too.CompanyCode, &too.UserContract, &too.AdditionalInformation, &too.Token, &too.CreatedAt, &too.Status, &too.UpdatedAt)
 
 	if err != nil {
 		return models.TOO{}, err
@@ -358,9 +358,9 @@ func (r *IPRepository) FindByID(ctx context.Context, id string) (models.IP, erro
 	var ip models.IP
 
 	err := r.Db.QueryRowContext(ctx, `
-		SELECT id, name, bin, bank_details, email, signer, iin, company_code,   COALESCE(user_contract, '') as user_contract, COALESCE(additional_information, '') as additional_information, token, created_at, updated_at
+		SELECT id, name, bin, bank_details, email, signer, iin, company_code,   COALESCE(user_contract, '') as user_contract, COALESCE(additional_information, '') as additional_information, token, status, created_at, updated_at
 		FROM IP WHERE id = ?`, id).
-		Scan(&ip.ID, &ip.Name, &ip.BIN, &ip.BankDetails, &ip.Email, &ip.Signer, &ip.IIN, &ip.CompanyCode, &ip.UserContract, &ip.AdditionalInformation, &ip.Token, &ip.CreatedAt, &ip.UpdatedAt)
+		Scan(&ip.ID, &ip.Name, &ip.BIN, &ip.BankDetails, &ip.Email, &ip.Signer, &ip.IIN, &ip.CompanyCode, &ip.UserContract, &ip.AdditionalInformation, &ip.Token, &ip.CreatedAt, &ip.Status, &ip.UpdatedAt)
 
 	if err != nil {
 		return models.IP{}, err
@@ -382,6 +382,7 @@ func (r *IndividualRepository) FindByID(ctx context.Context, id string) (models.
 			COALESCE(user_contract, '') as user_contract,
 			COALESCE(additional_information, '') as additional_information,
 			token,
+			status,
 			created_at,
 			updated_at
 		FROM Individual WHERE id = ?`, id).
@@ -393,6 +394,7 @@ func (r *IndividualRepository) FindByID(ctx context.Context, id string) (models.
 			&individual.UserContract,
 			&individual.AdditionalInformation,
 			&individual.Token,
+			&individual.Status,
 			&individual.CreatedAt,
 			&individual.UpdatedAt)
 
