@@ -347,7 +347,7 @@ func (r *TOORepository) FindByID(ctx context.Context, id string) (models.TOO, er
 	err := r.Db.QueryRowContext(ctx, `
 		SELECT id, name, bin, bank_details, email, signer, iin, company_code,   COALESCE(user_contract, '') as user_contract, COALESCE(additional_information, '') as additional_information, token, status, created_at, updated_at
 		FROM TOO WHERE id = ?`, id).
-		Scan(&too.ID, &too.Name, &too.BIN, &too.BankDetails, &too.Email, &too.Signer, &too.IIN, &too.CompanyCode, &too.UserContract, &too.AdditionalInformation, &too.Token, &too.CreatedAt, &too.Status, &too.UpdatedAt)
+		Scan(&too.ID, &too.Name, &too.BIN, &too.BankDetails, &too.Email, &too.Signer, &too.IIN, &too.CompanyCode, &too.UserContract, &too.AdditionalInformation, &too.Token, &too.Status, &too.CreatedAt, &too.UpdatedAt)
 
 	if err != nil {
 		return models.TOO{}, err
@@ -362,7 +362,7 @@ func (r *IPRepository) FindByID(ctx context.Context, id string) (models.IP, erro
 	err := r.Db.QueryRowContext(ctx, `
 		SELECT id, name, bin, bank_details, email, signer, iin, company_code,   COALESCE(user_contract, '') as user_contract, COALESCE(additional_information, '') as additional_information, token, status, created_at, updated_at
 		FROM IP WHERE id = ?`, id).
-		Scan(&ip.ID, &ip.Name, &ip.BIN, &ip.BankDetails, &ip.Email, &ip.Signer, &ip.IIN, &ip.CompanyCode, &ip.UserContract, &ip.AdditionalInformation, &ip.Token, &ip.CreatedAt, &ip.Status, &ip.UpdatedAt)
+		Scan(&ip.ID, &ip.Name, &ip.BIN, &ip.BankDetails, &ip.Email, &ip.Signer, &ip.IIN, &ip.CompanyCode, &ip.UserContract, &ip.AdditionalInformation, &ip.Token, &ip.Status, &ip.CreatedAt, &ip.UpdatedAt)
 
 	if err != nil {
 		return models.IP{}, err
