@@ -494,3 +494,66 @@ func (h *IndividualHandler) SearchIndividualsByToken(w http.ResponseWriter, r *h
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(individual)
 }
+
+func (h *TOOHandler) UpdateUserContractStatus(w http.ResponseWriter, r *http.Request) {
+
+	id := r.URL.Query().Get(":id")
+	if id == "" {
+		http.Error(w, "Не указан параметр 'id'", http.StatusBadRequest)
+		return
+	}
+
+	// Call the service layer to save the TOO
+	err := h.Service.UpdateUserContractStatus(r.Context(), id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Respond with the created TOO
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+}
+
+func (h *IPHandler) UpdateUserContractStatus(w http.ResponseWriter, r *http.Request) {
+
+	id := r.URL.Query().Get(":id")
+	if id == "" {
+		http.Error(w, "Не указан параметр 'id'", http.StatusBadRequest)
+		return
+	}
+
+	// Call the service layer to save the TOO
+	err := h.Service.UpdateUserContractStatus(r.Context(), id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Respond with the created TOO
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+}
+
+func (h *IndividualHandler) UpdateUserContractStatus(w http.ResponseWriter, r *http.Request) {
+
+	id := r.URL.Query().Get(":id")
+	if id == "" {
+		http.Error(w, "Не указан параметр 'id'", http.StatusBadRequest)
+		return
+	}
+
+	// Call the service layer to save the TOO
+	err := h.Service.UpdateUserContractStatus(r.Context(), id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Respond with the created TOO
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+}

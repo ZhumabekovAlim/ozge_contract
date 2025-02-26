@@ -163,3 +163,33 @@ func generateToken(id int, createdAt time.Time) string {
 	hash := sha256.Sum256([]byte(data))
 	return hex.EncodeToString(hash[:])
 }
+
+func (s *TOOService) UpdateUserContractStatus(ctx context.Context, id string) error {
+
+	err := s.Repo.UpdateUserContractStatus(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *IPService) UpdateUserContractStatus(ctx context.Context, id string) error {
+
+	err := s.Repo.UpdateUserContractStatus(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *IndividualService) UpdateUserContractStatus(ctx context.Context, id string) error {
+
+	err := s.Repo.UpdateUserContractStatus(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

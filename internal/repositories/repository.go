@@ -327,3 +327,45 @@ func (r *IndividualRepository) FindByToken(ctx context.Context, token string) (m
 
 	return individual, nil
 }
+
+func (r *TOORepository) UpdateUserContractStatus(ctx context.Context, id string) error {
+	_, err := r.Db.ExecContext(ctx, `
+		UPDATE TOO
+			SET  status = 3  
+		WHERE id = ?`,
+		id,
+	)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func (r *IPRepository) UpdateUserContractStatus(ctx context.Context, id string) error {
+	_, err := r.Db.ExecContext(ctx, `
+		UPDATE IP
+			SET  status = 3  
+		WHERE id = ?`,
+		id,
+	)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func (r *IndividualRepository) UpdateUserContractStatus(ctx context.Context, id string) error {
+	_, err := r.Db.ExecContext(ctx, `
+		UPDATE Individual
+			SET  status = 3  
+		WHERE id = ?`,
+		id,
+	)
+	if err != nil {
+		return err
+	}
+
+	return err
+}

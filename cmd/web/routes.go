@@ -31,5 +31,9 @@ func (app *application) routes() http.Handler {
 	mux.Get("/search/ip/token/:token", dynamicMiddleware.ThenFunc(app.ipHandler.SearchIPsByToken))
 	mux.Get("/search/individual/token/:token", dynamicMiddleware.ThenFunc(app.individualHandler.SearchIndividualsByToken))
 
+	mux.Put("/too/:id", dynamicMiddleware.ThenFunc(app.tooHandler.UpdateUserContractStatus))
+	mux.Put("/ip/:id", dynamicMiddleware.ThenFunc(app.ipHandler.UpdateUserContractStatus))
+	mux.Put("/individual/:id", dynamicMiddleware.ThenFunc(app.individualHandler.UpdateUserContractStatus))
+
 	return standardMiddleware.Then(mux)
 }
