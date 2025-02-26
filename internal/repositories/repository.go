@@ -127,7 +127,7 @@ func (r *IndividualRepository) UpdateContractIndividual(ctx context.Context, ind
 // For TOO (search by BIN)
 func (r *TOORepository) GetTOOsByBIN(ctx context.Context, bin, code string) ([]models.TOO, error) {
 	query := `
-		SELECT id, name, bin, bank_details, email, signer, iin, company_code, additional_information, user_contract, created_at, updated_at
+		SELECT id, name, bin, bank_details, email, signer, iin, company_code, additional_information, user_contract, status, created_at, updated_at
 		FROM TOO
 		WHERE bin = ? AND company_code LIKE CONCAT('%', ?, '%') AND status = 2
 		ORDER BY created_at DESC
@@ -142,7 +142,6 @@ func (r *TOORepository) GetTOOsByBIN(ctx context.Context, bin, code string) ([]m
 
 	for rows.Next() {
 		var t models.TOO
-		t.Status = 2
 		err = rows.Scan(
 			&t.ID,
 			&t.Name,
@@ -154,9 +153,9 @@ func (r *TOORepository) GetTOOsByBIN(ctx context.Context, bin, code string) ([]m
 			&t.CompanyCode,
 			&t.AdditionalInformation,
 			&t.UserContract,
+			&t.Status,
 			&t.CreatedAt,
 			&t.UpdatedAt,
-			&t.Status,
 		)
 
 		if err != nil {
@@ -171,7 +170,7 @@ func (r *TOORepository) GetTOOsByBIN(ctx context.Context, bin, code string) ([]m
 // For IP (search by IIN)
 func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin, code string) ([]models.IP, error) {
 	query := `
-		SELECT id, name, bin, bank_details, email, signer, iin, company_code, additional_information,user_contract, created_at, updated_at
+		SELECT id, name, bin, bank_details, email, signer, iin, company_code, additional_information,user_contract, statusm created_at, updated_at
 		FROM IP
 		WHERE iin = ? AND company_code LIKE CONCAT('%', ?, '%') AND status = 2
 		ORDER BY created_at DESC
@@ -185,7 +184,6 @@ func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin, code string) ([]mod
 	var ips []models.IP
 	for rows.Next() {
 		var ip models.IP
-		ip.Status = 2
 		err = rows.Scan(
 			&ip.ID,
 			&ip.Name,
@@ -197,6 +195,7 @@ func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin, code string) ([]mod
 			&ip.CompanyCode,
 			&ip.AdditionalInformation,
 			&ip.UserContract,
+			&ip.Status,
 			&ip.CreatedAt,
 			&ip.UpdatedAt,
 		)
@@ -219,6 +218,7 @@ func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, cod
 			COALESCE(user_contract, '') as user_contract,
 			COALESCE(additional_information, '') as additional_information,
 			user_contract,
+			status,
 			created_at,
 			updated_at
 		FROM Individual
@@ -234,7 +234,6 @@ func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, cod
 	var individuals []models.Individual
 	for rows.Next() {
 		var ind models.Individual
-		ind.Status = 2
 		err = rows.Scan(
 			&ind.ID,
 			&ind.FullName,
@@ -244,6 +243,7 @@ func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, cod
 			&ind.UserContract,
 			&ind.AdditionalInformation,
 			&ind.UserContract,
+			&ind.Status,
 			&ind.CreatedAt,
 			&ind.UpdatedAt,
 		)
