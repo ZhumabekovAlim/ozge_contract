@@ -170,7 +170,7 @@ func (r *TOORepository) GetTOOsByBIN(ctx context.Context, bin, code string) ([]m
 // For IP (search by IIN)
 func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin, code string) ([]models.IP, error) {
 	query := `
-		SELECT id, name, bin, bank_details, email, signer, iin, company_code, additional_information,user_contract, statusm created_at, updated_at
+		SELECT id, name, bin, bank_details, email, signer, iin, company_code, additional_information,user_contract, status created_at, updated_at
 		FROM IP
 		WHERE iin = ? AND company_code LIKE CONCAT('%', ?, '%') AND status = 2 AND status = 3
 		ORDER BY created_at DESC
