@@ -84,7 +84,7 @@ func (h *TOOHandler) UpdateUserContract(w http.ResponseWriter, r *http.Request) 
 		if err == nil {
 			defer file.Close()
 
-			filePath := fmt.Sprintf("uploads/TOO/%s%s", bin, fileName)
+			filePath := fmt.Sprintf("uploads/TOO/%s/%s", bin, fileName)
 			err = os.MkdirAll(filepath.Dir(filePath), os.ModePerm)
 			if err != nil {
 				http.Error(w, "Unable to create directory", http.StatusInternalServerError)

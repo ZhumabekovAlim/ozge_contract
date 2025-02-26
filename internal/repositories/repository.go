@@ -127,7 +127,7 @@ func (r *IndividualRepository) UpdateContractIndividual(ctx context.Context, ind
 // For TOO (search by BIN)
 func (r *TOORepository) GetTOOsByBIN(ctx context.Context, bin, code string) ([]models.TOO, error) {
 	query := `
-		SELECT id, name, bin, bank_details, email, signer, iin, company_code, additional_information, created_at, updated_at
+		SELECT id, name, bin, bank_details, email, signer, iin, company_code, additional_information, user_contract, created_at, updated_at
 		FROM TOO
 		WHERE bin = ? AND company_code LIKE CONCAT('%', ?, '%') AND status = 2
 		ORDER BY created_at DESC
@@ -151,6 +151,7 @@ func (r *TOORepository) GetTOOsByBIN(ctx context.Context, bin, code string) ([]m
 			&t.IIN,
 			&t.CompanyCode,
 			&t.AdditionalInformation,
+			&t.UserContract,
 			&t.CreatedAt,
 			&t.UpdatedAt,
 		)
@@ -165,7 +166,7 @@ func (r *TOORepository) GetTOOsByBIN(ctx context.Context, bin, code string) ([]m
 // For IP (search by IIN)
 func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin, code string) ([]models.IP, error) {
 	query := `
-		SELECT id, name, bin, bank_details, email, signer, iin, company_code, additional_information, created_at, updated_at
+		SELECT id, name, bin, bank_details, email, signer, iin, company_code, additional_information,user_contract, created_at, updated_at
 		FROM IP
 		WHERE iin = ? AND company_code LIKE CONCAT('%', ?, '%') AND status = 2
 		ORDER BY created_at DESC
@@ -189,6 +190,7 @@ func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin, code string) ([]mod
 			&ip.IIN,
 			&ip.CompanyCode,
 			&ip.AdditionalInformation,
+			&ip.UserContract,
 			&ip.CreatedAt,
 			&ip.UpdatedAt,
 		)
@@ -210,6 +212,7 @@ func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, cod
 			company_code,
 			COALESCE(user_contract, '') as user_contract,
 			COALESCE(additional_information, '') as additional_information,
+			user_contract,
 			created_at,
 			updated_at
 		FROM Individual
@@ -233,6 +236,7 @@ func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, cod
 			&ind.CompanyCode,
 			&ind.UserContract,
 			&ind.AdditionalInformation,
+			&ind.UserContract,
 			&ind.CreatedAt,
 			&ind.UpdatedAt,
 		)
