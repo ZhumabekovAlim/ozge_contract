@@ -157,6 +157,18 @@ func (s *IndividualService) SearchIndividualByToken(ctx context.Context, token s
 	return s.Repo.FindByToken(ctx, token)
 }
 
+func (s *TOOService) SearchTOOsByID(ctx context.Context, id string) (models.TOO, error) {
+	return s.Repo.FindByID(ctx, id)
+}
+
+func (s *IPService) SearchIPByID(ctx context.Context, id string) (models.IP, error) {
+	return s.Repo.FindByID(ctx, id)
+}
+
+func (s *IndividualService) SearchIndividualByID(ctx context.Context, id string) (models.Individual, error) {
+	return s.Repo.FindByID(ctx, id)
+}
+
 // generateToken создает токен на основе ID и времени создания
 func generateToken(id int, createdAt time.Time) string {
 	data := fmt.Sprintf("%d:%d", id, createdAt.Unix())

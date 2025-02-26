@@ -495,6 +495,45 @@ func (h *IndividualHandler) SearchIndividualsByToken(w http.ResponseWriter, r *h
 	json.NewEncoder(w).Encode(individual)
 }
 
+func (h *TOOHandler) SearchTOOsByID(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get(":id")
+
+	too, err := h.Service.SearchTOOsByID(r.Context(), id)
+	if err != nil {
+		http.Error(w, "TOO not found", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(too)
+}
+
+func (h *IPHandler) SearchIPsByID(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get(":id")
+
+	ip, err := h.Service.SearchIPByID(r.Context(), id)
+	if err != nil {
+		http.Error(w, "IP not found", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(ip)
+}
+
+func (h *IndividualHandler) SearchIndividualsByID(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get(":id")
+
+	individual, err := h.Service.SearchIndividualByID(r.Context(), id)
+	if err != nil {
+		http.Error(w, "Individual not found", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(individual)
+}
+
 func (h *TOOHandler) UpdateUserContractStatus(w http.ResponseWriter, r *http.Request) {
 
 	id := r.URL.Query().Get(":id")
