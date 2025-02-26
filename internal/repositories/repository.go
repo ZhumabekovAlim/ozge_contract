@@ -277,9 +277,9 @@ func (r *TOORepository) FindByToken(ctx context.Context, token string) (models.T
 	var too models.TOO
 
 	err := r.Db.QueryRowContext(ctx, `
-		SELECT id, name, bin, bank_details, email, signer, iin, company_code,   COALESCE(user_contract, '') as user_contract, COALESCE(additional_information, '') as additional_information, created_at, updated_at
+		SELECT id, name, bin, bank_details, email, signer, iin, company_code,   COALESCE(user_contract, '') as user_contract, COALESCE(additional_information, '') as additional_information, status, created_at, updated_at
 		FROM TOO WHERE token = ?`, token).
-		Scan(&too.ID, &too.Name, &too.BIN, &too.BankDetails, &too.Email, &too.Signer, &too.IIN, &too.CompanyCode, &too.UserContract, &too.AdditionalInformation, &too.CreatedAt, &too.UpdatedAt)
+		Scan(&too.ID, &too.Name, &too.BIN, &too.BankDetails, &too.Email, &too.Signer, &too.IIN, &too.CompanyCode, &too.UserContract, &too.AdditionalInformation, &too.Status, &too.CreatedAt, &too.UpdatedAt)
 
 	if err != nil {
 		return models.TOO{}, err
@@ -292,9 +292,9 @@ func (r *IPRepository) FindByToken(ctx context.Context, token string) (models.IP
 	var ip models.IP
 
 	err := r.Db.QueryRowContext(ctx, `
-		SELECT id, name, bin, bank_details, email, signer, iin, company_code,   COALESCE(user_contract, '') as user_contract, COALESCE(additional_information, '') as additional_information, created_at, updated_at
+		SELECT id, name, bin, bank_details, email, signer, iin, company_code,   COALESCE(user_contract, '') as user_contract, COALESCE(additional_information, '') as additional_information, status, created_at, updated_at
 		FROM IP WHERE token = ?`, token).
-		Scan(&ip.ID, &ip.Name, &ip.BIN, &ip.BankDetails, &ip.Email, &ip.Signer, &ip.IIN, &ip.CompanyCode, &ip.UserContract, &ip.AdditionalInformation, &ip.CreatedAt, &ip.UpdatedAt)
+		Scan(&ip.ID, &ip.Name, &ip.BIN, &ip.BankDetails, &ip.Email, &ip.Signer, &ip.IIN, &ip.CompanyCode, &ip.UserContract, &ip.AdditionalInformation, &ip.Status, &ip.CreatedAt, &ip.UpdatedAt)
 
 	if err != nil {
 		return models.IP{}, err
@@ -317,6 +317,7 @@ func (r *IndividualRepository) FindByToken(ctx context.Context, token string) (m
 			company_code,
 			COALESCE(user_contract, '') as user_contract,
 			COALESCE(additional_information, '') as additional_information,
+			status,
 			created_at,
 			updated_at
 		FROM Individual WHERE token = ?`, token).
@@ -327,6 +328,7 @@ func (r *IndividualRepository) FindByToken(ctx context.Context, token string) (m
 			&individual.CompanyCode,
 			&individual.UserContract,
 			&individual.AdditionalInformation,
+			&individual.Status,
 			&individual.CreatedAt,
 			&individual.UpdatedAt)
 
