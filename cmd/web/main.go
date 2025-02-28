@@ -56,17 +56,18 @@ func main() {
 
 	// Настройки TLS
 	tlsConfig := &tls.Config{
-		MinVersion:               tls.VersionTLS12,
-		PreferServerCipherSuites: true,
-		SessionTicketsDisabled:   true,
+		MinVersion: tls.VersionTLS12, // Поддержка TLS 1.2 и выше
+		MaxVersion: tls.VersionTLS13, // Добавляем поддержку TLS 1.3
 		CipherSuites: []uint16{
-			tls.TLS_AES_128_GCM_SHA256,
+			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
 			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
 		},
+		SessionTicketsDisabled:   false, // Включаем session tickets для быстрого соединения
+		PreferServerCipherSuites: false,
 	}
 
 	// TCP-листенер с Keep-Alive
-	ln, err := net.Listen("tcp", *addr)
+	ln, err := net.Listen("tcp4", *addr)
 	if err != nil {
 		errorLog.Fatal(err)
 	}
@@ -96,6 +97,7 @@ func main() {
 
 	infoLog.Printf("Starting HTTPS server on %s", *addr)
 
+	tlsConfig.Time = func() time.Time { return time.Now().Add(60 * time.Second) }
 	err = srv.ServeTLS(listener, certFile, keyFile)
 	if err != nil {
 		errorLog.Fatal(err)
