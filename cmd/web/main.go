@@ -97,7 +97,7 @@ func main() {
 
 	infoLog.Printf("Starting HTTPS server on %s", *addr)
 
-	tlsConfig.Time = func() time.Time { return time.Now().Add(60 * time.Second) }
+	// tlsConfig.Time = func() time.Time { return time.Now().Add(60 * time.Second) }
 	err = srv.ServeTLS(listener, certFile, keyFile)
 	if err != nil {
 		errorLog.Fatal(err)

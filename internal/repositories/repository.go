@@ -127,10 +127,10 @@ func (r *IndividualRepository) UpdateContractIndividual(ctx context.Context, ind
 // For TOO (search by BIN)
 func (r *TOORepository) GetTOOsByBIN(ctx context.Context, bin, code string) ([]models.TOO, error) {
 	query := `
-		SELECT id, name, bin, bank_details, email, signer, iin, company_code, additional_information, user_contract, status, created_at, updated_at
-		FROM TOO
-		WHERE bin = ? AND company_code LIKE CONCAT('%', ?, '%') AND status = 2 OR status = 3
-		ORDER BY created_at DESC
+	SELECT id, name, bin, bank_details, email, signer, iin, company_code, additional_information, user_contract, status, created_at, updated_at
+	FROM TOO
+	WHERE bin = ? AND company_code LIKE CONCAT('%', ?, '%') AND status = 2 OR status = 3
+	ORDER BY created_at DESC
 	`
 	rows, err := r.Db.QueryContext(ctx, query, bin, code)
 	if err != nil {
