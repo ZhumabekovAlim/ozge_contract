@@ -89,7 +89,7 @@ func main() {
 		TLSConfig:         tlsConfig,
 	}
 	srv.SetKeepAlivesEnabled(true)
-	srv.TLSNextProto = make(map[string]func(*http.Server, *tls.Conn, http.Handler))
+	// srv.TLSNextProto = make(map[string]func(*http.Server, *tls.Conn, http.Handler))
 
 	// Пути к SSL-сертификатам Let's Encrypt
 	certFile := "/etc/letsencrypt/live/infosite.kz/fullchain.pem"
