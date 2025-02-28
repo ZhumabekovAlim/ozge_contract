@@ -38,6 +38,7 @@ func main() {
 		err := db.Close()
 		if err != nil {
 		}
+
 	}(db)
 
 	app := initializeApp(db, errorLog, infoLog)
@@ -61,8 +62,17 @@ func main() {
 	}()
 
 	tlsConfig := &tls.Config{
-		MinVersion: tls.VersionTLS13,
-		// Дополнительно можно настроить сессионные тикеты, ключи и прочее
+		MinVersion:               tls.VersionTLS13, // Используем минимально TLS 1.3
+		PreferServerCipherSuites: true,             // Отдаем предпочтение серверным шифрам
+		SessionTicketsDisabled:   false,            // Включаем поддержку сессионных тикетов
+		CipherSuites: []uint16{ // Оптимизированные шифры
+			tls.TLS_AES_256_GCM_SHA384,
+			tls.TLS_AES_128_GCM_SHA256,
+		},
+		CurvePreferences: []tls.CurveID{ // Эффективные эллиптические кривые
+			tls.X25519,
+			tls.CurveP256,
+		},
 	}
 
 	// Создаем TCP-листенер с заданным адресом
@@ -87,6 +97,7 @@ func main() {
 		WriteTimeout: 10 * time.Second,
 		TLSConfig:    tlsConfig,
 	}
+	srv.SetKeepAlivesEnabled(true)
 
 	// Пути к SSL-сертификатам Let's Encrypt
 	certFile := "/etc/letsencrypt/live/infosite.kz/fullchain.pem"

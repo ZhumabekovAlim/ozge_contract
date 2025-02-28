@@ -8,6 +8,7 @@ import (
 	"ozge/internal/handlers"
 	"ozge/internal/repositories"
 	"ozge/internal/services"
+	"time"
 )
 
 type application struct {
@@ -47,6 +48,11 @@ func openDB(dsn string) (*sql.DB, error) {
 		log.Printf("%v", err)
 		return nil, err
 	}
+
+	db.SetMaxOpenConns(25)
+	db.SetMaxIdleConns(25)
+	db.SetConnMaxLifetime(5 * time.Minute)
+	db.SetConnMaxIdleTime(2 * time.Minute)
 
 	err = db.Ping()
 	if err != nil {
