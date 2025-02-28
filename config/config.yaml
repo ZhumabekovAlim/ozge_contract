@@ -3,4 +3,4 @@ server:
 
 database:
   driver: "mysql"
-  url: "root:NuSaCO$Rp123_@tcp(127.0.0.1:3306)/ozge_contract?charset=utf8mb4&parseTime=True&loc=Local&timeout=5s&tcpKeepAlive=true"
+  url: "root:NuSaCO$Rp123_@tcp(localhost:3306)/ozge_contract?charset=utf8mb4&parseTime=True&loc=Local&timeout=5s&tcpKeepAlive=true"
