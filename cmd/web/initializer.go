@@ -62,7 +62,7 @@ func openDB(dsn string) (*sql.DB, error) {
 		return nil, err
 	}
 
-	log.Printf("Database connected in %v", time.Since(start))
+	fmt.Println("Database connected in %v", time.Since(start))
 	fmt.Println("successfully connected")
 
 	return db, nil

@@ -64,7 +64,7 @@ func main() {
 	tlsConfig := &tls.Config{
 		MinVersion:               tls.VersionTLS12, // TLS 1.2 быстрее
 		PreferServerCipherSuites: true,
-		SessionTicketsDisabled:   false, // Разрешаем сессионные тикеты
+		SessionTicketsDisabled:   true, // Разрешаем сессионные тикеты
 		CipherSuites: []uint16{
 			tls.TLS_AES_128_GCM_SHA256, // Более лёгкий шифр
 			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
@@ -88,9 +88,9 @@ func main() {
 		Addr:              *addr,
 		ErrorLog:          errorLog,
 		Handler:           c.Handler(app.routes()),
-		IdleTimeout:       time.Minute,
-		ReadTimeout:       5 * time.Second,
-		WriteTimeout:      10 * time.Second,
+		IdleTimeout:       2 * time.Minute,
+		ReadTimeout:       10 * time.Second,
+		WriteTimeout:      15 * time.Second,
 		ReadHeaderTimeout: 2 * time.Second,
 		TLSConfig:         tlsConfig,
 	}
