@@ -49,10 +49,10 @@ func openDB(dsn string) (*sql.DB, error) {
 		return nil, err
 	}
 
-	db.SetMaxOpenConns(25)
-	db.SetMaxIdleConns(25)
-	db.SetConnMaxLifetime(5 * time.Minute)
-	db.SetConnMaxIdleTime(2 * time.Minute)
+	db.SetMaxOpenConns(50)
+	db.SetMaxIdleConns(50)
+	db.SetConnMaxLifetime(10 * time.Minute)
+	db.SetConnMaxIdleTime(5 * time.Minute)
 
 	err = db.Ping()
 	if err != nil {
@@ -60,7 +60,7 @@ func openDB(dsn string) (*sql.DB, error) {
 		panic("failed to connect to database")
 		return nil, err
 	}
-	db.SetMaxIdleConns(90)
+
 	if err = db.Ping(); err != nil {
 		log.Printf("%v", err)
 		panic("failed to ping the database")
