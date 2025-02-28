@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/tls"
+	"database/sql"
 	"flag"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/rs/cors"
@@ -33,50 +34,56 @@ func main() {
 	if err != nil {
 		errorLog.Fatal(err)
 	}
-	defer db.Close()
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+		}
+
+	}(db)
 
 	app := initializeApp(db, errorLog, infoLog)
 
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"*"},
+		AllowedOrigins:   []string{"*"}, // Разрешает запросы с любых доменов (небезопасно, лучше указывать конкретные)
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowCredentials: true,
-		AllowedHeaders:   []string{"*"},
+		AllowCredentials: true,          // Если используете куки или JWT
+		AllowedHeaders:   []string{"*"}, // Разрешить все заголовки
 		ExposedHeaders:   []string{"Content-Length"},
-		MaxAge:           600,
+		MaxAge:           600, // Кэширование preflight-запросов (секунды)
 	})
 
-	// HTTP → HTTPS редирект
 	go func() {
-		err := http.ListenAndServe(":80", http.HandlerFunc(redirectToHTTPS))
+		err := http.ListenAndServe(":80", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "https://"+r.Host+r.RequestURI, http.StatusMovedPermanently)
+		}))
 		if err != nil {
-			log.Fatal("HTTP redirect server error:", err)
+			return
 		}
 	}()
 
-	// Настройки TLS
 	tlsConfig := &tls.Config{
-		MinVersion:               tls.VersionTLS12,
+		MinVersion:               tls.VersionTLS12, // TLS 1.2 быстрее
 		PreferServerCipherSuites: true,
-		SessionTicketsDisabled:   true,
+		SessionTicketsDisabled:   true, // Разрешаем сессионные тикеты
 		CipherSuites: []uint16{
-			tls.TLS_AES_128_GCM_SHA256,
+			tls.TLS_AES_128_GCM_SHA256, // Более лёгкий шифр
 			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
 		},
 	}
 
-	// TCP-листенер с Keep-Alive
+	// Создаем TCP-листенер с заданным адресом
 	ln, err := net.Listen("tcp", *addr)
 	if err != nil {
 		errorLog.Fatal(err)
 	}
+	// Убеждаемся, что listener является TCPListener-ом
 	tcpListener, ok := ln.(*net.TCPListener)
 	if !ok {
 		errorLog.Fatal("listener не является TCPListener")
 	}
+	// Оборачиваем listener для установки TCP keep-alive
 	listener := tcpKeepAliveListener{tcpListener}
 
-	// HTTP сервер
 	srv := &http.Server{
 		Addr:              *addr,
 		ErrorLog:          errorLog,
@@ -102,16 +109,9 @@ func main() {
 	}
 
 	select {}
+
 }
 
-// Редирект HTTP → HTTPS с минимальной задержкой
-func redirectToHTTPS(w http.ResponseWriter, r *http.Request) {
-	if r.TLS == nil {
-		http.Redirect(w, r, "https://"+r.Host+r.RequestURI, http.StatusMovedPermanently)
-	}
-}
-
-// Keep-Alive TCP
 type tcpKeepAliveListener struct {
 	*net.TCPListener
 }
@@ -121,14 +121,18 @@ func (ln tcpKeepAliveListener) Accept() (net.Conn, error) {
 	if err != nil {
 		return nil, err
 	}
-	tc.SetKeepAlive(true)
-	tc.SetKeepAlivePeriod(1 * time.Minute)
+	err = tc.SetKeepAlive(true)
+	if err != nil {
+		return nil, err
+	}
+	err = tc.SetKeepAlivePeriod(1 * time.Minute)
+	if err != nil {
+		return nil, err
+	}
 	return tc, nil
 }
 
-// Хэндлер здоровья сервера
 func (app *application) healthCheck(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("OK"))
 }
