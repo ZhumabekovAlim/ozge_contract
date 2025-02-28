@@ -62,16 +62,12 @@ func main() {
 	}()
 
 	tlsConfig := &tls.Config{
-		MinVersion:               tls.VersionTLS13, // Используем минимально TLS 1.3
-		PreferServerCipherSuites: true,             // Отдаем предпочтение серверным шифрам
-		SessionTicketsDisabled:   false,            // Включаем поддержку сессионных тикетов
-		CipherSuites: []uint16{ // Оптимизированные шифры
-			tls.TLS_AES_256_GCM_SHA384,
-			tls.TLS_AES_128_GCM_SHA256,
-		},
-		CurvePreferences: []tls.CurveID{ // Эффективные эллиптические кривые
-			tls.X25519,
-			tls.CurveP256,
+		MinVersion:               tls.VersionTLS12, // TLS 1.2 быстрее
+		PreferServerCipherSuites: true,
+		SessionTicketsDisabled:   false, // Разрешаем сессионные тикеты
+		CipherSuites: []uint16{
+			tls.TLS_AES_128_GCM_SHA256, // Более лёгкий шифр
+			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
 		},
 	}
 
@@ -89,13 +85,14 @@ func main() {
 	listener := tcpKeepAliveListener{tcpListener}
 
 	srv := &http.Server{
-		Addr:         *addr,
-		ErrorLog:     errorLog,
-		Handler:      c.Handler(app.routes()),
-		IdleTimeout:  time.Minute,
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 10 * time.Second,
-		TLSConfig:    tlsConfig,
+		Addr:              *addr,
+		ErrorLog:          errorLog,
+		Handler:           c.Handler(app.routes()),
+		IdleTimeout:       time.Minute,
+		ReadTimeout:       5 * time.Second,
+		WriteTimeout:      10 * time.Second,
+		ReadHeaderTimeout: 2 * time.Second,
+		TLSConfig:         tlsConfig,
 	}
 	srv.SetKeepAlivesEnabled(true)
 
@@ -127,7 +124,7 @@ func (ln tcpKeepAliveListener) Accept() (net.Conn, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = tc.SetKeepAlivePeriod(3 * time.Minute)
+	err = tc.SetKeepAlivePeriod(1 * time.Minute)
 	if err != nil {
 		return nil, err
 	}
