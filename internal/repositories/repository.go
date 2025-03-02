@@ -544,7 +544,7 @@ func (r *TOORepository) FindByToken(ctx context.Context, token string) (models.T
 		COALESCE(t.id, 0), COALESCE(t.name, ''), COALESCE(t.bin, ''), COALESCE(t.bank_details, ''), 
 		COALESCE(t.email, ''), COALESCE(t.signer, ''), COALESCE(t.iin, ''), COALESCE(t.company_code, ''), 
 		COALESCE(t.user_contract, '') as user_contract, COALESCE(t.additional_information, '') as additional_information, 
-		COALESCE(t.status, 0), COALESCE(t.created_at, ''), COALESCE(t.updated_at, ''),
+		COALESCE(t.status, 0),     COALESCE(t.contract_name, '') AS ip_contract_name, COALESCE(t.created_at, ''), COALESCE(t.updated_at, ''),
 		COALESCE(d.id, 0), COALESCE(d.full_name, ''), COALESCE(d.iin, ''), COALESCE(d.phone_number, ''), 
 		COALESCE(d.contract_id, 0), COALESCE(d.reason, ''), COALESCE(d.company_name, ''), 
 		COALESCE(d.bin, ''), COALESCE(d.signer, ''), COALESCE(d.contract_path, ''), 
@@ -554,7 +554,7 @@ func (r *TOORepository) FindByToken(ctx context.Context, token string) (models.T
 	WHERE t.token = ?`, token).
 		Scan(
 			&too.ID, &too.Name, &too.BIN, &too.BankDetails, &too.Email, &too.Signer, &too.IIN,
-			&too.CompanyCode, &too.UserContract, &too.AdditionalInformation, &too.Status,
+			&too.CompanyCode, &too.UserContract, &too.AdditionalInformation, &too.Status, &too.ContractName,
 			&too.CreatedAt, &too.UpdatedAt,
 			&discard.ID, &discard.FullName, &discard.IIN, &discard.PhoneNumber, &discard.ContractID,
 			&discard.Reason, &discard.CompanyName, &discard.BIN, &discard.Signer, &discard.ContractPath,
@@ -590,6 +590,7 @@ func (r *IPRepository) FindByToken(ctx context.Context, token string) (models.IP
     COALESCE(ip.user_contract, '') AS ip_user_contract, 
     COALESCE(ip.additional_information, '') AS ip_additional_information, 
     COALESCE(ip.status, 0) AS ip_status, 
+    COALESCE(ip.contract_name, '') AS ip_contract_name,
     COALESCE(ip.created_at, '') AS ip_created_at, 
     COALESCE(ip.updated_at, '') AS ip_updated_at,
     COALESCE(d.id, 0) AS discard_id, 
@@ -610,7 +611,7 @@ WHERE ip.token = ?;
 `, token).
 		Scan(
 			&ip.ID, &ip.Name, &ip.BIN, &ip.BankDetails, &ip.Email, &ip.Signer, &ip.IIN,
-			&ip.CompanyCode, &ip.UserContract, &ip.AdditionalInformation, &ip.Status,
+			&ip.CompanyCode, &ip.UserContract, &ip.AdditionalInformation, &ip.Status, &ip.ContractName,
 			&ip.CreatedAt, &ip.UpdatedAt,
 			&discard.ID, &discard.FullName, &discard.IIN, &discard.PhoneNumber, &discard.ContractID,
 			&discard.Reason, &discard.CompanyName, &discard.BIN, &discard.Signer, &discard.ContractPath,
@@ -665,7 +666,7 @@ WHERE ind.token = ?;
 		Scan(
 			&individual.ID, &individual.FullName, &individual.IIN, &individual.Email, &individual.CompanyCode,
 			&individual.UserContract, &individual.AdditionalInformation, &individual.Status,
-			&individual.CreatedAt, &individual.UpdatedAt,
+			&individual.CreatedAt, &individual.UpdatedAt, &individual.ContractName,
 			&discard.ID, &discard.FullName, &discard.IIN, &discard.PhoneNumber, &discard.ContractID,
 			&discard.Reason, &discard.CompanyName, &discard.BIN, &discard.Signer, &discard.ContractPath,
 			&discard.CreatedAt, &discard.UpdatedAt,
