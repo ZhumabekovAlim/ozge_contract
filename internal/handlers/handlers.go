@@ -696,6 +696,7 @@ func (h *DiscardHandler) CreateDiscard(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Ошибка при парсинге формы", http.StatusBadRequest)
 		return
 	}
+	fmt.Println(r.Form)
 
 	// Получаем данные из формы
 	fullName := r.FormValue("full_name")

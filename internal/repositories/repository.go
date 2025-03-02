@@ -736,8 +736,8 @@ func (r *CompanyRepository) Create(ctx context.Context, company models.Company) 
 // CreateDiscard создаёт новую запись в Discard
 func (r *DiscardRepository) CreateDiscard(ctx context.Context, discard models.Discard) (int, error) {
 	result, err := r.Db.ExecContext(ctx, `
-		INSERT INTO discard (full_name, iin, phone_number, contract_id, reason, company_name, bin, signer) 
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+		INSERT INTO discard (full_name, iin, phone_number, contract_id, reason, company_name, bin, signer,contract_path) 
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?,'')`,
 		discard.FullName, discard.IIN, discard.PhoneNumber, discard.ContractID,
 		discard.Reason, discard.CompanyName, discard.BIN, discard.Signer,
 	)

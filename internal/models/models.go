@@ -54,14 +54,14 @@ type Individual struct {
 type Discard struct {
 	ID           int    `json:"id"`
 	FullName     string `json:"full_name"`
-	IIN          string `json:"iin"`
+	IIN          string `json:"iin,omitempty"`
 	PhoneNumber  string `json:"phone_number"`
 	ContractID   int    `json:"contract_id"`
-	Reason       string `json:"reason"`
+	Reason       string `json:"reason,omitempty"`
 	CompanyName  string `json:"company_name"`
-	BIN          string `json:"bin"`
+	BIN          string `json:"bin,omitempty"`
 	Signer       string `json:"signer"`
-	ContractPath string `json:"contract_path"`
+	ContractPath string `json:"contract_path,omitempty"`
 	CreatedAt    string `json:"created_at"`
 	UpdatedAt    string `json:"updated_at"`
 }
