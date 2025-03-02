@@ -17,6 +17,7 @@ type application struct {
 	tooHandler        *handlers.TOOHandler
 	ipHandler         *handlers.IPHandler
 	individualHandler *handlers.IndividualHandler
+	companyHandler    *handlers.CompanyHandler
 }
 
 func initializeApp(db *sql.DB, errorLog, infoLog *log.Logger) *application {
@@ -33,12 +34,17 @@ func initializeApp(db *sql.DB, errorLog, infoLog *log.Logger) *application {
 	individualService := &services.IndividualService{Repo: individualRepo}
 	individualHandler := &handlers.IndividualHandler{Service: individualService}
 
+	companyRepo := &repositories.CompanyRepository{Db: db}
+	companyService := &services.CompanyService{Repo: companyRepo}
+	companyHandler := &handlers.CompanyHandler{Service: companyService}
+
 	return &application{
 		errorLog:          errorLog,
 		infoLog:           infoLog,
 		tooHandler:        tooHandler,
 		ipHandler:         ipHandler,
 		individualHandler: individualHandler,
+		companyHandler:    companyHandler,
 	}
 }
 

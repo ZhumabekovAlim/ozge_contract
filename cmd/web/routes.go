@@ -23,10 +23,12 @@ func (app *application) routes() http.Handler {
 	mux.Put("/ip", dynamicMiddleware.ThenFunc(app.ipHandler.UpdateUserContract))
 	mux.Put("/individual", dynamicMiddleware.ThenFunc(app.individualHandler.UpdateUserContract))
 
-	mux.Get("/search/too/:bin/company_code/:code", dynamicMiddleware.ThenFunc(app.tooHandler.SearchTOOs))
-	mux.Get("/search/ip/:iin/company_code/:code", dynamicMiddleware.ThenFunc(app.ipHandler.SearchIPs))
-	mux.Get("/search/individual/:iin/company_code/:code", dynamicMiddleware.ThenFunc(app.individualHandler.SearchIndividuals))
+	// Поиск договоров на главной странице
+	mux.Get("/search/too/:iin/password/:pass", dynamicMiddleware.ThenFunc(app.tooHandler.SearchTOOs))
+	mux.Get("/search/ip/:iin/password/:pass", dynamicMiddleware.ThenFunc(app.ipHandler.SearchIPs))
+	mux.Get("/search/individual/:iin/password/:pass", dynamicMiddleware.ThenFunc(app.individualHandler.SearchIndividuals))
 
+	// Поиск договоров по QR коду
 	mux.Get("/search/too/token/:token", dynamicMiddleware.ThenFunc(app.tooHandler.SearchTOOsByToken))
 	mux.Get("/search/ip/token/:token", dynamicMiddleware.ThenFunc(app.ipHandler.SearchIPsByToken))
 	mux.Get("/search/individual/token/:token", dynamicMiddleware.ThenFunc(app.individualHandler.SearchIndividualsByToken))
@@ -39,5 +41,6 @@ func (app *application) routes() http.Handler {
 	mux.Put("/ip/:id", dynamicMiddleware.ThenFunc(app.ipHandler.UpdateUserContractStatus))
 	mux.Put("/individual/:id", dynamicMiddleware.ThenFunc(app.individualHandler.UpdateUserContractStatus))
 
+	mux.Post("/companies", dynamicMiddleware.ThenFunc(app.companyHandler.Create))
 	return standardMiddleware.Then(mux)
 }

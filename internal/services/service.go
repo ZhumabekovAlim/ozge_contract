@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"golang.org/x/crypto/bcrypt"
 	"ozge/internal/models"
 	"ozge/internal/repositories"
 	"time"
@@ -131,8 +132,8 @@ func (s *IndividualService) UpdateContractIndividual(ctx context.Context, indivi
 }
 
 // In TOOService
-func (s *TOOService) SearchTOOsByBIN(ctx context.Context, bin, code string) ([]models.TOO, error) {
-	return s.Repo.GetTOOsByBIN(ctx, bin, code)
+func (s *TOOService) SearchTOOsByBIN(ctx context.Context, iin, pass string) ([]models.TOO, error) {
+	return s.Repo.GetTOOsByBIN(ctx, iin, pass)
 }
 
 // In IPService
@@ -204,4 +205,26 @@ func (s *IndividualService) UpdateUserContractStatus(ctx context.Context, id str
 	}
 
 	return nil
+}
+
+type CompanyService struct {
+	Repo *repositories.CompanyRepository
+}
+
+// Создание компании с хэшированием пароля
+func (s *CompanyService) Create(ctx context.Context, company models.Company) (models.Company, error) {
+	// Хэшируем пароль перед сохранением
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(company.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return models.Company{}, err
+	}
+	company.Password = string(hashedPassword)
+
+	// Сохраняем компанию
+	id, err := s.Repo.Create(ctx, company)
+	if err != nil {
+		return models.Company{}, err
+	}
+	company.ID = id
+	return company, nil
 }

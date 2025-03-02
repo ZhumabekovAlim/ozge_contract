@@ -89,7 +89,7 @@ func main() {
 		TLSConfig:         tlsConfig,
 	}
 	srv.SetKeepAlivesEnabled(true)
-	// srv.TLSNextProto = make(map[string]func(*http.Server, *tls.Conn, http.Handler))
+	srv.TLSNextProto = make(map[string]func(*http.Server, *tls.Conn, http.Handler))
 
 	// Пути к SSL-сертификатам Let's Encrypt
 	certFile := "/etc/letsencrypt/live/infosite.kz/fullchain.pem"
@@ -97,7 +97,7 @@ func main() {
 
 	infoLog.Printf("Starting HTTPS server on %s", *addr)
 
-	// tlsConfig.Time = func() time.Time { return time.Now().Add(60 * time.Second) }
+	tlsConfig.Time = func() time.Time { return time.Now().Add(60 * time.Second) }
 	err = srv.ServeTLS(listener, certFile, keyFile)
 	if err != nil {
 		errorLog.Fatal(err)

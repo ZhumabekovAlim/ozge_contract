@@ -378,21 +378,21 @@ func (h *IndividualHandler) UpdateUserContract(w http.ResponseWriter, r *http.Re
 	}
 }
 
-// Search TOO by BIN
+// Search TOO by IIN
 func (h *TOOHandler) SearchTOOs(w http.ResponseWriter, r *http.Request) {
-	bin := r.URL.Query().Get(":bin")
-	if bin == "" {
-		http.Error(w, "Не указан параметр 'bin'", http.StatusBadRequest)
+	iin := r.URL.Query().Get(":iin")
+	if iin == "" {
+		http.Error(w, "Не указан параметр 'iin'", http.StatusBadRequest)
 		return
 	}
 
-	code := r.URL.Query().Get(":code")
-	if code == "" {
-		http.Error(w, "Не указан параметр 'bin'", http.StatusBadRequest)
+	pass := r.URL.Query().Get(":pass")
+	if pass == "" {
+		http.Error(w, "Не указан параметр 'pass'", http.StatusBadRequest)
 		return
 	}
 
-	toos, err := h.Service.SearchTOOsByBIN(r.Context(), bin, code)
+	toos, err := h.Service.SearchTOOsByBIN(r.Context(), iin, pass)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -410,13 +410,13 @@ func (h *IPHandler) SearchIPs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	code := r.URL.Query().Get(":code")
-	if code == "" {
+	pass := r.URL.Query().Get(":pass")
+	if pass == "" {
 		http.Error(w, "Не указан параметр 'bin'", http.StatusBadRequest)
 		return
 	}
 
-	ips, err := h.Service.SearchIPsByIIN(r.Context(), iin, code)
+	ips, err := h.Service.SearchIPsByIIN(r.Context(), iin, pass)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -437,14 +437,14 @@ func (h *IndividualHandler) SearchIndividuals(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	code := r.URL.Query().Get(":code")
-	if code == "" {
-		http.Error(w, "Не указан параметр 'bin'", http.StatusBadRequest)
+	pass := r.URL.Query().Get(":pass")
+	if pass == "" {
+		http.Error(w, "Не указан параметр 'pass' ", http.StatusBadRequest)
 		return
 	}
 
 	// Получаем данные из сервиса
-	individuals, err := h.Service.SearchIndividualsByIIN(r.Context(), iin, code)
+	individuals, err := h.Service.SearchIndividualsByIIN(r.Context(), iin, pass)
 	fmt.Println("ind: ", individuals)
 	if err != nil || len(individuals) == 0 {
 		http.Error(w, `{"error": "Пользователь не найден"}`, http.StatusNotFound)
@@ -595,4 +595,31 @@ func (h *IndividualHandler) UpdateUserContractStatus(w http.ResponseWriter, r *h
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
+}
+
+type CompanyHandler struct {
+	Service *services.CompanyService
+}
+
+// Создание компании
+func (h *CompanyHandler) Create(w http.ResponseWriter, r *http.Request) {
+	var company models.Company
+
+	// Декодируем JSON-запрос в структуру
+	if err := json.NewDecoder(r.Body).Decode(&company); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Создаем компанию через сервис
+	createdCompany, err := h.Service.Create(r.Context(), company)
+	if err != nil {
+		http.Error(w, "Failed to create company", http.StatusInternalServerError)
+		return
+	}
+
+	// Отправляем ответ с созданной компанией
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(createdCompany)
 }
