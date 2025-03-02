@@ -133,7 +133,7 @@ func (r *TOORepository) GetTOOsByBIN(ctx context.Context, iin, pass string) ([]m
 	err := r.Db.QueryRowContext(ctx, `
 		SELECT password FROM companies 
 		WHERE id = (SELECT CAST(SUBSTRING_INDEX(t.company_code, '.', 1) AS UNSIGNED) 
-		            FROM TOO t WHERE t.iin = ?)`, iin).Scan(&storedHash)
+		            FROM TOO t WHERE t.iin = ? LIMIT 1)`, iin).Scan(&storedHash)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -202,7 +202,7 @@ func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin, pass string) ([]mod
 	err := r.Db.QueryRowContext(ctx, `
 		SELECT password FROM companies 
 		WHERE id = (SELECT CAST(SUBSTRING_INDEX(ip.company_code, '.', 1) AS UNSIGNED) 
-		            FROM IP ip WHERE ip.iin = ?)`, iin).Scan(&storedHash)
+		            FROM IP ip WHERE ip.iin = ? LIMIT 1)`, iin).Scan(&storedHash)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -271,7 +271,7 @@ func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, pas
 	err := r.Db.QueryRowContext(ctx, `
 		SELECT password FROM companies 
 		WHERE id = (SELECT CAST(SUBSTRING_INDEX(ind.company_code, '.', 1) AS UNSIGNED) 
-		            FROM Individual ind WHERE ind.iin = ?)`, iin).Scan(&storedHash)
+		            FROM Individual ind WHERE ind.iin = ? LIMIT 1)`, iin).Scan(&storedHash)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
