@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 	"golang.org/x/crypto/bcrypt"
-	"log"
 	"ozge/internal/models"
 )
 
@@ -128,56 +127,47 @@ func (r *IndividualRepository) UpdateContractIndividual(ctx context.Context, ind
 
 // For TOO (search by BIN)
 func (r *TOORepository) GetTOOsByBIN(ctx context.Context, iin, pass string) ([]models.TOO, error) {
+	var storedHash string
 
-	hash, err := bcrypt.GenerateFromPassword([]byte(pass), bcrypt.DefaultCost)
+	// 1. Получаем хеш пароля из БД
+	err := r.Db.QueryRowContext(ctx, `
+		SELECT password FROM companies 
+		WHERE id = (SELECT CAST(SUBSTRING_INDEX(t.company_code, '.', 1) AS UNSIGNED) 
+		            FROM TOO t WHERE t.iin = ?)`, iin).Scan(&storedHash)
+
 	if err != nil {
-		log.Fatal(err)
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("❌ Пользователь не найден")
+		}
+		return nil, err
 	}
 
-	hashPass := string(hash)
-	fmt.Println("hash:", hashPass)
+	// 2. Проверяем введенный пароль
+	err = bcrypt.CompareHashAndPassword([]byte(storedHash), []byte(pass))
+	if err != nil {
+		return nil, fmt.Errorf("❌ Неверный пароль")
+	}
+
+	// 3. Запрос к БД, если пароль верный
 	query := `
-SELECT t.id,
-       t.name,
-       t.bin,
-       t.bank_details,
-       t.email,
-       t.signer,
-       t.iin,
-       t.company_code,
-       t.additional_information,
-       t.user_contract,
-       t.status,
-       t.created_at,
-       t.updated_at,
-       d.id,
-       d.full_name,
-       d.iin,
-       d.phone_number,
-       d.contract_id,
-       d.reason,
-       d.company_name,
-       d.bin,
-       d.signer,
-       d.contract_path,
-       d.created_at,
-       d.updated_at
-FROM TOO t
-         LEFT JOIN discard d ON t.id = d.contract_id
-         JOIN companies c ON CAST(SUBSTRING_INDEX(t.company_code, '.', 1) AS UNSIGNED) = c.id
-WHERE t.iin = ? AND c.password = ?
-ORDER BY t.created_at DESC
+	SELECT t.id, t.name, t.bin, t.bank_details, t.email, t.signer, t.iin, t.company_code, 
+	       t.additional_information, t.user_contract, t.status, t.created_at, t.updated_at,
+	       d.id, d.full_name, d.iin, d.phone_number, d.contract_id, d.reason, d.company_name,
+	       d.bin, d.signer, d.contract_path, d.created_at, d.updated_at
+	FROM TOO t
+	LEFT JOIN discard d ON t.id = d.contract_id
+	JOIN companies c ON CAST(SUBSTRING_INDEX(t.company_code, '.', 1) AS UNSIGNED) = c.id
+	WHERE t.iin = ?
+	ORDER BY t.created_at DESC
 	`
 
-	rows, err := r.Db.QueryContext(ctx, query, iin, hashPass)
+	rows, err := r.Db.QueryContext(ctx, query, iin)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("rows:", rows)
 	defer rows.Close()
 
 	var toos []models.TOO
-
 	for rows.Next() {
 		var t models.TOO
 		var d models.Discard
@@ -192,7 +182,6 @@ ORDER BY t.created_at DESC
 			return nil, err
 		}
 
-		// Проверяем, есть ли данные в `discard`
 		if d.ID != 0 {
 			t.Discard = &d
 		} else {
@@ -202,40 +191,52 @@ ORDER BY t.created_at DESC
 		toos = append(toos, t)
 	}
 
-	fmt.Println("toos:", toos)
-
 	return toos, rows.Err()
 }
 
 // For IP (search by IIN)
 func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin, pass string) ([]models.IP, error) {
-	// Хэшируем пароль перед выполнением запроса
-	hash, err := bcrypt.GenerateFromPassword([]byte(pass), 12)
+	var storedHash string
+
+	// Получаем хеш пароля
+	err := r.Db.QueryRowContext(ctx, `
+		SELECT password FROM companies 
+		WHERE id = (SELECT CAST(SUBSTRING_INDEX(ip.company_code, '.', 1) AS UNSIGNED) 
+		            FROM IP ip WHERE ip.iin = ?)`, iin).Scan(&storedHash)
+
 	if err != nil {
-		log.Fatal(err)
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("❌ Пользователь не найден")
+		}
+		return nil, err
 	}
 
+	// Проверяем пароль
+	err = bcrypt.CompareHashAndPassword([]byte(storedHash), []byte(pass))
+	if err != nil {
+		return nil, fmt.Errorf("❌ Неверный пароль")
+	}
+
+	// Запрос к БД
 	query := `
-	SELECT 
-	    ip.id, ip.name, ip.bin, ip.bank_details, ip.email, ip.signer, ip.iin, ip.company_code, ip.additional_information, 
-	    ip.user_contract, ip.status, ip.created_at, ip.updated_at,
-	    d.id, d.full_name, d.iin, d.phone_number, d.contract_id, d.reason, d.company_name, d.bin, 
-	    d.signer, d.contract_path, d.created_at, d.updated_at
+	SELECT ip.id, ip.name, ip.bin, ip.bank_details, ip.email, ip.signer, ip.iin, ip.company_code,
+	       ip.additional_information, ip.user_contract, ip.status, ip.created_at, ip.updated_at,
+	       d.id, d.full_name, d.iin, d.phone_number, d.contract_id, d.reason, d.company_name,
+	       d.bin, d.signer, d.contract_path, d.created_at, d.updated_at
 	FROM IP ip
 	LEFT JOIN discard d ON ip.id = d.contract_id
 	JOIN companies c ON CAST(SUBSTRING_INDEX(ip.company_code, '.', 1) AS UNSIGNED) = c.id
-	WHERE ip.iin = ? AND c.password = ?
+	WHERE ip.iin = ?
 	ORDER BY ip.created_at DESC
 	`
 
-	rows, err := r.Db.QueryContext(ctx, query, iin, hash)
+	rows, err := r.Db.QueryContext(ctx, query, iin)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
 	var ips []models.IP
-
 	for rows.Next() {
 		var ip models.IP
 		var d models.Discard
@@ -250,7 +251,6 @@ func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin, pass string) ([]mod
 			return nil, err
 		}
 
-		// Проверяем, есть ли данные в `discard`
 		if d.ID != 0 {
 			ip.Discard = &d
 		} else {
@@ -265,34 +265,48 @@ func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin, pass string) ([]mod
 
 // For Individual (search by IIN)
 func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, pass string) ([]models.Individual, error) {
-	// Хэшируем пароль перед выполнением запроса
-	hash, err := bcrypt.GenerateFromPassword([]byte(pass), 12)
+	var storedHash string
+
+	// Получаем хеш пароля
+	err := r.Db.QueryRowContext(ctx, `
+		SELECT password FROM companies 
+		WHERE id = (SELECT CAST(SUBSTRING_INDEX(ind.company_code, '.', 1) AS UNSIGNED) 
+		            FROM Individual ind WHERE ind.iin = ?)`, iin).Scan(&storedHash)
+
 	if err != nil {
-		log.Fatal(err)
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("❌ Пользователь не найден")
+		}
+		return nil, err
 	}
 
+	// Проверяем пароль
+	err = bcrypt.CompareHashAndPassword([]byte(storedHash), []byte(pass))
+	if err != nil {
+		return nil, fmt.Errorf("❌ Неверный пароль")
+	}
+
+	// Запрос к БД
 	query := `
-	SELECT 
-	    ind.id, ind.full_name, ind.iin, COALESCE(ind.email, '') as email, ind.company_code, 
-	    COALESCE(ind.user_contract, '') as user_contract, COALESCE(ind.additional_information, '') as additional_information, 
-	    ind.status, ind.created_at, ind.updated_at,
-	    d.id, d.full_name, d.iin, d.phone_number, d.contract_id, d.reason, d.company_name, d.bin, 
-	    d.signer, d.contract_path, d.created_at, d.updated_at
+	SELECT ind.id, ind.full_name, ind.iin, COALESCE(ind.email, '') as email, ind.company_code, 
+	       COALESCE(ind.user_contract, '') as user_contract, COALESCE(ind.additional_information, '') as additional_information, 
+	       ind.status, ind.created_at, ind.updated_at,
+	       d.id, d.full_name, d.iin, d.phone_number, d.contract_id, d.reason, d.company_name,
+	       d.bin, d.signer, d.contract_path, d.created_at, d.updated_at
 	FROM Individual ind
 	LEFT JOIN discard d ON ind.id = d.contract_id
 	JOIN companies c ON CAST(SUBSTRING_INDEX(ind.company_code, '.', 1) AS UNSIGNED) = c.id
-	WHERE ind.iin = ? AND c.password = ?
+	WHERE ind.iin = ?
 	ORDER BY ind.created_at DESC
 	`
 
-	rows, err := r.Db.QueryContext(ctx, query, iin, hash)
+	rows, err := r.Db.QueryContext(ctx, query, iin)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
 	var individuals []models.Individual
-
 	for rows.Next() {
 		var ind models.Individual
 		var d models.Discard
@@ -307,7 +321,6 @@ func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, pas
 			return nil, err
 		}
 
-		// Проверяем, есть ли данные в `discard`
 		if d.ID != 0 {
 			ind.Discard = &d
 		} else {
