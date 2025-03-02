@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"golang.org/x/crypto/bcrypt"
 	"ozge/internal/models"
@@ -261,4 +262,20 @@ func (s *DiscardService) UpdateContractPath(ctx context.Context, discard models.
 		return models.Discard{}, err
 	}
 	return discard, nil
+}
+
+func (s *CompanyService) CheckPassword(ctx context.Context, id, pass string) (bool, error) {
+	// Получаем хеш пароля
+	hashedPassword, err := s.Repo.FindPasswordByID(ctx, id)
+	if err != nil {
+		return false, err
+	}
+
+	// Проверяем совпадение пароля
+	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(pass))
+	if err != nil {
+		return false, errors.New("Пароль не совпадает")
+	}
+
+	return true, nil
 }

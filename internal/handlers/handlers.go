@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -651,6 +652,38 @@ func (h *CompanyHandler) Create(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(createdCompany)
+}
+
+func (h *CompanyHandler) CheckPassword(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get(":id")
+	if id == "" {
+		http.Error(w, "Не указан параметр 'id'", http.StatusBadRequest)
+		return
+	}
+
+	pass := r.URL.Query().Get(":pass")
+	if pass == "" {
+		http.Error(w, "Не указан параметр 'pass'", http.StatusBadRequest)
+		return
+	}
+
+	var company models.Company
+
+	// Декодируем JSON-запрос в структуру
+	if err := json.NewDecoder(r.Body).Decode(&company); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	match, err := h.Service.CheckPassword(context.Background(), id, pass)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	// Отправляем результат
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]bool{"match": match})
 }
 
 type DiscardHandler struct {

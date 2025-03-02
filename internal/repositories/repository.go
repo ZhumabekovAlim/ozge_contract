@@ -3,6 +3,7 @@ package repositories
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"golang.org/x/crypto/bcrypt"
 	"ozge/internal/models"
@@ -755,4 +756,16 @@ func (r *DiscardRepository) UpdateContractPath(ctx context.Context, discard mode
 		discard.ContractPath, discard.ID,
 	)
 	return err
+}
+
+func (r *CompanyRepository) FindPasswordByID(ctx context.Context, id string) (string, error) {
+	var hashedPassword string
+	err := r.Db.QueryRowContext(ctx, `SELECT password FROM companies WHERE id = ?`, id).Scan(&hashedPassword)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return "", errors.New("Компания не найдена")
+		}
+		return "", err
+	}
+	return hashedPassword, nil
 }

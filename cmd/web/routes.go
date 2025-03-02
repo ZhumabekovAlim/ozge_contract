@@ -44,6 +44,7 @@ func (app *application) routes() http.Handler {
 
 	// создание новой компании с паролем
 	mux.Post("/companies", dynamicMiddleware.ThenFunc(app.companyHandler.Create))
+	mux.Post("/companies/id/:id/pass/:pass", dynamicMiddleware.ThenFunc(app.companyHandler.CheckPassword))
 
 	// Полный цикл для расторжения договора
 	mux.Post("/discard", dynamicMiddleware.ThenFunc(app.discardHandler.CreateDiscard))
