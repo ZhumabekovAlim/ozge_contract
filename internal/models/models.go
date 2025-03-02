@@ -62,6 +62,7 @@ type Discard struct {
 	BIN          string `json:"bin,omitempty"`
 	Signer       string `json:"signer"`
 	ContractPath string `json:"contract_path,omitempty"`
+	Token        string `json:"token,omitempty"`
 	CreatedAt    string `json:"created_at"`
 	UpdatedAt    string `json:"updated_at"`
 }

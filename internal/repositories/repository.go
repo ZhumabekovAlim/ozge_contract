@@ -806,3 +806,14 @@ func (r *CompanyRepository) FindPasswordByID(ctx context.Context, id string) (st
 	}
 	return hashedPassword, nil
 }
+
+func (r *DiscardRepository) GetCreatedAt(ctx context.Context, id int) (string, error) {
+	var created string
+	err := r.Db.QueryRowContext(ctx, "SELECT created_at FROM discard WHERE id = ?", id).Scan(&created)
+	return created, err
+}
+
+func (r *DiscardRepository) UpdateToken(ctx context.Context, id int, token string) error {
+	_, err := r.Db.ExecContext(ctx, `UPDATE discard SET token = ? WHERE id = ?`, token, id)
+	return err
+}

@@ -251,6 +251,23 @@ func (s *DiscardService) CreateDiscard(ctx context.Context, discard models.Disca
 		return models.Discard{}, err
 	}
 
+	createdAt, err := s.Repo.GetCreatedAt(ctx, id)
+	if err != nil {
+		return models.Discard{}, err
+	}
+
+	strCreatedAt, err := time.Parse("2006-01-02 15:04:05", createdAt)
+
+	token := generateToken(id, strCreatedAt)
+
+	err = s.Repo.UpdateToken(ctx, id, token)
+	if err != nil {
+		return models.Discard{}, err
+	}
+
+	discard.CreatedAt = createdAt
+	discard.Token = token
+
 	discard.ID = id
 	return discard, nil
 }

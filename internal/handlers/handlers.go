@@ -717,6 +717,7 @@ func (h *DiscardHandler) CreateDiscard(w http.ResponseWriter, r *http.Request) {
 		CompanyName: companyName,
 		BIN:         bin,
 		Signer:      signer,
+		Token:       "",
 	}
 
 	createdDiscard, err := h.Service.CreateDiscard(r.Context(), discard)
