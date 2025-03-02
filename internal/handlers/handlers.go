@@ -691,7 +691,7 @@ type DiscardHandler struct {
 }
 
 func (h *DiscardHandler) CreateDiscard(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
+	err := r.ParseMultipartForm(10 << 20)
 	if err != nil {
 		http.Error(w, "Ошибка при парсинге формы", http.StatusBadRequest)
 		return
