@@ -150,7 +150,7 @@ func (r *TOORepository) GetTOOsByBIN(ctx context.Context, iin, pass string) ([]m
 		storedHashes = append(storedHashes, hash)
 	}
 
-	// 3. Проверяем введенный пароль с каждым хешем
+	// 3. Проверяем введенный пароль
 	passwordValid := false
 	for _, hash := range storedHashes {
 		if bcrypt.CompareHashAndPassword([]byte(hash), []byte(pass)) == nil {
@@ -165,10 +165,14 @@ func (r *TOORepository) GetTOOsByBIN(ctx context.Context, iin, pass string) ([]m
 
 	// 4. Выполняем запрос на получение данных, если пароль найден
 	query := `
-	SELECT t.id, t.name, t.bin, t.bank_details, t.email, t.signer, t.iin, t.company_code, 
-	       t.additional_information, t.user_contract, t.status, t.created_at, t.updated_at,
-	       d.id, d.full_name, d.iin, d.phone_number, d.contract_id, d.reason, d.company_name,
-	       d.bin, d.signer, d.contract_path, d.created_at, d.updated_at
+	SELECT COALESCE(t.id, 0), COALESCE(t.name, ''), COALESCE(t.bin, ''), COALESCE(t.bank_details, ''), 
+	       COALESCE(t.email, ''), COALESCE(t.signer, ''), COALESCE(t.iin, ''), 
+	       COALESCE(t.company_code, ''), COALESCE(t.additional_information, ''), 
+	       COALESCE(t.user_contract, ''), COALESCE(t.status, 0), COALESCE(t.created_at, ''), COALESCE(t.updated_at, ''),
+	       COALESCE(d.id, 0), COALESCE(d.full_name, ''), COALESCE(d.iin, ''), 
+	       COALESCE(d.phone_number, ''), COALESCE(d.contract_id, 0), COALESCE(d.reason, ''), 
+	       COALESCE(d.company_name, ''), COALESCE(d.bin, ''), COALESCE(d.signer, ''), 
+	       COALESCE(d.contract_path, ''), COALESCE(d.created_at, ''), COALESCE(d.updated_at, '')
 	FROM TOO t
 	LEFT JOIN discard d ON t.id = d.contract_id
 	JOIN companies c ON CAST(SUBSTRING_INDEX(t.company_code, '.', 1) AS UNSIGNED) = c.id
@@ -186,11 +190,12 @@ func (r *TOORepository) GetTOOsByBIN(ctx context.Context, iin, pass string) ([]m
 	for rows.Next() {
 		var t models.TOO
 		var d models.Discard
+
 		err = rows.Scan(
 			&t.ID, &t.Name, &t.BIN, &t.BankDetails, &t.Email, &t.Signer, &t.IIN, &t.CompanyCode,
 			&t.AdditionalInformation, &t.UserContract, &t.Status, &t.CreatedAt, &t.UpdatedAt,
-			&d.ID, &d.FullName, &d.IIN, &d.PhoneNumber, &d.ContractID, &d.Reason, &d.CompanyName,
-			&d.BIN, &d.Signer, &d.ContractPath, &d.CreatedAt, &d.UpdatedAt,
+			&d.ID, &d.FullName, &d.IIN, &d.PhoneNumber, &d.ContractID, &d.Reason,
+			&d.CompanyName, &d.BIN, &d.Signer, &d.ContractPath, &d.CreatedAt, &d.UpdatedAt,
 		)
 
 		if err != nil {
@@ -213,7 +218,6 @@ func (r *TOORepository) GetTOOsByBIN(ctx context.Context, iin, pass string) ([]m
 func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin, pass string) ([]models.IP, error) {
 	var storedHashes []string
 
-	// Получаем ВСЕ хеши паролей компании
 	rows, err := r.Db.QueryContext(ctx, `
 		SELECT c.password 
 		FROM companies c
@@ -225,7 +229,6 @@ func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin, pass string) ([]mod
 	}
 	defer rows.Close()
 
-	// Сохраняем все хеши
 	for rows.Next() {
 		var hash string
 		if err := rows.Scan(&hash); err != nil {
@@ -234,7 +237,6 @@ func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin, pass string) ([]mod
 		storedHashes = append(storedHashes, hash)
 	}
 
-	// Проверяем пароль
 	passwordValid := false
 	for _, hash := range storedHashes {
 		if bcrypt.CompareHashAndPassword([]byte(hash), []byte(pass)) == nil {
@@ -247,12 +249,15 @@ func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin, pass string) ([]mod
 		return nil, fmt.Errorf("❌ Неверный пароль")
 	}
 
-	// Выполняем запрос на получение данных
 	query := `
-	SELECT ip.id, ip.name, ip.bin, ip.bank_details, ip.email, ip.signer, ip.iin, ip.company_code,
-	       ip.additional_information, ip.user_contract, ip.status, ip.created_at, ip.updated_at,
-	       d.id, d.full_name, d.iin, d.phone_number, d.contract_id, d.reason, d.company_name,
-	       d.bin, d.signer, d.contract_path, d.created_at, d.updated_at
+	SELECT ip.id, COALESCE(ip.name, ''), COALESCE(ip.bin, ''), COALESCE(ip.bank_details, ''), 
+	       COALESCE(ip.email, ''), COALESCE(ip.signer, ''), COALESCE(ip.iin, ''), 
+	       COALESCE(ip.company_code, ''), COALESCE(ip.additional_information, ''), 
+	       COALESCE(ip.user_contract, ''), COALESCE(ip.status, 0), COALESCE(ip.created_at, ''), COALESCE(ip.updated_at, ''),
+	       COALESCE(d.id, 0), COALESCE(d.full_name, ''), COALESCE(d.iin, ''), 
+	       COALESCE(d.phone_number, ''), COALESCE(d.contract_id, 0), COALESCE(d.reason, ''), 
+	       COALESCE(d.company_name, ''), COALESCE(d.bin, ''), COALESCE(d.signer, ''), 
+	       COALESCE(d.contract_path, ''), COALESCE(d.created_at, ''), COALESCE(d.updated_at, '')
 	FROM IP ip
 	LEFT JOIN discard d ON ip.id = d.contract_id
 	JOIN companies c ON CAST(SUBSTRING_INDEX(ip.company_code, '.', 1) AS UNSIGNED) = c.id
@@ -270,11 +275,12 @@ func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin, pass string) ([]mod
 	for rows.Next() {
 		var ip models.IP
 		var d models.Discard
+
 		err = rows.Scan(
 			&ip.ID, &ip.Name, &ip.BIN, &ip.BankDetails, &ip.Email, &ip.Signer, &ip.IIN, &ip.CompanyCode,
 			&ip.AdditionalInformation, &ip.UserContract, &ip.Status, &ip.CreatedAt, &ip.UpdatedAt,
-			&d.ID, &d.FullName, &d.IIN, &d.PhoneNumber, &d.ContractID, &d.Reason, &d.CompanyName,
-			&d.BIN, &d.Signer, &d.ContractPath, &d.CreatedAt, &d.UpdatedAt,
+			&d.ID, &d.FullName, &d.IIN, &d.PhoneNumber, &d.ContractID, &d.Reason,
+			&d.CompanyName, &d.BIN, &d.Signer, &d.ContractPath, &d.CreatedAt, &d.UpdatedAt,
 		)
 
 		if err != nil {
@@ -318,7 +324,7 @@ func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, pas
 		storedHashes = append(storedHashes, hash)
 	}
 
-	// 3. Проверяем введенный пароль с каждым хешем
+	// 3. Проверяем введенный пароль
 	passwordValid := false
 	for _, hash := range storedHashes {
 		if bcrypt.CompareHashAndPassword([]byte(hash), []byte(pass)) == nil {
@@ -333,11 +339,14 @@ func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, pas
 
 	// 4. Выполняем запрос на получение данных, если пароль найден
 	query := `
-	SELECT ind.id, ind.full_name, ind.iin, COALESCE(ind.email, '') as email, ind.company_code, 
-	       COALESCE(ind.user_contract, '') as user_contract, COALESCE(ind.additional_information, '') as additional_information, 
-	       ind.status, ind.created_at, ind.updated_at,
-	       d.id, d.full_name, d.iin, d.phone_number, d.contract_id, d.reason, d.company_name,
-	       d.bin, d.signer, d.contract_path, d.created_at, d.updated_at
+	SELECT ind.id, COALESCE(ind.full_name, ''), COALESCE(ind.iin, ''), 
+	       COALESCE(ind.email, ''), COALESCE(ind.company_code, ''), 
+	       COALESCE(ind.user_contract, ''), COALESCE(ind.additional_information, ''), 
+	       COALESCE(ind.status, 0), COALESCE(ind.created_at, ''), COALESCE(ind.updated_at, ''),
+	       COALESCE(d.id, 0), COALESCE(d.full_name, ''), COALESCE(d.iin, ''), 
+	       COALESCE(d.phone_number, ''), COALESCE(d.contract_id, 0), COALESCE(d.reason, ''), 
+	       COALESCE(d.company_name, ''), COALESCE(d.bin, ''), COALESCE(d.signer, ''), 
+	       COALESCE(d.contract_path, ''), COALESCE(d.created_at, ''), COALESCE(d.updated_at, '')
 	FROM Individual ind
 	LEFT JOIN discard d ON ind.id = d.contract_id
 	JOIN companies c ON CAST(SUBSTRING_INDEX(ind.company_code, '.', 1) AS UNSIGNED) = c.id
@@ -355,11 +364,12 @@ func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, pas
 	for rows.Next() {
 		var ind models.Individual
 		var d models.Discard
+
 		err = rows.Scan(
 			&ind.ID, &ind.FullName, &ind.IIN, &ind.Email, &ind.CompanyCode,
 			&ind.UserContract, &ind.AdditionalInformation, &ind.Status, &ind.CreatedAt, &ind.UpdatedAt,
-			&d.ID, &d.FullName, &d.IIN, &d.PhoneNumber, &d.ContractID, &d.Reason, &d.CompanyName,
-			&d.BIN, &d.Signer, &d.ContractPath, &d.CreatedAt, &d.UpdatedAt,
+			&d.ID, &d.FullName, &d.IIN, &d.PhoneNumber, &d.ContractID, &d.Reason,
+			&d.CompanyName, &d.BIN, &d.Signer, &d.ContractPath, &d.CreatedAt, &d.UpdatedAt,
 		)
 
 		if err != nil {
