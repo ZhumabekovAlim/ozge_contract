@@ -13,6 +13,7 @@ type TOO struct {
 	Token                 string   `json:"token,omitempty"`
 	Status                int      `json:"status"`
 	AdditionalInformation string   `json:"additional_information,omitempty"`
+	ContractName          string   `json:"contract_name,omitempty"`
 	CreatedAt             string   `json:"created_at,omitempty"`
 	UpdatedAt             string   `json:"updated_at,omitempty"`
 	Discard               *Discard `json:"discard,omitempty"`
@@ -31,6 +32,7 @@ type IP struct {
 	Token                 string   `json:"token,omitempty"`
 	Status                int      `json:"status"`
 	AdditionalInformation string   `json:"additional_information,omitempty"`
+	ContractName          string   `json:"contract_name,omitempty"`
 	CreatedAt             string   `json:"created_at,omitempty"`
 	UpdatedAt             string   `json:"updated_at,omitempty"`
 	Discard               *Discard `json:"discard,omitempty"`
@@ -46,25 +48,26 @@ type Individual struct {
 	Token                 string   `json:"token,omitempty"`
 	Status                int      `json:"status"`
 	AdditionalInformation string   `json:"additional_information,omitempty"`
+	ContractName          string   `json:"contract_name,omitempty"`
 	CreatedAt             string   `json:"created_at,omitempty"`
 	UpdatedAt             string   `json:"updated_at,omitempty"`
 	Discard               *Discard `json:"discard,omitempty"`
 }
 
 type Discard struct {
-	ID           int    `json:"id"`
-	FullName     string `json:"full_name"`
+	ID           int    `json:"id,omitempty"`
+	FullName     string `json:"full_name,omitempty"`
 	IIN          string `json:"iin,omitempty"`
-	PhoneNumber  string `json:"phone_number"`
-	ContractID   int    `json:"contract_id"`
+	PhoneNumber  string `json:"phone_number,omitempty"`
+	ContractID   int    `json:"contract_id,omitempty"`
 	Reason       string `json:"reason,omitempty"`
-	CompanyName  string `json:"company_name"`
+	CompanyName  string `json:"company_name,omitempty"`
 	BIN          string `json:"bin,omitempty"`
-	Signer       string `json:"signer"`
+	Signer       string `json:"signer,omitempty"`
 	ContractPath string `json:"contract_path,omitempty"`
 	Token        string `json:"token,omitempty"`
-	CreatedAt    string `json:"created_at"`
-	UpdatedAt    string `json:"updated_at"`
+	CreatedAt    string `json:"created_at,omitempty"`
+	UpdatedAt    string `json:"updated_at,omitempty"`
 }
 
 type Company struct {

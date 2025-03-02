@@ -611,32 +611,14 @@ func (r *IndividualRepository) FindByToken(ctx context.Context, token string) (m
 
 	err := r.Db.QueryRowContext(ctx, `
 		SELECT 
-    ind.id, 
-    ind.full_name, 
-    ind.iin, 
-    COALESCE(ind.email, '') AS email, 
-    ind.company_code, 
-    COALESCE(ind.user_contract, '') AS user_contract, 
-    COALESCE(ind.additional_information, '') AS additional_information, 
-    ind.status, 
-    ind.created_at, 
-    ind.updated_at,
-    COALESCE(d.id, '') AS discard_id, 
-    COALESCE(d.full_name, '') AS discard_full_name, 
-    COALESCE(d.iin, '') AS discard_iin, 
-    COALESCE(d.phone_number, '') AS discard_phone_number, 
-    COALESCE(d.contract_id, '') AS discard_contract_id, 
-    COALESCE(d.reason, '') AS discard_reason, 
-    COALESCE(d.company_name, '') AS discard_company_name, 
-    COALESCE(d.bin, '') AS discard_bin, 
-    COALESCE(d.signer, '') AS discard_signer, 
-    COALESCE(d.contract_path, '') AS discard_contract_path, 
-    COALESCE(d.created_at, '') AS discard_created_at, 
-    COALESCE(d.updated_at, '') AS discard_updated_at
-FROM Individual ind
-LEFT JOIN discard d ON ind.id = d.contract_id
-WHERE ind.token = ?;
-`, token).
+			ind.id, ind.full_name, ind.iin, COALESCE(ind.email, '') as email, ind.company_code, 
+			COALESCE(ind.user_contract, '') as user_contract, COALESCE(ind.additional_information, '') as additional_information, 
+			ind.status, ind.created_at, ind.updated_at, ind.contract_name,
+			d.id, d.full_name, d.iin, d.phone_number, d.contract_id, d.reason, d.company_name, 
+			d.bin, d.signer, d.contract_path, d.created_at, d.updated_at
+		FROM Individual ind
+		LEFT JOIN discard d ON ind.id = d.contract_id
+		WHERE ind.token = ?`, token).
 		Scan(
 			&individual.ID, &individual.FullName, &individual.IIN, &individual.Email, &individual.CompanyCode,
 			&individual.UserContract, &individual.AdditionalInformation, &individual.Status,
