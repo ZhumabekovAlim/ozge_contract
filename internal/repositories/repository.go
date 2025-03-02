@@ -133,6 +133,8 @@ func (r *TOORepository) GetTOOsByBIN(ctx context.Context, iin, pass string) ([]m
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	hashPass := string(hash)
 	fmt.Println("hash:", hash)
 	query := `
 SELECT t.id,
@@ -167,7 +169,7 @@ WHERE t.iin = ? AND c.password = ?
 ORDER BY t.created_at DESC
 	`
 
-	rows, err := r.Db.QueryContext(ctx, query, iin, hash)
+	rows, err := r.Db.QueryContext(ctx, query, iin, hashPass)
 	if err != nil {
 		return nil, err
 	}
