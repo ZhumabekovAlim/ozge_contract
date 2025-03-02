@@ -19,6 +19,7 @@ type application struct {
 	individualHandler  *handlers.IndividualHandler
 	companyHandler     *handlers.CompanyHandler
 	companyDataHandler *handlers.CompanyDataHandler
+	discardHandler     *handlers.DiscardHandler
 }
 
 func initializeApp(db *sql.DB, errorLog, infoLog *log.Logger) *application {
@@ -42,6 +43,13 @@ func initializeApp(db *sql.DB, errorLog, infoLog *log.Logger) *application {
 	companyDataRepo := &repositories.CompanyDataRepo{Db: db}
 	companyDataService := &services.CompanyDataService{Repo: companyDataRepo}
 	companyDataHandler := &handlers.CompanyDataHandler{Service: companyDataService}
+
+	discardRepo := &repositories.DiscardRepository{Db: db}
+	discardService := &services.DiscardService{
+		Repo: discardRepo, TOOService: tooService, IPService: ipService, IndividualService: individualService,
+	}
+	discardHandler := &handlers.DiscardHandler{Service: discardService}
+
 	return &application{
 		errorLog:           errorLog,
 		infoLog:            infoLog,
@@ -50,6 +58,7 @@ func initializeApp(db *sql.DB, errorLog, infoLog *log.Logger) *application {
 		individualHandler:  individualHandler,
 		companyHandler:     companyHandler,
 		companyDataHandler: companyDataHandler,
+		discardHandler:     discardHandler,
 	}
 }
 

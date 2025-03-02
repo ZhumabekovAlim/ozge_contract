@@ -652,3 +652,143 @@ func (h *CompanyHandler) Create(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(createdCompany)
 }
+
+type DiscardHandler struct {
+	Service *services.DiscardService
+}
+
+func (h *DiscardHandler) CreateDiscard(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, "Ошибка при парсинге формы", http.StatusBadRequest)
+		return
+	}
+
+	// Получаем данные из формы
+	fullName := r.FormValue("full_name")
+	iin := r.FormValue("iin")
+	phoneNumber := r.FormValue("phone_number")
+	contractID, _ := strconv.Atoi(r.FormValue("contract_id"))
+	reason := r.FormValue("reason")
+	companyName := r.FormValue("company_name")
+	bin := r.FormValue("bin")
+	signer := r.FormValue("signer")
+
+	discard := models.Discard{
+		FullName:    fullName,
+		IIN:         iin,
+		PhoneNumber: phoneNumber,
+		ContractID:  contractID,
+		Reason:      reason,
+		CompanyName: companyName,
+		BIN:         bin,
+		Signer:      signer,
+	}
+
+	createdDiscard, err := h.Service.CreateDiscard(r.Context(), discard)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(createdDiscard)
+}
+
+// UpdateContractPath загружает и обновляет контракт в Discard
+func (h *DiscardHandler) UpdateContractPath(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseMultipartForm(10 << 20)
+	if err != nil {
+		http.Error(w, "Ошибка при парсинге формы", http.StatusBadRequest)
+		return
+	}
+
+	id, _ := strconv.Atoi(r.FormValue("id"))
+	category := r.FormValue("category") // "too", "ip" или "individual"
+
+	// Определяем путь к подписанному договору (user_contract)
+	var userContractPath string
+	switch category {
+	case "too":
+		too, err := h.Service.TOOService.SearchTOOsByID(r.Context(), strconv.Itoa(id))
+		if err != nil {
+			http.Error(w, "TOO не найдено", http.StatusNotFound)
+			return
+		}
+		userContractPath = too.UserContract
+	case "ip":
+		ip, err := h.Service.IPService.SearchIPByID(r.Context(), strconv.Itoa(id))
+		if err != nil {
+			http.Error(w, "IP не найдено", http.StatusNotFound)
+			return
+		}
+		userContractPath = ip.UserContract
+	case "individual":
+		individual, err := h.Service.IndividualService.SearchIndividualByID(r.Context(), strconv.Itoa(id))
+		if err != nil {
+			http.Error(w, "Individual не найдено", http.StatusNotFound)
+			return
+		}
+		userContractPath = individual.UserContract
+	default:
+		http.Error(w, "Некорректная категория", http.StatusBadRequest)
+		return
+	}
+
+	// Проверяем, найден ли путь
+	if userContractPath == "" {
+		http.Error(w, "Отсутствует подписанный договор", http.StatusBadRequest)
+		return
+	}
+
+	// Определяем директорию и создаём новый путь
+	dirPath := filepath.Dir(userContractPath)
+	newFilePath := filepath.Join(dirPath, "Расторгнутый_договор_пользователя.pdf")
+
+	fmt.Println("Новый путь для сохранения:", newFilePath)
+
+	// Загружаем новый файл
+	file, _, err := r.FormFile("contract_file")
+	if err != nil {
+		http.Error(w, "Файл не был загружен", http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+
+	// Сохраняем новый файл
+	err = os.MkdirAll(dirPath, os.ModePerm)
+	if err != nil {
+		http.Error(w, "Ошибка создания директории", http.StatusInternalServerError)
+		return
+	}
+
+	out, err := os.Create(newFilePath)
+	if err != nil {
+		http.Error(w, "Ошибка сохранения файла", http.StatusInternalServerError)
+		return
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, file)
+	if err != nil {
+		http.Error(w, "Ошибка сохранения содержимого файла", http.StatusInternalServerError)
+		return
+	}
+
+	// Обновляем путь к контракту в таблице `discard`
+	discard := models.Discard{
+		ID:           id,
+		ContractPath: newFilePath,
+	}
+
+	updatedDiscard, err := h.Service.UpdateContractPath(r.Context(), discard)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(updatedDiscard)
+}

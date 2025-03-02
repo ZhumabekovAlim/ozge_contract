@@ -42,6 +42,12 @@ func (app *application) routes() http.Handler {
 	mux.Put("/ip/:id", dynamicMiddleware.ThenFunc(app.ipHandler.UpdateUserContractStatus))
 	mux.Put("/individual/:id", dynamicMiddleware.ThenFunc(app.individualHandler.UpdateUserContractStatus))
 
+	// создание новой компании с паролем
 	mux.Post("/companies", dynamicMiddleware.ThenFunc(app.companyHandler.Create))
+
+	// Полный цикл для расторжения договора
+	mux.Post("/discard", dynamicMiddleware.ThenFunc(app.discardHandler.CreateDiscard))
+	mux.Put("/discard", dynamicMiddleware.ThenFunc(app.discardHandler.UpdateContractPath))
+
 	return standardMiddleware.Then(mux)
 }

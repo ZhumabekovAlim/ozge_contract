@@ -731,3 +731,28 @@ func (r *CompanyRepository) Create(ctx context.Context, company models.Company) 
 	err := r.Db.QueryRowContext(ctx, query, company.CompanyName, company.Password).Scan(&id)
 	return id, err
 }
+
+// CreateDiscard создаёт новую запись в Discard
+func (r *DiscardRepository) CreateDiscard(ctx context.Context, discard models.Discard) (int, error) {
+	result, err := r.Db.ExecContext(ctx, `
+		INSERT INTO discard (full_name, iin, phone_number, contract_id, reason, company_name, bin, signer) 
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+		discard.FullName, discard.IIN, discard.PhoneNumber, discard.ContractID,
+		discard.Reason, discard.CompanyName, discard.BIN, discard.Signer,
+	)
+	if err != nil {
+		return 0, err
+	}
+
+	id, err := result.LastInsertId()
+	return int(id), err
+}
+
+// UpdateContractPath обновляет путь к контракту в Discard
+func (r *DiscardRepository) UpdateContractPath(ctx context.Context, discard models.Discard) error {
+	_, err := r.Db.ExecContext(ctx, `
+		UPDATE discard SET contract_path = ?, updated_at = NOW() WHERE id = ?`,
+		discard.ContractPath, discard.ID,
+	)
+	return err
+}

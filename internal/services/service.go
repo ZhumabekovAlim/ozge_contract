@@ -236,3 +236,29 @@ func (s *CompanyService) Create(ctx context.Context, company models.Company) (mo
 	company.ID = id
 	return company, nil
 }
+
+type DiscardService struct {
+	Repo              *repositories.DiscardRepository
+	TOOService        *TOOService
+	IPService         *IPService
+	IndividualService *IndividualService
+}
+
+func (s *DiscardService) CreateDiscard(ctx context.Context, discard models.Discard) (models.Discard, error) {
+	id, err := s.Repo.CreateDiscard(ctx, discard)
+	if err != nil {
+		return models.Discard{}, err
+	}
+
+	discard.ID = id
+	return discard, nil
+}
+
+// UpdateContractPath обновляет путь к контракту
+func (s *DiscardService) UpdateContractPath(ctx context.Context, discard models.Discard) (models.Discard, error) {
+	err := s.Repo.UpdateContractPath(ctx, discard)
+	if err != nil {
+		return models.Discard{}, err
+	}
+	return discard, nil
+}
