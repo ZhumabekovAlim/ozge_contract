@@ -129,7 +129,7 @@ func (r *IndividualRepository) UpdateContractIndividual(ctx context.Context, ind
 // For TOO (search by BIN)
 func (r *TOORepository) GetTOOsByBIN(ctx context.Context, iin, pass string) ([]models.TOO, error) {
 
-	hash, err := bcrypt.GenerateFromPassword([]byte(pass), 12)
+	hash, err := bcrypt.GenerateFromPassword([]byte(pass), bcrypt.DefaultCost)
 	if err != nil {
 		log.Fatal(err)
 	}
