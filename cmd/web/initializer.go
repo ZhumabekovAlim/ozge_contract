@@ -39,7 +39,7 @@ func initializeApp(db *sql.DB, errorLog, infoLog *log.Logger) *application {
 	companyService := &services.CompanyService{Repo: companyRepo}
 	companyHandler := &handlers.CompanyHandler{Service: companyService}
 
-	companyDataRepo := &repositories.CompanyRepository{Db: db}
+	companyDataRepo := &repositories.CompanyDataRepo{Db: db}
 	companyDataService := &services.CompanyDataService{Repo: companyDataRepo}
 	companyDataHandler := &handlers.CompanyDataHandler{Service: companyDataService}
 	return &application{
