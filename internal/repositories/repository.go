@@ -541,14 +541,17 @@ func (r *TOORepository) FindByToken(ctx context.Context, token string) (models.T
 
 	err := r.Db.QueryRowContext(ctx, `
 		SELECT 
-			t.id, t.name, t.bin, t.bank_details, t.email, t.signer, t.iin, t.company_code, 
-			COALESCE(t.user_contract, '') as user_contract, COALESCE(t.additional_information, '') as additional_information, 
-			t.status, t.created_at, t.updated_at,
-			d.id, d.full_name, d.iin, d.phone_number, d.contract_id, d.reason, d.company_name, 
-			d.bin, d.signer, d.contract_path, d.created_at, d.updated_at
-		FROM TOO t
-		LEFT JOIN discard d ON t.id = d.contract_id
-		WHERE t.token = ?`, token).
+		COALESCE(t.id, 0), COALESCE(t.name, ''), COALESCE(t.bin, ''), COALESCE(t.bank_details, ''), 
+		COALESCE(t.email, ''), COALESCE(t.signer, ''), COALESCE(t.iin, ''), COALESCE(t.company_code, ''), 
+		COALESCE(t.user_contract, '') as user_contract, COALESCE(t.additional_information, '') as additional_information, 
+		COALESCE(t.status, 0), COALESCE(t.created_at, ''), COALESCE(t.updated_at, ''),
+		COALESCE(d.id, 0), COALESCE(d.full_name, ''), COALESCE(d.iin, ''), COALESCE(d.phone_number, ''), 
+		COALESCE(d.contract_id, 0), COALESCE(d.reason, ''), COALESCE(d.company_name, ''), 
+		COALESCE(d.bin, ''), COALESCE(d.signer, ''), COALESCE(d.contract_path, ''), 
+		COALESCE(d.created_at, ''), COALESCE(d.updated_at, '')
+	FROM TOO t
+	LEFT JOIN discard d ON t.id = d.contract_id
+	WHERE t.token = ?`, token).
 		Scan(
 			&too.ID, &too.Name, &too.BIN, &too.BankDetails, &too.Email, &too.Signer, &too.IIN,
 			&too.CompanyCode, &too.UserContract, &too.AdditionalInformation, &too.Status,
@@ -576,14 +579,35 @@ func (r *IPRepository) FindByToken(ctx context.Context, token string) (models.IP
 
 	err := r.Db.QueryRowContext(ctx, `
 		SELECT 
-			ip.id, ip.name, ip.bin, ip.bank_details, ip.email, ip.signer, ip.iin, ip.company_code, 
-			COALESCE(ip.user_contract, '') as user_contract, COALESCE(ip.additional_information, '') as additional_information, 
-			ip.status, ip.created_at, ip.updated_at,
-			d.id, d.full_name, d.iin, d.phone_number, d.contract_id, d.reason, d.company_name, 
-			d.bin, d.signer, d.contract_path, d.created_at, d.updated_at
-		FROM IP ip
-		LEFT JOIN discard d ON ip.id = d.contract_id
-		WHERE ip.token = ?`, token).
+    COALESCE(ip.id, 0) AS ip_id, 
+    COALESCE(ip.name, '') AS ip_name, 
+    COALESCE(ip.bin, '') AS ip_bin, 
+    COALESCE(ip.bank_details, '') AS ip_bank_details, 
+    COALESCE(ip.email, '') AS ip_email, 
+    COALESCE(ip.signer, '') AS ip_signer, 
+    COALESCE(ip.iin, '') AS ip_iin, 
+    COALESCE(ip.company_code, '') AS ip_company_code, 
+    COALESCE(ip.user_contract, '') AS ip_user_contract, 
+    COALESCE(ip.additional_information, '') AS ip_additional_information, 
+    COALESCE(ip.status, 0) AS ip_status, 
+    COALESCE(ip.created_at, '') AS ip_created_at, 
+    COALESCE(ip.updated_at, '') AS ip_updated_at,
+    COALESCE(d.id, 0) AS discard_id, 
+    COALESCE(d.full_name, '') AS discard_full_name, 
+    COALESCE(d.iin, '') AS discard_iin, 
+    COALESCE(d.phone_number, '') AS discard_phone_number, 
+    COALESCE(d.contract_id, 0) AS discard_contract_id, 
+    COALESCE(d.reason, '') AS discard_reason, 
+    COALESCE(d.company_name, '') AS discard_company_name, 
+    COALESCE(d.bin, '') AS discard_bin, 
+    COALESCE(d.signer, '') AS discard_signer, 
+    COALESCE(d.contract_path, '') AS discard_contract_path, 
+    COALESCE(d.created_at, '') AS discard_created_at, 
+    COALESCE(d.updated_at, '') AS discard_updated_at
+FROM IP ip
+LEFT JOIN discard d ON ip.id = d.contract_id
+WHERE ip.token = ?;
+`, token).
 		Scan(
 			&ip.ID, &ip.Name, &ip.BIN, &ip.BankDetails, &ip.Email, &ip.Signer, &ip.IIN,
 			&ip.CompanyCode, &ip.UserContract, &ip.AdditionalInformation, &ip.Status,
@@ -611,14 +635,33 @@ func (r *IndividualRepository) FindByToken(ctx context.Context, token string) (m
 
 	err := r.Db.QueryRowContext(ctx, `
 		SELECT 
-			ind.id, ind.full_name, ind.iin, COALESCE(ind.email, '') as email, ind.company_code, 
-			COALESCE(ind.user_contract, '') as user_contract, COALESCE(ind.additional_information, '') as additional_information, 
-			ind.status, ind.created_at, ind.updated_at, ind.contract_name,
-			d.id, d.full_name, d.iin, d.phone_number, d.contract_id, d.reason, d.company_name, 
-			d.bin, d.signer, d.contract_path, d.created_at, d.updated_at
-		FROM Individual ind
-		LEFT JOIN discard d ON ind.id = d.contract_id
-		WHERE ind.token = ?`, token).
+    COALESCE(ind.id, 0) AS ind_id, 
+    COALESCE(ind.full_name, '') AS ind_full_name, 
+    COALESCE(ind.iin, '') AS ind_iin, 
+    COALESCE(ind.email, '') AS ind_email, 
+    COALESCE(ind.company_code, '') AS ind_company_code, 
+    COALESCE(ind.user_contract, '') AS ind_user_contract, 
+    COALESCE(ind.additional_information, '') AS ind_additional_information, 
+    COALESCE(ind.status, 0) AS ind_status, 
+    COALESCE(ind.created_at, '') AS ind_created_at, 
+    COALESCE(ind.updated_at, '') AS ind_updated_at, 
+    COALESCE(ind.contract_name, '') AS ind_contract_name,
+    COALESCE(d.id, 0) AS discard_id, 
+    COALESCE(d.full_name, '') AS discard_full_name, 
+    COALESCE(d.iin, '') AS discard_iin, 
+    COALESCE(d.phone_number, '') AS discard_phone_number, 
+    COALESCE(d.contract_id, 0) AS discard_contract_id, 
+    COALESCE(d.reason, '') AS discard_reason, 
+    COALESCE(d.company_name, '') AS discard_company_name, 
+    COALESCE(d.bin, '') AS discard_bin, 
+    COALESCE(d.signer, '') AS discard_signer, 
+    COALESCE(d.contract_path, '') AS discard_contract_path, 
+    COALESCE(d.created_at, '') AS discard_created_at, 
+    COALESCE(d.updated_at, '') AS discard_updated_at
+FROM Individual ind
+LEFT JOIN discard d ON ind.id = d.contract_id
+WHERE ind.token = ?;
+`, token).
 		Scan(
 			&individual.ID, &individual.FullName, &individual.IIN, &individual.Email, &individual.CompanyCode,
 			&individual.UserContract, &individual.AdditionalInformation, &individual.Status,
