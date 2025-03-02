@@ -135,7 +135,7 @@ func (r *TOORepository) GetTOOsByBIN(ctx context.Context, iin, pass string) ([]m
 	}
 
 	hashPass := string(hash)
-	fmt.Println("hash:", hash)
+	fmt.Println("hash:", hashPass)
 	query := `
 SELECT t.id,
        t.name,
