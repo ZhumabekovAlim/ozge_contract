@@ -671,6 +671,12 @@ WHERE ind.token = ?;
 			&discard.CreatedAt, &discard.UpdatedAt,
 		)
 
+	if errors.Is(err, sql.ErrNoRows) {
+		return models.Individual{}, fmt.Errorf("Ind not found")
+	} else if err != nil {
+		return models.Individual{}, err
+	}
+
 	if err != nil {
 		return models.Individual{}, err
 	}
