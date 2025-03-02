@@ -632,6 +632,8 @@ func (r *IndividualRepository) FindByToken(ctx context.Context, token string) (m
 		return models.Individual{}, err
 	}
 
+	fmt.Println(individual)
+
 	// Если у discard есть данные, добавляем их в структуру
 	if discard.ID != 0 {
 		individual.Discard = &discard
