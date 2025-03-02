@@ -551,7 +551,7 @@ func (r *TOORepository) FindByToken(ctx context.Context, token string) (models.T
 		COALESCE(d.created_at, ''), COALESCE(d.updated_at, '')
 	FROM TOO t
 	LEFT JOIN discard d ON t.id = d.contract_id
-	WHERE t.token = ?`, token).
+	WHERE t.token = ? OR d.token = ?`, token, token).
 		Scan(
 			&too.ID, &too.Name, &too.BIN, &too.BankDetails, &too.Email, &too.Signer, &too.IIN,
 			&too.CompanyCode, &too.UserContract, &too.AdditionalInformation, &too.Status, &too.ContractName,
@@ -607,8 +607,7 @@ func (r *IPRepository) FindByToken(ctx context.Context, token string) (models.IP
     COALESCE(d.updated_at, '') AS discard_updated_at
 FROM IP ip
 LEFT JOIN discard d ON ip.id = d.contract_id
-WHERE ip.token = ?;
-`, token).
+WHERE ip.token = ? OR d.token = ?`, token, token).
 		Scan(
 			&ip.ID, &ip.Name, &ip.BIN, &ip.BankDetails, &ip.Email, &ip.Signer, &ip.IIN,
 			&ip.CompanyCode, &ip.UserContract, &ip.AdditionalInformation, &ip.Status, &ip.ContractName,
@@ -661,8 +660,7 @@ func (r *IndividualRepository) FindByToken(ctx context.Context, token string) (m
     COALESCE(d.updated_at, '') AS discard_updated_at
 FROM Individual ind
 LEFT JOIN discard d ON ind.id = d.contract_id
-WHERE ind.token = ?;
-`, token).
+WHERE ind.token  OR d.token = ?`, token, token).
 		Scan(
 			&individual.ID, &individual.FullName, &individual.IIN, &individual.Email, &individual.CompanyCode,
 			&individual.UserContract, &individual.AdditionalInformation, &individual.Status,
