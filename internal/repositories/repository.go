@@ -660,7 +660,7 @@ func (r *IndividualRepository) FindByToken(ctx context.Context, token string) (m
     COALESCE(d.updated_at, '') AS discard_updated_at
 FROM Individual ind
 LEFT JOIN discard d ON ind.id = d.contract_id
-WHERE ind.token  OR d.token = ?`, token, token).
+WHERE ind.token = ? OR d.token = ?`, token, token).
 		Scan(
 			&individual.ID, &individual.FullName, &individual.IIN, &individual.Email, &individual.CompanyCode,
 			&individual.UserContract, &individual.AdditionalInformation, &individual.Status,
