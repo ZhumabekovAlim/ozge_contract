@@ -388,6 +388,127 @@ func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, pas
 	return individuals, rows.Err()
 }
 
+type CompanyDataRepo struct {
+	Db *sql.DB
+}
+
+func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string) ([]interface{}, error) {
+	var storedHashes []string
+
+	// 1. Получаем ВСЕ хеши паролей, связанных с company_code из всех таблиц
+	rows, err := r.Db.QueryContext(ctx, `
+		SELECT c.password 
+		FROM companies c
+		JOIN TOO t ON CAST(SUBSTRING_INDEX(t.company_code, '.', 1) AS UNSIGNED) = c.id
+		WHERE t.iin = ?
+		UNION
+		SELECT c.password 
+		FROM companies c
+		JOIN IP ip ON CAST(SUBSTRING_INDEX(ip.company_code, '.', 1) AS UNSIGNED) = c.id
+		WHERE ip.iin = ?
+		UNION
+		SELECT c.password 
+		FROM companies c
+		JOIN Individual ind ON CAST(SUBSTRING_INDEX(ind.company_code, '.', 1) AS UNSIGNED) = c.id
+		WHERE ind.iin = ?
+	`, iin, iin, iin)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// 2. Сохраняем все хеши паролей
+	for rows.Next() {
+		var hash string
+		if err := rows.Scan(&hash); err != nil {
+			return nil, err
+		}
+		storedHashes = append(storedHashes, hash)
+	}
+
+	// 3. Проверяем введенный пароль
+	passwordValid := false
+	for _, hash := range storedHashes {
+		if bcrypt.CompareHashAndPassword([]byte(hash), []byte(pass)) == nil {
+			passwordValid = true
+			break
+		}
+	}
+
+	if !passwordValid {
+		return nil, fmt.Errorf("❌ Неверный пароль")
+	}
+
+	// 4. Получаем данные из всех таблиц (TOO, IP, Individual)
+	query := `
+	(SELECT 'TOO' as source, t.id, COALESCE(t.name, ''), COALESCE(t.bin, ''), COALESCE(t.bank_details, ''), 
+	       COALESCE(t.email, ''), COALESCE(t.signer, ''), COALESCE(t.iin, ''), 
+	       COALESCE(t.company_code, ''), COALESCE(t.additional_information, ''), 
+	       COALESCE(t.user_contract, ''), COALESCE(t.status, 0), COALESCE(t.created_at, ''), COALESCE(t.updated_at, '')
+	FROM TOO t
+	JOIN companies c ON CAST(SUBSTRING_INDEX(t.company_code, '.', 1) AS UNSIGNED) = c.id
+	WHERE t.iin = ?)
+	UNION ALL
+	(SELECT 'IP' as source, ip.id, COALESCE(ip.name, ''), COALESCE(ip.bin, ''), COALESCE(ip.bank_details, ''), 
+	       COALESCE(ip.email, ''), COALESCE(ip.signer, ''), COALESCE(ip.iin, ''), 
+	       COALESCE(ip.company_code, ''), COALESCE(ip.additional_information, ''), 
+	       COALESCE(ip.user_contract, ''), COALESCE(ip.status, 0), COALESCE(ip.created_at, ''), COALESCE(ip.updated_at, '')
+	FROM IP ip
+	JOIN companies c ON CAST(SUBSTRING_INDEX(ip.company_code, '.', 1) AS UNSIGNED) = c.id
+	WHERE ip.iin = ?)
+	UNION ALL
+	(SELECT 'Individual' as source, ind.id, COALESCE(ind.full_name, ''), '' AS bin, '' AS bank_details,
+	       COALESCE(ind.email, ''), '' AS signer, COALESCE(ind.iin, ''), 
+	       COALESCE(ind.company_code, ''), COALESCE(ind.additional_information, ''), 
+	       COALESCE(ind.user_contract, ''), COALESCE(ind.status, 0), COALESCE(ind.created_at, ''), COALESCE(ind.updated_at, '')
+	FROM Individual ind
+	JOIN companies c ON CAST(SUBSTRING_INDEX(ind.company_code, '.', 1) AS UNSIGNED) = c.id
+	WHERE ind.iin = ?)
+	`
+
+	rows, err = r.Db.QueryContext(ctx, query, iin, iin, iin)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var results []interface{}
+
+	for rows.Next() {
+		var record struct {
+			Source                string
+			ID                    int
+			Name                  string
+			BIN                   string
+			BankDetails           string
+			Email                 string
+			Signer                string
+			IIN                   string
+			CompanyCode           string
+			AdditionalInformation string
+			UserContract          string
+			Status                int
+			CreatedAt             string
+			UpdatedAt             string
+		}
+
+		err = rows.Scan(
+			&record.Source, &record.ID, &record.Name, &record.BIN, &record.BankDetails,
+			&record.Email, &record.Signer, &record.IIN, &record.CompanyCode,
+			&record.AdditionalInformation, &record.UserContract, &record.Status,
+			&record.CreatedAt, &record.UpdatedAt,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		results = append(results, record)
+	}
+
+	return results, rows.Err()
+}
+
 func (r *TOORepository) UpdateToken(ctx context.Context, id int, token string) error {
 	_, err := r.Db.ExecContext(ctx, `UPDATE TOO SET token = ? WHERE id = ?`, token, id)
 	return err

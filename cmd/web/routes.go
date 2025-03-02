@@ -27,6 +27,7 @@ func (app *application) routes() http.Handler {
 	mux.Get("/search/too/:iin/password/:pass", dynamicMiddleware.ThenFunc(app.tooHandler.SearchTOOs))
 	mux.Get("/search/ip/:iin/password/:pass", dynamicMiddleware.ThenFunc(app.ipHandler.SearchIPs))
 	mux.Get("/search/individual/:iin/password/:pass", dynamicMiddleware.ThenFunc(app.individualHandler.SearchIndividuals))
+	mux.Get("/search/all/:iin/password/:pass", dynamicMiddleware.ThenFunc(app.companyDataHandler.GetAllDataByIIN))
 
 	// Поиск договоров по QR коду
 	mux.Get("/search/too/token/:token", dynamicMiddleware.ThenFunc(app.tooHandler.SearchTOOsByToken))

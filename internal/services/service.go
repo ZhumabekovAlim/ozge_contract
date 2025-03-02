@@ -146,6 +146,14 @@ func (s *IndividualService) SearchIndividualsByIIN(ctx context.Context, iin, cod
 	return s.Repo.GetIndividualsByIIN(ctx, iin, code)
 }
 
+type CompanyDataService struct {
+	Repo *repositories.CompanyDataRepo
+}
+
+func (s *CompanyDataService) GetAllDataByIIN(ctx context.Context, iin, pass string) ([]interface{}, error) {
+	return s.Repo.GetAllDataByIIN(ctx, iin, pass)
+}
+
 func (s *TOOService) SearchTOOByToken(ctx context.Context, token string) (models.TOO, error) {
 	return s.Repo.FindByToken(ctx, token)
 }

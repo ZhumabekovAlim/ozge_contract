@@ -456,6 +456,35 @@ func (h *IndividualHandler) SearchIndividuals(w http.ResponseWriter, r *http.Req
 	json.NewEncoder(w).Encode(individuals)
 }
 
+type CompanyDataHandler struct {
+	Service *services.CompanyDataService
+}
+
+func (h *CompanyDataHandler) GetAllDataByIIN(w http.ResponseWriter, r *http.Request) {
+	iin := r.URL.Query().Get(":iin")
+	if iin == "" {
+		http.Error(w, `{"error": "Не указан параметр 'iin'"}`, http.StatusBadRequest)
+		return
+	}
+
+	pass := r.URL.Query().Get(":pass")
+	if pass == "" {
+		http.Error(w, "Не указан параметр 'pass' ", http.StatusBadRequest)
+		return
+	}
+
+	// Получаем данные из сервиса
+	data, err := h.Service.GetAllDataByIIN(r.Context(), iin, pass)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	// Отправляем данные в JSON-формате
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(data)
+}
+
 func (h *TOOHandler) SearchTOOsByToken(w http.ResponseWriter, r *http.Request) {
 	token := r.URL.Query().Get(":token")
 
