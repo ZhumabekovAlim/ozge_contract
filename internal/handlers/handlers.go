@@ -683,7 +683,7 @@ func (h *CompanyHandler) CheckPassword(w http.ResponseWriter, r *http.Request) {
 
 	// Отправляем результат
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode([]bool{match})
+	json.NewEncoder(w).Encode(map[string]bool{"match": match})
 }
 
 type DiscardHandler struct {
