@@ -537,14 +537,34 @@ func (r *IndividualRepository) UpdateToken(ctx context.Context, id int, token st
 
 func (r *TOORepository) FindByToken(ctx context.Context, token string) (models.TOO, error) {
 	var too models.TOO
+	var discard models.Discard
 
 	err := r.Db.QueryRowContext(ctx, `
-		SELECT id, name, bin, bank_details, email, signer, iin, company_code,   COALESCE(user_contract, '') as user_contract, COALESCE(additional_information, '') as additional_information, status, created_at, updated_at
-		FROM TOO WHERE token = ?`, token).
-		Scan(&too.ID, &too.Name, &too.BIN, &too.BankDetails, &too.Email, &too.Signer, &too.IIN, &too.CompanyCode, &too.UserContract, &too.AdditionalInformation, &too.Status, &too.CreatedAt, &too.UpdatedAt)
+		SELECT 
+			t.id, t.name, t.bin, t.bank_details, t.email, t.signer, t.iin, t.company_code, 
+			COALESCE(t.user_contract, '') as user_contract, COALESCE(t.additional_information, '') as additional_information, 
+			t.status, t.created_at, t.updated_at,
+			d.id, d.full_name, d.iin, d.phone_number, d.contract_id, d.reason, d.company_name, 
+			d.bin, d.signer, d.contract_path, d.created_at, d.updated_at
+		FROM TOO t
+		LEFT JOIN discard d ON t.id = d.contract_id
+		WHERE t.token = ?`, token).
+		Scan(
+			&too.ID, &too.Name, &too.BIN, &too.BankDetails, &too.Email, &too.Signer, &too.IIN,
+			&too.CompanyCode, &too.UserContract, &too.AdditionalInformation, &too.Status,
+			&too.CreatedAt, &too.UpdatedAt,
+			&discard.ID, &discard.FullName, &discard.IIN, &discard.PhoneNumber, &discard.ContractID,
+			&discard.Reason, &discard.CompanyName, &discard.BIN, &discard.Signer, &discard.ContractPath,
+			&discard.CreatedAt, &discard.UpdatedAt,
+		)
 
 	if err != nil {
 		return models.TOO{}, err
+	}
+
+	// Если у discard есть данные, добавляем их в структуру
+	if discard.ID != 0 {
+		too.Discard = &discard
 	}
 
 	return too, nil
@@ -552,14 +572,34 @@ func (r *TOORepository) FindByToken(ctx context.Context, token string) (models.T
 
 func (r *IPRepository) FindByToken(ctx context.Context, token string) (models.IP, error) {
 	var ip models.IP
+	var discard models.Discard
 
 	err := r.Db.QueryRowContext(ctx, `
-		SELECT id, name, bin, bank_details, email, signer, iin, company_code,   COALESCE(user_contract, '') as user_contract, COALESCE(additional_information, '') as additional_information, status, created_at, updated_at
-		FROM IP WHERE token = ?`, token).
-		Scan(&ip.ID, &ip.Name, &ip.BIN, &ip.BankDetails, &ip.Email, &ip.Signer, &ip.IIN, &ip.CompanyCode, &ip.UserContract, &ip.AdditionalInformation, &ip.Status, &ip.CreatedAt, &ip.UpdatedAt)
+		SELECT 
+			ip.id, ip.name, ip.bin, ip.bank_details, ip.email, ip.signer, ip.iin, ip.company_code, 
+			COALESCE(ip.user_contract, '') as user_contract, COALESCE(ip.additional_information, '') as additional_information, 
+			ip.status, ip.created_at, ip.updated_at,
+			d.id, d.full_name, d.iin, d.phone_number, d.contract_id, d.reason, d.company_name, 
+			d.bin, d.signer, d.contract_path, d.created_at, d.updated_at
+		FROM IP ip
+		LEFT JOIN discard d ON ip.id = d.contract_id
+		WHERE ip.token = ?`, token).
+		Scan(
+			&ip.ID, &ip.Name, &ip.BIN, &ip.BankDetails, &ip.Email, &ip.Signer, &ip.IIN,
+			&ip.CompanyCode, &ip.UserContract, &ip.AdditionalInformation, &ip.Status,
+			&ip.CreatedAt, &ip.UpdatedAt,
+			&discard.ID, &discard.FullName, &discard.IIN, &discard.PhoneNumber, &discard.ContractID,
+			&discard.Reason, &discard.CompanyName, &discard.BIN, &discard.Signer, &discard.ContractPath,
+			&discard.CreatedAt, &discard.UpdatedAt,
+		)
 
 	if err != nil {
 		return models.IP{}, err
+	}
+
+	// Если у discard есть данные, добавляем их в структуру
+	if discard.ID != 0 {
+		ip.Discard = &discard
 	}
 
 	return ip, nil
@@ -567,38 +607,35 @@ func (r *IPRepository) FindByToken(ctx context.Context, token string) (models.IP
 
 func (r *IndividualRepository) FindByToken(ctx context.Context, token string) (models.Individual, error) {
 	var individual models.Individual
-
-	fmt.Println(token)
+	var discard models.Discard
 
 	err := r.Db.QueryRowContext(ctx, `
 		SELECT 
-			id, 
-			full_name, 
-			iin, 
-			COALESCE(email, '') as email,
-			company_code,
-			COALESCE(user_contract, '') as user_contract,
-			COALESCE(additional_information, '') as additional_information,
-			status,
-			created_at,
-			updated_at
-		FROM Individual WHERE token = ?`, token).
-		Scan(&individual.ID,
-			&individual.FullName,
-			&individual.IIN,
-			&individual.Email,
-			&individual.CompanyCode,
-			&individual.UserContract,
-			&individual.AdditionalInformation,
-			&individual.Status,
-			&individual.CreatedAt,
-			&individual.UpdatedAt)
+			ind.id, ind.full_name, ind.iin, COALESCE(ind.email, '') as email, ind.company_code, 
+			COALESCE(ind.user_contract, '') as user_contract, COALESCE(ind.additional_information, '') as additional_information, 
+			ind.status, ind.created_at, ind.updated_at,
+			d.id, d.full_name, d.iin, d.phone_number, d.contract_id, d.reason, d.company_name, 
+			d.bin, d.signer, d.contract_path, d.created_at, d.updated_at
+		FROM Individual ind
+		LEFT JOIN discard d ON ind.id = d.contract_id
+		WHERE ind.token = ?`, token).
+		Scan(
+			&individual.ID, &individual.FullName, &individual.IIN, &individual.Email, &individual.CompanyCode,
+			&individual.UserContract, &individual.AdditionalInformation, &individual.Status,
+			&individual.CreatedAt, &individual.UpdatedAt,
+			&discard.ID, &discard.FullName, &discard.IIN, &discard.PhoneNumber, &discard.ContractID,
+			&discard.Reason, &discard.CompanyName, &discard.BIN, &discard.Signer, &discard.ContractPath,
+			&discard.CreatedAt, &discard.UpdatedAt,
+		)
 
 	if err != nil {
 		return models.Individual{}, err
 	}
 
-	fmt.Println(individual)
+	// Если у discard есть данные, добавляем их в структуру
+	if discard.ID != 0 {
+		individual.Discard = &discard
+	}
 
 	return individual, nil
 }
