@@ -133,7 +133,7 @@ func (r *TOORepository) GetTOOsByBIN(ctx context.Context, iin, pass string) ([]m
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	fmt.Println("hash:", hash)
 	query := `
 SELECT t.id,
        t.name,
@@ -171,6 +171,7 @@ ORDER BY t.created_at DESC
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println("rows:", rows)
 	defer rows.Close()
 
 	var toos []models.TOO
@@ -198,6 +199,8 @@ ORDER BY t.created_at DESC
 
 		toos = append(toos, t)
 	}
+
+	fmt.Println("toos:", toos)
 
 	return toos, rows.Err()
 }
