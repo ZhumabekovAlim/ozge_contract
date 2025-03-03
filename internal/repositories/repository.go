@@ -469,27 +469,27 @@ ORDER BY created_at DESC;
 
 	for rows.Next() {
 		var record struct {
-			source                string
-			id                    int
-			name                  string
-			bin                   string
-			bankDetails           string
-			email                 string
-			signer                string
-			iin                   string
-			companyCode           string
-			additionalInformation string
-			userContract          string
-			status                int
-			createdAt             string
-			updatedAt             string
+			Source                string
+			ID                    int
+			Name                  string
+			BIN                   string
+			BankDetails           string
+			Email                 string
+			Signer                string
+			IIN                   string
+			CompanyCode           string
+			AdditionalInformation string
+			UserContract          string
+			Status                int
+			CreatedAt             string
+			UpdatedAt             string
 		}
 
 		err = rows.Scan(
-			&record.source, &record.id, &record.name, &record.bin, &record.bankDetails,
-			&record.email, &record.signer, &record.iin, &record.companyCode,
-			&record.additionalInformation, &record.userContract, &record.status,
-			&record.createdAt, &record.updatedAt,
+			&record.Source, &record.ID, &record.Name, &record.BIN, &record.BankDetails,
+			&record.Email, &record.Signer, &record.IIN, &record.CompanyCode,
+			&record.AdditionalInformation, &record.UserContract, &record.Status,
+			&record.CreatedAt, &record.UpdatedAt,
 		)
 
 		if err != nil {
