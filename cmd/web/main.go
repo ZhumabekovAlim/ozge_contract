@@ -39,14 +39,7 @@ func main() {
 
 	app := initializeApp(db, errorLog, infoLog)
 
-	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"*"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowCredentials: true,
-		AllowedHeaders:   []string{"*"},
-		ExposedHeaders:   []string{"Content-Length"},
-		MaxAge:           600,
-	})
+	c := cors.New(cors.Options{})
 
 	// HTTP → HTTPS редирект
 	go func() {
@@ -87,7 +80,7 @@ func main() {
 	srv := &http.Server{
 		Addr:              *addr,
 		ErrorLog:          errorLog,
-		Handler:           c.Handler(app.routes()),
+		Handler:           app.routes(),
 		IdleTimeout:       2 * time.Minute,
 		ReadTimeout:       10 * time.Second,
 		WriteTimeout:      15 * time.Second,
