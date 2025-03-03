@@ -740,27 +740,28 @@ func (h *DiscardHandler) UpdateContractPath(w http.ResponseWriter, r *http.Reque
 	}
 
 	id, _ := strconv.Atoi(r.FormValue("id"))
+	signedId, _ := strconv.Atoi(r.FormValue("signedId"))
 	category := r.FormValue("category") // "too", "ip" или "individual"
 
 	// Определяем путь к подписанному договору (user_contract)
 	var userContractPath string
 	switch category {
 	case "too":
-		too, err := h.Service.TOOService.SearchTOOsByID(r.Context(), strconv.Itoa(id))
+		too, err := h.Service.TOOService.SearchTOOsByID(r.Context(), strconv.Itoa(signedId))
 		if err != nil {
 			http.Error(w, "TOO не найдено", http.StatusNotFound)
 			return
 		}
 		userContractPath = too.UserContract
 	case "ip":
-		ip, err := h.Service.IPService.SearchIPByID(r.Context(), strconv.Itoa(id))
+		ip, err := h.Service.IPService.SearchIPByID(r.Context(), strconv.Itoa(signedId))
 		if err != nil {
 			http.Error(w, "IP не найдено", http.StatusNotFound)
 			return
 		}
 		userContractPath = ip.UserContract
 	case "individual":
-		individual, err := h.Service.IndividualService.SearchIndividualByID(r.Context(), strconv.Itoa(id))
+		individual, err := h.Service.IndividualService.SearchIndividualByID(r.Context(), strconv.Itoa(signedId))
 		if err != nil {
 			http.Error(w, "Individual не найдено", http.StatusNotFound)
 			return
