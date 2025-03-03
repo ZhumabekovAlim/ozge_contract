@@ -5,7 +5,6 @@ import (
 	"crypto/tls"
 	"flag"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/rs/cors"
 	"log"
 	"net"
 	"net/http"
@@ -39,7 +38,7 @@ func main() {
 
 	app := initializeApp(db, errorLog, infoLog)
 
-	c := cors.New(cors.Options{})
+	//c := cors.New(cors.Options{})
 
 	// HTTP → HTTPS редирект
 	go func() {
