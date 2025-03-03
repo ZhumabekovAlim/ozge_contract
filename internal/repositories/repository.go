@@ -394,21 +394,25 @@ type CompanyDataRepo struct {
 }
 
 func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string) ([]interface{}, error) {
-	var validCompanyCode string
+	var companyID int
+	var storedHashes []struct {
+		ID       int
+		Password string
+	}
 
-	// 1. Получаем ВСЕ company_code и пароли
+	// 1. Получаем id компании и хеши паролей
 	rows, err := r.Db.QueryContext(ctx, `
-		SELECT c.password, t.company_code 
+		SELECT c.id, c.password 
 		FROM companies c
 		JOIN TOO t ON CAST(SUBSTRING_INDEX(t.company_code, '.', 1) AS UNSIGNED) = c.id
 		WHERE t.iin = ?
 		UNION
-		SELECT c.password, ip.company_code 
+		SELECT c.id, c.password 
 		FROM companies c
 		JOIN IP ip ON CAST(SUBSTRING_INDEX(ip.company_code, '.', 1) AS UNSIGNED) = c.id
 		WHERE ip.iin = ?
 		UNION
-		SELECT c.password, ind.company_code 
+		SELECT c.id, c.password 
 		FROM companies c
 		JOIN Individual ind ON CAST(SUBSTRING_INDEX(ind.company_code, '.', 1) AS UNSIGNED) = c.id
 		WHERE ind.iin = ?
@@ -418,24 +422,33 @@ func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string)
 	}
 	defer rows.Close()
 
-	// 2. Проверяем пароль и берём первый company_code, который совпал
+	// 2. Сохраняем id компании и хеши паролей
 	for rows.Next() {
-		var hash, companyCode string
-		if err := rows.Scan(&hash, &companyCode); err != nil {
+		var entry struct {
+			ID       int
+			Password string
+		}
+		if err := rows.Scan(&entry.ID, &entry.Password); err != nil {
 			return nil, err
 		}
+		storedHashes = append(storedHashes, entry)
+	}
 
-		if bcrypt.CompareHashAndPassword([]byte(hash), []byte(pass)) == nil {
-			validCompanyCode = companyCode
-			break // Берём только первый найденный company_code
+	// 3. Проверяем введенный пароль и запоминаем ID компании
+	passwordValid := false
+	for _, entry := range storedHashes {
+		if bcrypt.CompareHashAndPassword([]byte(entry.Password), []byte(pass)) == nil {
+			passwordValid = true
+			companyID = entry.ID // Сохраняем ID компании, у которой подошел пароль
+			break
 		}
 	}
 
-	if validCompanyCode == "" {
+	if !passwordValid {
 		return nil, fmt.Errorf("❌ Неверный пароль")
 	}
 
-	// 3. Формируем SQL-запрос с `= ?`
+	// 4. Получаем данные из всех таблиц (TOO, IP, Individual) с учетом company_id
 	query := `
 	SELECT * FROM (
     (SELECT 'TOO' as source, t.id, COALESCE(t.name, ''), COALESCE(t.bin, ''), COALESCE(t.bank_details, ''), 
@@ -444,9 +457,8 @@ func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string)
             COALESCE(t.user_contract, ''), COALESCE(t.status, 0), t.created_at, t.updated_at
      FROM TOO t
      JOIN companies c ON CAST(SUBSTRING_INDEX(t.company_code, '.', 1) AS UNSIGNED) = c.id
-     WHERE t.iin = ? AND t.company_code = ?
-    )
-    
+     WHERE t.iin = ? AND c.id = ?)
+     
     UNION ALL
     
     (SELECT 'IP' as source, ip.id, COALESCE(ip.name, ''), COALESCE(ip.bin, ''), COALESCE(ip.bank_details, ''), 
@@ -455,8 +467,7 @@ func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string)
             COALESCE(ip.user_contract, ''), COALESCE(ip.status, 0), ip.created_at, ip.updated_at
      FROM IP ip
      JOIN companies c ON CAST(SUBSTRING_INDEX(ip.company_code, '.', 1) AS UNSIGNED) = c.id
-     WHERE ip.iin = ? AND ip.company_code = ?
-    )
+     WHERE ip.iin = ? AND c.id = ?)
 
     UNION ALL
     
@@ -466,14 +477,12 @@ func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string)
             COALESCE(ind.user_contract, ''), COALESCE(ind.status, 0), ind.created_at, ind.updated_at
      FROM Individual ind
      JOIN companies c ON CAST(SUBSTRING_INDEX(ind.company_code, '.', 1) AS UNSIGNED) = c.id
-     WHERE ind.iin = ? AND ind.company_code = ?
-    )
+     WHERE ind.iin = ? AND c.id = ?)
 ) AS combined
 ORDER BY created_at DESC;
 	`
 
-	// 4. Выполняем SQL-запрос
-	rows, err = r.Db.QueryContext(ctx, query, iin, validCompanyCode, iin, validCompanyCode, iin, validCompanyCode)
+	rows, err = r.Db.QueryContext(ctx, query, iin, companyID, iin, companyID, iin, companyID)
 	if err != nil {
 		return nil, err
 	}
@@ -515,6 +524,7 @@ ORDER BY created_at DESC;
 
 	return results, rows.Err()
 }
+
 func (r *TOORepository) UpdateToken(ctx context.Context, id int, token string) error {
 	_, err := r.Db.ExecContext(ctx, `UPDATE TOO SET token = ? WHERE id = ?`, token, id)
 	return err
