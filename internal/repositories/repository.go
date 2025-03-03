@@ -394,9 +394,9 @@ type CompanyDataRepo struct {
 }
 
 func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string) ([]interface{}, error) {
-	var validCompanyCodes []string
+	var validCompanyCode string
 
-	// 1. Получаем ВСЕ хеши паролей и company_code
+	// 1. Получаем ВСЕ company_code и пароли
 	rows, err := r.Db.QueryContext(ctx, `
 		SELECT c.password, t.company_code 
 		FROM companies c
@@ -418,7 +418,7 @@ func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string)
 	}
 	defer rows.Close()
 
-	// 2. Проверяем пароль и сохраняем company_code, где пароль совпадает
+	// 2. Проверяем пароль и берём первый company_code, который совпал
 	for rows.Next() {
 		var hash, companyCode string
 		if err := rows.Scan(&hash, &companyCode); err != nil {
@@ -426,15 +426,16 @@ func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string)
 		}
 
 		if bcrypt.CompareHashAndPassword([]byte(hash), []byte(pass)) == nil {
-			validCompanyCodes = append(validCompanyCodes, companyCode)
+			validCompanyCode = companyCode
+			break // Берём только первый найденный company_code
 		}
 	}
 
-	if len(validCompanyCodes) == 0 {
+	if validCompanyCode == "" {
 		return nil, fmt.Errorf("❌ Неверный пароль")
 	}
 
-	// 3. Формируем запрос с фильтрацией по company_code
+	// 3. Формируем SQL-запрос с `= ?`
 	query := `
 	SELECT * FROM (
     (SELECT 'TOO' as source, t.id, COALESCE(t.name, ''), COALESCE(t.bin, ''), COALESCE(t.bank_details, ''), 
@@ -443,7 +444,7 @@ func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string)
             COALESCE(t.user_contract, ''), COALESCE(t.status, 0), t.created_at, t.updated_at
      FROM TOO t
      JOIN companies c ON CAST(SUBSTRING_INDEX(t.company_code, '.', 1) AS UNSIGNED) = c.id
-     WHERE t.iin = ? AND t.company_code IN (?)
+     WHERE t.iin = ? AND t.company_code = ?
     )
     
     UNION ALL
@@ -454,7 +455,7 @@ func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string)
             COALESCE(ip.user_contract, ''), COALESCE(ip.status, 0), ip.created_at, ip.updated_at
      FROM IP ip
      JOIN companies c ON CAST(SUBSTRING_INDEX(ip.company_code, '.', 1) AS UNSIGNED) = c.id
-     WHERE ip.iin = ? AND ip.company_code IN (?)
+     WHERE ip.iin = ? AND ip.company_code = ?
     )
 
     UNION ALL
@@ -465,19 +466,14 @@ func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string)
             COALESCE(ind.user_contract, ''), COALESCE(ind.status, 0), ind.created_at, ind.updated_at
      FROM Individual ind
      JOIN companies c ON CAST(SUBSTRING_INDEX(ind.company_code, '.', 1) AS UNSIGNED) = c.id
-     WHERE ind.iin = ? AND ind.company_code IN (?)
+     WHERE ind.iin = ? AND ind.company_code = ?
     )
 ) AS combined
 ORDER BY created_at DESC;
 	`
 
-	// 4. Преобразуем список `validCompanyCodes` в аргументы запроса
-	args := []interface{}{iin}
-	for _, code := range validCompanyCodes {
-		args = append(args, code)
-	}
-
-	rows, err = r.Db.QueryContext(ctx, query, args...)
+	// 4. Выполняем SQL-запрос
+	rows, err = r.Db.QueryContext(ctx, query, iin, validCompanyCode, iin, validCompanyCode, iin, validCompanyCode)
 	if err != nil {
 		return nil, err
 	}
@@ -519,7 +515,6 @@ ORDER BY created_at DESC;
 
 	return results, rows.Err()
 }
-
 func (r *TOORepository) UpdateToken(ctx context.Context, id int, token string) error {
 	_, err := r.Db.ExecContext(ctx, `UPDATE TOO SET token = ? WHERE id = ?`, token, id)
 	return err
