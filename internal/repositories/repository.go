@@ -725,7 +725,7 @@ func (r *IndividualRepository) FindByID(ctx context.Context, id string) (models.
 
 	err := r.Db.QueryRowContext(ctx, `
 		SELECT 
-			  COALESCE(id, '') AS id, 
+	COALESCE(id, '') AS id, 
     COALESCE(full_name, '') AS full_name, 
     COALESCE(iin, '') AS iin, 
     COALESCE(email, '') AS email, 
@@ -733,7 +733,8 @@ func (r *IndividualRepository) FindByID(ctx context.Context, id string) (models.
     COALESCE(user_contract, '') AS user_contract, 
     COALESCE(additional_information, '') AS additional_information, 
     COALESCE(token, '') AS token, 
-    COALESCE(status, '') AS status, 
+    COALESCE(status, '') AS status,
+	COALESCE(contract_name, '') AS contract_name,
     COALESCE(created_at, '') AS created_at, 
     COALESCE(updated_at, '') AS updated_at
 		FROM Individual WHERE id = ?`, id).
@@ -746,6 +747,7 @@ func (r *IndividualRepository) FindByID(ctx context.Context, id string) (models.
 			&individual.AdditionalInformation,
 			&individual.Token,
 			&individual.Status,
+			&individual.ContractName,
 			&individual.CreatedAt,
 			&individual.UpdatedAt)
 
