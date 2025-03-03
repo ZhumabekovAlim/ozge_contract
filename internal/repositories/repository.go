@@ -394,25 +394,21 @@ type CompanyDataRepo struct {
 }
 
 func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string) ([]interface{}, error) {
-	var companyID int
-	var storedHashes []struct {
-		ID       int
-		Password string
-	}
+	var storedHashes []string
 
-	// 1. Получаем id компании и хеши паролей
+	// 1. Получаем ВСЕ хеши паролей, связанных с company_code из всех таблиц
 	rows, err := r.Db.QueryContext(ctx, `
-		SELECT c.id, c.password 
+		SELECT c.password 
 		FROM companies c
 		JOIN TOO t ON CAST(SUBSTRING_INDEX(t.company_code, '.', 1) AS UNSIGNED) = c.id
 		WHERE t.iin = ?
 		UNION
-		SELECT c.id, c.password 
+		SELECT c.password 
 		FROM companies c
 		JOIN IP ip ON CAST(SUBSTRING_INDEX(ip.company_code, '.', 1) AS UNSIGNED) = c.id
 		WHERE ip.iin = ?
 		UNION
-		SELECT c.id, c.password 
+		SELECT c.password 
 		FROM companies c
 		JOIN Individual ind ON CAST(SUBSTRING_INDEX(ind.company_code, '.', 1) AS UNSIGNED) = c.id
 		WHERE ind.iin = ?
@@ -422,24 +418,20 @@ func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string)
 	}
 	defer rows.Close()
 
-	// 2. Сохраняем id компании и хеши паролей
+	// 2. Сохраняем все хеши паролей
 	for rows.Next() {
-		var entry struct {
-			ID       int
-			Password string
-		}
-		if err := rows.Scan(&entry.ID, &entry.Password); err != nil {
+		var hash string
+		if err := rows.Scan(&hash); err != nil {
 			return nil, err
 		}
-		storedHashes = append(storedHashes, entry)
+		storedHashes = append(storedHashes, hash)
 	}
 
-	// 3. Проверяем введенный пароль и запоминаем ID компании
+	// 3. Проверяем введенный пароль
 	passwordValid := false
-	for _, entry := range storedHashes {
-		if bcrypt.CompareHashAndPassword([]byte(entry.Password), []byte(pass)) == nil {
+	for _, hash := range storedHashes {
+		if bcrypt.CompareHashAndPassword([]byte(hash), []byte(pass)) == nil {
 			passwordValid = true
-			companyID = entry.ID // Сохраняем ID компании, у которой подошел пароль
 			break
 		}
 	}
@@ -448,7 +440,7 @@ func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string)
 		return nil, fmt.Errorf("❌ Неверный пароль")
 	}
 
-	// 4. Получаем данные из всех таблиц (TOO, IP, Individual) с учетом company_id
+	// 4. Получаем данные из всех таблиц (TOO, IP, Individual)
 	query := `
 	SELECT * FROM (
     (SELECT 'TOO' as source, t.id, COALESCE(t.name, ''), COALESCE(t.bin, ''), COALESCE(t.bank_details, ''), 
@@ -457,7 +449,7 @@ func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string)
             COALESCE(t.user_contract, ''), COALESCE(t.status, 0), t.created_at, t.updated_at
      FROM TOO t
      JOIN companies c ON CAST(SUBSTRING_INDEX(t.company_code, '.', 1) AS UNSIGNED) = c.id
-     WHERE t.iin = ? AND c.id = ?)
+     WHERE t.iin = ?)
      
     UNION ALL
     
@@ -467,7 +459,7 @@ func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string)
             COALESCE(ip.user_contract, ''), COALESCE(ip.status, 0), ip.created_at, ip.updated_at
      FROM IP ip
      JOIN companies c ON CAST(SUBSTRING_INDEX(ip.company_code, '.', 1) AS UNSIGNED) = c.id
-     WHERE ip.iin = ? AND c.id = ?)
+     WHERE ip.iin = ?)
 
     UNION ALL
     
@@ -477,12 +469,12 @@ func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string)
             COALESCE(ind.user_contract, ''), COALESCE(ind.status, 0), ind.created_at, ind.updated_at
      FROM Individual ind
      JOIN companies c ON CAST(SUBSTRING_INDEX(ind.company_code, '.', 1) AS UNSIGNED) = c.id
-     WHERE ind.iin = ? AND c.id = ?)
+     WHERE ind.iin = ?)
 ) AS combined
 ORDER BY created_at DESC;
 	`
 
-	rows, err = r.Db.QueryContext(ctx, query, iin, companyID, iin, companyID, iin, companyID)
+	rows, err = r.Db.QueryContext(ctx, query, iin, iin, iin)
 	if err != nil {
 		return nil, err
 	}
