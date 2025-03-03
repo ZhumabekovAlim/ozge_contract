@@ -1,6 +1,7 @@
 package main
 
 import (
+	"compress/gzip"
 	"crypto/tls"
 	"flag"
 	_ "github.com/go-sql-driver/mysql"
@@ -137,4 +138,37 @@ func (app *application) healthCheck(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("OK"))
+}
+
+type gzipResponseWriter struct {
+	http.ResponseWriter
+	gz *gzip.Writer
+}
+
+func (w *gzipResponseWriter) Write(b []byte) (int, error) {
+	return w.gz.Write(b)
+}
+
+func (w *gzipResponseWriter) WriteHeader(statusCode int) {
+	w.Header().Set("Content-Encoding", "gzip")
+	w.ResponseWriter.WriteHeader(statusCode)
+}
+
+func gzipMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Проверяем, поддерживает ли клиент gzip
+		if r.Header.Get("Accept-Encoding") != "" && r.Header.Get("Accept-Encoding") != "gzip" {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		// Создаем gzip.Writer
+		gz := gzip.NewWriter(w)
+		defer gz.Close()
+
+		// Оборачиваем ResponseWriter
+		wrappedWriter := &gzipResponseWriter{ResponseWriter: w, gz: gz}
+
+		next.ServeHTTP(wrappedWriter, r)
+	})
 }
