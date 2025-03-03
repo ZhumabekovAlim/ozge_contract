@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"flag"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/rs/cors"
 	"log"
 	"net"
 	"net/http"
@@ -38,7 +39,14 @@ func main() {
 
 	app := initializeApp(db, errorLog, infoLog)
 
-	//c := cors.New(cors.Options{})
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowCredentials: true,
+		AllowedHeaders:   []string{"*"},
+		ExposedHeaders:   []string{"Content-Length"},
+		MaxAge:           600,
+	})
 
 	// HTTP → HTTPS редирект
 	go func() {
@@ -79,12 +87,11 @@ func main() {
 	srv := &http.Server{
 		Addr:              *addr,
 		ErrorLog:          errorLog,
-		Handler:           app.routes(),
-		IdleTimeout:       2 * time.Minute,
-		ReadTimeout:       10 * time.Second,
-		WriteTimeout:      15 * time.Second,
+		Handler:           c.Handler(app.routes()),
+		IdleTimeout:       30 * time.Second, // Было 2 минуты
+		ReadTimeout:       5 * time.Second,  // Было 10 секунд
+		WriteTimeout:      10 * time.Second, // Было 15 секунд
 		ReadHeaderTimeout: 2 * time.Second,
-		TLSConfig:         tlsConfig,
 	}
 	srv.SetKeepAlivesEnabled(true)
 
