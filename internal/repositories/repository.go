@@ -730,10 +730,10 @@ func (r *IndividualRepository) FindByID(ctx context.Context, id string) (models.
     COALESCE(iin, '') AS iin, 
     COALESCE(email, '') AS email, 
     COALESCE(company_code, '') AS company_code, 
-    COALESCE(user_contract, '') AS user_contract, 
+   COALESCE(user_contract, '') AS user_contract,
     COALESCE(additional_information, '') AS additional_information, 
     COALESCE(token, '') AS token, 
-    COALESCE(status, '') AS status,
+    COALESCE(status, 0) AS status,
 	COALESCE(contract_name, '') AS contract_name,
     COALESCE(created_at, '') AS created_at, 
     COALESCE(updated_at, '') AS updated_at
@@ -752,6 +752,7 @@ func (r *IndividualRepository) FindByID(ctx context.Context, id string) (models.
 			&individual.UpdatedAt)
 
 	if err != nil {
+		fmt.Println("1231231231", err)
 		return models.Individual{}, err
 	}
 
