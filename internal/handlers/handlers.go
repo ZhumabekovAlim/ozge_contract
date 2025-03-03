@@ -667,14 +667,6 @@ func (h *CompanyHandler) CheckPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var company models.Company
-
-	// Декодируем JSON-запрос в структуру
-	if err := json.NewDecoder(r.Body).Decode(&company); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
-	}
-
 	match, err := h.Service.CheckPassword(context.Background(), id, pass)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnauthorized)

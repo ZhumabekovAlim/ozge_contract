@@ -723,8 +723,6 @@ func (r *IPRepository) FindByID(ctx context.Context, id string) (models.IP, erro
 func (r *IndividualRepository) FindByID(ctx context.Context, id string) (models.Individual, error) {
 	var individual models.Individual
 
-	fmt.Println("id: ", id)
-
 	err := r.Db.QueryRowContext(ctx, `
 		SELECT 
 	COALESCE(id, '') AS id, 
@@ -754,11 +752,8 @@ func (r *IndividualRepository) FindByID(ctx context.Context, id string) (models.
 			&individual.UpdatedAt)
 
 	if err != nil {
-		fmt.Println("1231231231", err)
 		return models.Individual{}, err
 	}
-
-	fmt.Println(individual)
 
 	return individual, nil
 }
