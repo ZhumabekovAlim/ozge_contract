@@ -394,21 +394,21 @@ type CompanyDataRepo struct {
 }
 
 func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string) ([]interface{}, error) {
-	var storedHashes []string
+	var validCompanyCodes []string
 
-	// 1. Получаем ВСЕ хеши паролей, связанных с company_code из всех таблиц
+	// 1. Получаем ВСЕ хеши паролей и company_code
 	rows, err := r.Db.QueryContext(ctx, `
-		SELECT c.password 
+		SELECT c.password, t.company_code 
 		FROM companies c
 		JOIN TOO t ON CAST(SUBSTRING_INDEX(t.company_code, '.', 1) AS UNSIGNED) = c.id
 		WHERE t.iin = ?
 		UNION
-		SELECT c.password 
+		SELECT c.password, ip.company_code 
 		FROM companies c
 		JOIN IP ip ON CAST(SUBSTRING_INDEX(ip.company_code, '.', 1) AS UNSIGNED) = c.id
 		WHERE ip.iin = ?
 		UNION
-		SELECT c.password 
+		SELECT c.password, ind.company_code 
 		FROM companies c
 		JOIN Individual ind ON CAST(SUBSTRING_INDEX(ind.company_code, '.', 1) AS UNSIGNED) = c.id
 		WHERE ind.iin = ?
@@ -418,29 +418,23 @@ func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string)
 	}
 	defer rows.Close()
 
-	// 2. Сохраняем все хеши паролей
+	// 2. Проверяем пароль и сохраняем company_code, где пароль совпадает
 	for rows.Next() {
-		var hash string
-		if err := rows.Scan(&hash); err != nil {
+		var hash, companyCode string
+		if err := rows.Scan(&hash, &companyCode); err != nil {
 			return nil, err
 		}
-		storedHashes = append(storedHashes, hash)
-	}
 
-	// 3. Проверяем введенный пароль
-	passwordValid := false
-	for _, hash := range storedHashes {
 		if bcrypt.CompareHashAndPassword([]byte(hash), []byte(pass)) == nil {
-			passwordValid = true
-			break
+			validCompanyCodes = append(validCompanyCodes, companyCode)
 		}
 	}
 
-	if !passwordValid {
+	if len(validCompanyCodes) == 0 {
 		return nil, fmt.Errorf("❌ Неверный пароль")
 	}
 
-	// 4. Получаем данные из всех таблиц (TOO, IP, Individual)
+	// 3. Формируем запрос с фильтрацией по company_code
 	query := `
 	SELECT * FROM (
     (SELECT 'TOO' as source, t.id, COALESCE(t.name, ''), COALESCE(t.bin, ''), COALESCE(t.bank_details, ''), 
@@ -449,8 +443,9 @@ func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string)
             COALESCE(t.user_contract, ''), COALESCE(t.status, 0), t.created_at, t.updated_at
      FROM TOO t
      JOIN companies c ON CAST(SUBSTRING_INDEX(t.company_code, '.', 1) AS UNSIGNED) = c.id
-     WHERE t.iin = ?)
-     
+     WHERE t.iin = ? AND t.company_code IN (?)
+    )
+    
     UNION ALL
     
     (SELECT 'IP' as source, ip.id, COALESCE(ip.name, ''), COALESCE(ip.bin, ''), COALESCE(ip.bank_details, ''), 
@@ -459,7 +454,8 @@ func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string)
             COALESCE(ip.user_contract, ''), COALESCE(ip.status, 0), ip.created_at, ip.updated_at
      FROM IP ip
      JOIN companies c ON CAST(SUBSTRING_INDEX(ip.company_code, '.', 1) AS UNSIGNED) = c.id
-     WHERE ip.iin = ?)
+     WHERE ip.iin = ? AND ip.company_code IN (?)
+    )
 
     UNION ALL
     
@@ -469,12 +465,19 @@ func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string)
             COALESCE(ind.user_contract, ''), COALESCE(ind.status, 0), ind.created_at, ind.updated_at
      FROM Individual ind
      JOIN companies c ON CAST(SUBSTRING_INDEX(ind.company_code, '.', 1) AS UNSIGNED) = c.id
-     WHERE ind.iin = ?)
+     WHERE ind.iin = ? AND ind.company_code IN (?)
+    )
 ) AS combined
 ORDER BY created_at DESC;
 	`
 
-	rows, err = r.Db.QueryContext(ctx, query, iin, iin, iin)
+	// 4. Преобразуем список `validCompanyCodes` в аргументы запроса
+	args := []interface{}{iin}
+	for _, code := range validCompanyCodes {
+		args = append(args, code)
+	}
+
+	rows, err = r.Db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -484,27 +487,27 @@ ORDER BY created_at DESC;
 
 	for rows.Next() {
 		var record struct {
-			Source                string
-			ID                    int
-			Name                  string
-			BIN                   string
-			BankDetails           string
-			Email                 string
-			Signer                string
-			IIN                   string
-			CompanyCode           string
-			AdditionalInformation string
-			UserContract          string
-			Status                int
-			CreatedAt             string
-			UpdatedAt             string
+			source                string
+			id                    int
+			name                  string
+			bin                   string
+			bankDetails           string
+			email                 string
+			signer                string
+			iin                   string
+			companyCode           string
+			additionalInformation string
+			userContract          string
+			status                int
+			createdAt             string
+			updatedAt             string
 		}
 
 		err = rows.Scan(
-			&record.Source, &record.ID, &record.Name, &record.BIN, &record.BankDetails,
-			&record.Email, &record.Signer, &record.IIN, &record.CompanyCode,
-			&record.AdditionalInformation, &record.UserContract, &record.Status,
-			&record.CreatedAt, &record.UpdatedAt,
+			&record.source, &record.id, &record.name, &record.bin, &record.bankDetails,
+			&record.email, &record.signer, &record.iin, &record.companyCode,
+			&record.additionalInformation, &record.userContract, &record.status,
+			&record.createdAt, &record.updatedAt,
 		)
 
 		if err != nil {
