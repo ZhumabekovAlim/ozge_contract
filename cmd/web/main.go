@@ -54,6 +54,10 @@ func main() {
 		}
 	}()
 
+	go func() {
+		log.Println(http.ListenAndServe("localhost:6060", nil))
+	}()
+
 	// Настройки TLS
 	tlsConfig := &tls.Config{
 		MinVersion: tls.VersionTLS12, // Поддержка TLS 1.2 и выше
