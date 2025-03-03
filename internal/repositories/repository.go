@@ -725,17 +725,17 @@ func (r *IndividualRepository) FindByID(ctx context.Context, id string) (models.
 
 	err := r.Db.QueryRowContext(ctx, `
 		SELECT 
-			id, 
-			full_name, 
-			iin, 
-			COALESCE(email, '') as email,
-			company_code,
-			COALESCE(user_contract, '') as user_contract,
-			COALESCE(additional_information, '') as additional_information,
-			token,
-			status,
-			created_at,
-			updated_at
+			  COALESCE(id, '') AS id, 
+    COALESCE(full_name, '') AS full_name, 
+    COALESCE(iin, '') AS iin, 
+    COALESCE(email, '') AS email, 
+    COALESCE(company_code, '') AS company_code, 
+    COALESCE(user_contract, '') AS user_contract, 
+    COALESCE(additional_information, '') AS additional_information, 
+    COALESCE(token, '') AS token, 
+    COALESCE(status, '') AS status, 
+    COALESCE(created_at, '') AS created_at, 
+    COALESCE(updated_at, '') AS updated_at
 		FROM Individual WHERE id = ?`, id).
 		Scan(&individual.ID,
 			&individual.FullName,
