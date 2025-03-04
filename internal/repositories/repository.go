@@ -181,11 +181,11 @@ func (r *TOORepository) GetTOOsByBIN(ctx context.Context, iin, pass string) ([]m
 	FROM TOO t
 	JOIN companies c ON CAST(SUBSTRING_INDEX(t.company_code, '.', 1) AS UNSIGNED) = c.id
 	LEFT JOIN discard d ON t.id = d.contract_id
-	WHERE t.iin = ? AND c.id = ?
+	WHERE (t.iin = ? OR ? = 'all') AND c.id = ?
 	ORDER BY t.created_at DESC
 	`
 
-	rows, err = r.Db.QueryContext(ctx, query, iin, companyID)
+	rows, err = r.Db.QueryContext(ctx, query, iin, iin, companyID)
 	if err != nil {
 		return nil, err
 	}
@@ -274,11 +274,11 @@ func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin, pass string) ([]mod
 	FROM IP ip
 	JOIN companies c ON CAST(SUBSTRING_INDEX(ip.company_code, '.', 1) AS UNSIGNED) = c.id
 	LEFT JOIN discard d ON ip.id = d.contract_id
-	WHERE ip.iin = ? AND c.id = ?
+	 WHERE (ip.iin = ? OR ? = 'all') AND c.id = ?
 	ORDER BY ip.created_at DESC
 	`
 
-	rows, err = r.Db.QueryContext(ctx, query, iin, companyID)
+	rows, err = r.Db.QueryContext(ctx, query, iin, iin, companyID)
 	if err != nil {
 		return nil, err
 	}
@@ -367,11 +367,11 @@ func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, pas
 	FROM Individual ind
 	JOIN companies c ON CAST(SUBSTRING_INDEX(ind.company_code, '.', 1) AS UNSIGNED) = c.id
 	LEFT JOIN discard d ON ind.id = d.contract_id
-	WHERE ind.iin = ? AND c.id = ?
+	WHERE (ind.iin = ? OR ? = 'all') AND c.id = ?
 	ORDER BY ind.created_at DESC
 	`
 
-	rows, err = r.Db.QueryContext(ctx, query, iin, companyID)
+	rows, err = r.Db.QueryContext(ctx, query, iin, iin, companyID)
 	if err != nil {
 		return nil, err
 	}
