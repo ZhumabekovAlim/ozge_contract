@@ -138,7 +138,7 @@ func (r *TOORepository) GetTOOsByBIN(ctx context.Context, iin, pass string) ([]m
 		SELECT c.id, c.password 
 		FROM companies c
 		JOIN TOO t ON CAST(SUBSTRING_INDEX(t.company_code, '.', 1) AS UNSIGNED) = c.id
-		WHERE (t.iin = ? OR ? = 'all') AND (status = 2 OR status = 3)
+		WHERE t.iin = ? OR ? = 'all' 
 	`, iin, iin)
 	if err != nil {
 		return nil, err
@@ -181,7 +181,7 @@ func (r *TOORepository) GetTOOsByBIN(ctx context.Context, iin, pass string) ([]m
 	FROM TOO t
 	JOIN companies c ON CAST(SUBSTRING_INDEX(t.company_code, '.', 1) AS UNSIGNED) = c.id
 	LEFT JOIN discard d ON t.id = d.contract_id
-	WHERE (t.iin = ? OR ? = 'all') AND c.id = ?
+	WHERE (t.iin = ? OR ? = 'all') AND c.id = ? AND status != 1
 	ORDER BY t.created_at DESC
 	`
 
@@ -229,7 +229,7 @@ func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin, pass string) ([]mod
 		SELECT c.id, c.password 
 		FROM companies c
 		JOIN IP ip ON CAST(SUBSTRING_INDEX(ip.company_code, '.', 1) AS UNSIGNED) = c.id
-		WHERE (ip.iin = ? OR ? = 'all') AND (status = 2 OR status = 3)
+		WHERE ip.iin = ? OR ? = 'all'
 	`, iin, iin)
 	if err != nil {
 		return nil, err
@@ -274,7 +274,7 @@ func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin, pass string) ([]mod
 	FROM IP ip
 	JOIN companies c ON CAST(SUBSTRING_INDEX(ip.company_code, '.', 1) AS UNSIGNED) = c.id
 	LEFT JOIN discard d ON ip.id = d.contract_id
-	 WHERE (ip.iin = ? OR ? = 'all') AND c.id = ?
+	 WHERE (ip.iin = ? OR ? = 'all') AND c.id = ? AND status != 1
 	ORDER BY ip.created_at DESC
 	`
 
@@ -322,7 +322,7 @@ func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, pas
 		SELECT c.id, c.password 
 		FROM companies c
 		JOIN Individual ind ON CAST(SUBSTRING_INDEX(ind.company_code, '.', 1) AS UNSIGNED) = c.id
-		WHERE (ind.iin = ? OR ? = 'all') AND (status = 2 OR status = 3)
+		WHERE ind.iin = ? OR ? = 'all'
 	`, iin, iin)
 	if err != nil {
 		return nil, err
@@ -367,7 +367,7 @@ func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, pas
 	FROM Individual ind
 	JOIN companies c ON CAST(SUBSTRING_INDEX(ind.company_code, '.', 1) AS UNSIGNED) = c.id
 	LEFT JOIN discard d ON ind.id = d.contract_id
-	WHERE (ind.iin = ? OR ? = 'all') AND c.id = ?
+	WHERE (ind.iin = ? OR ? = 'all') AND c.id = ? AND status != 1
 	ORDER BY ind.created_at DESC
 	`
 
@@ -418,17 +418,17 @@ func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string)
 		SELECT c.id, c.password 
 		FROM companies c
 		JOIN TOO t ON CAST(SUBSTRING_INDEX(t.company_code, '.', 1) AS UNSIGNED) = c.id
-		WHERE (t.iin = ? OR ? = 'all') AND (status = 2 OR status = 3)
+		WHERE t.iin = ? OR ? = 'all'
 		UNION
 		SELECT c.id, c.password 
 		FROM companies c
 		JOIN IP ip ON CAST(SUBSTRING_INDEX(ip.company_code, '.', 1) AS UNSIGNED) = c.id
-		WHERE (ip.iin = ? OR ? = 'all') AND (status = 2 OR status = 3)
+		WHERE ip.iin = ? OR ? = 'all'
 		UNION
 		SELECT c.id, c.password 
 		FROM companies c
 		JOIN Individual ind ON CAST(SUBSTRING_INDEX(ind.company_code, '.', 1) AS UNSIGNED) = c.id
-		WHERE (ind.iin = ? OR ? = 'all') AND (status = 2 OR status = 3)
+		WHERE ind.iin = ? OR ? = 'all'
 	`, iin, iin, iin, iin, iin, iin)
 	if err != nil {
 		return nil, err
@@ -475,7 +475,7 @@ func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string)
 			 FROM TOO t
 			 JOIN companies c ON CAST(SUBSTRING_INDEX(t.company_code, '.', 1) AS UNSIGNED) = c.id
 			 LEFT JOIN discard d ON t.id = d.contract_id
-			 WHERE (t.iin = ? OR ? = 'all') AND c.id = ?)
+			 WHERE (t.iin = ? OR ? = 'all') AND c.id = ? AND status != 1) 
 			 
 			UNION ALL
 			
@@ -490,7 +490,7 @@ func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string)
 			 FROM IP ip
 			 JOIN companies c ON CAST(SUBSTRING_INDEX(ip.company_code, '.', 1) AS UNSIGNED) = c.id
 			 LEFT JOIN discard d ON ip.id = d.contract_id
-			 WHERE (ip.iin = ? OR ? = 'all') AND c.id = ?)
+			 WHERE (ip.iin = ? OR ? = 'all') AND c.id = ? AND status != 1)
 		
 			UNION ALL
 			
@@ -505,7 +505,7 @@ func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string)
 			 FROM Individual ind
 			 JOIN companies c ON CAST(SUBSTRING_INDEX(ind.company_code, '.', 1) AS UNSIGNED) = c.id
 			 LEFT JOIN discard d ON ind.id = d.contract_id
-			 WHERE (ind.iin = ? OR ? = 'all') AND c.id = ?)
+			 WHERE (ind.iin = ? OR ? = 'all') AND c.id = ? AND status != 1)
 		) AS combined
 		ORDER BY created_at DESC;
 	`
