@@ -432,10 +432,10 @@ func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string)
 					COALESCE(t.email, ''), COALESCE(t.signer, ''), COALESCE(t.iin, ''), 
 					COALESCE(t.company_code, ''), COALESCE(t.additional_information, ''), 
 					COALESCE(t.user_contract, ''), COALESCE(t.status, 0), t.created_at, t.updated_at,
-					d.id, COALESCE(d.full_name, ''), COALESCE(d.iin, ''), COALESCE(d.phone_number, ''), 
+					d.id as discard_id, COALESCE(d.full_name, ''), COALESCE(d.iin, ''), COALESCE(d.phone_number, ''), 
 					COALESCE(d.contract_id, 0), COALESCE(d.reason, ''), COALESCE(d.company_name, ''), 
 					COALESCE(d.bin, ''), COALESCE(d.signer, ''), COALESCE(d.contract_path, ''), 
-					COALESCE(d.token, ''), d.created_at, d.updated_at
+					COALESCE(d.token, ''), d.created_at as discard_created_at, d.updated_at as discard_updated_at
 			 FROM TOO t
 			 JOIN companies c ON CAST(SUBSTRING_INDEX(t.company_code, '.', 1) AS UNSIGNED) = c.id
 			 LEFT JOIN discard d ON t.id = d.contract_id
@@ -447,10 +447,10 @@ func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string)
 					COALESCE(ip.email, ''), COALESCE(ip.signer, ''), COALESCE(ip.iin, ''), 
 					COALESCE(ip.company_code, ''), COALESCE(ip.additional_information, ''), 
 					COALESCE(ip.user_contract, ''), COALESCE(ip.status, 0), ip.created_at, ip.updated_at,
-					d.id, COALESCE(d.full_name, ''), COALESCE(d.iin, ''), COALESCE(d.phone_number, ''), 
+					d.id  as discard_id, COALESCE(d.full_name, ''), COALESCE(d.iin, ''), COALESCE(d.phone_number, ''), 
 					COALESCE(d.contract_id, 0), COALESCE(d.reason, ''), COALESCE(d.company_name, ''), 
 					COALESCE(d.bin, ''), COALESCE(d.signer, ''), COALESCE(d.contract_path, ''), 
-					COALESCE(d.token, ''), d.created_at, d.updated_at
+					COALESCE(d.token, ''), d.created_at as discard_created_at, d.updated_at as discard_updated_at
 			 FROM IP ip
 			 JOIN companies c ON CAST(SUBSTRING_INDEX(ip.company_code, '.', 1) AS UNSIGNED) = c.id
 			 LEFT JOIN discard d ON ip.id = d.contract_id
@@ -462,10 +462,10 @@ func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string)
 					COALESCE(ind.email, ''), '' AS signer, COALESCE(ind.iin, ''), 
 					COALESCE(ind.company_code, ''), COALESCE(ind.additional_information, ''), 
 					COALESCE(ind.user_contract, ''), COALESCE(ind.status, 0), ind.created_at, ind.updated_at,
-					d.id, COALESCE(d.full_name, ''), COALESCE(d.iin, ''), COALESCE(d.phone_number, ''), 
+					d.id  as discard_id, COALESCE(d.full_name, ''), COALESCE(d.iin, ''), COALESCE(d.phone_number, ''), 
 					COALESCE(d.contract_id, 0), COALESCE(d.reason, ''), COALESCE(d.company_name, ''), 
 					COALESCE(d.bin, ''), COALESCE(d.signer, ''), COALESCE(d.contract_path, ''), 
-					COALESCE(d.token, ''), d.created_at, d.updated_at
+					COALESCE(d.token, ''), d.created_at as discard_created_at, d.updated_at as discard_updated_at
 			 FROM Individual ind
 			 JOIN companies c ON CAST(SUBSTRING_INDEX(ind.company_code, '.', 1) AS UNSIGNED) = c.id
 			 LEFT JOIN discard d ON ind.id = d.contract_id
