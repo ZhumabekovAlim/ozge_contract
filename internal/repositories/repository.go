@@ -138,7 +138,7 @@ func (r *TOORepository) GetTOOsByBIN(ctx context.Context, iin, pass string) ([]m
 		SELECT c.id, c.password 
 		FROM companies c
 		JOIN TOO t ON CAST(SUBSTRING_INDEX(t.company_code, '.', 1) AS UNSIGNED) = c.id
-		WHERE t.iin = ? OR ? = 'all'
+		WHERE (t.iin = ? OR ? = 'all') AND (status = 2 OR status = 3)
 	`, iin, iin)
 	if err != nil {
 		return nil, err
@@ -229,7 +229,7 @@ func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin, pass string) ([]mod
 		SELECT c.id, c.password 
 		FROM companies c
 		JOIN IP ip ON CAST(SUBSTRING_INDEX(ip.company_code, '.', 1) AS UNSIGNED) = c.id
-		WHERE ip.iin = ? OR ? = 'all'
+		WHERE (ip.iin = ? OR ? = 'all') AND (status = 2 OR status = 3)
 	`, iin, iin)
 	if err != nil {
 		return nil, err
@@ -322,7 +322,7 @@ func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, pas
 		SELECT c.id, c.password 
 		FROM companies c
 		JOIN Individual ind ON CAST(SUBSTRING_INDEX(ind.company_code, '.', 1) AS UNSIGNED) = c.id
-		WHERE ind.iin = ? OR ? = 'all'
+		WHERE (ind.iin = ? OR ? = 'all') AND (status = 2 OR status = 3)
 	`, iin, iin)
 	if err != nil {
 		return nil, err
@@ -418,17 +418,17 @@ func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string)
 		SELECT c.id, c.password 
 		FROM companies c
 		JOIN TOO t ON CAST(SUBSTRING_INDEX(t.company_code, '.', 1) AS UNSIGNED) = c.id
-		WHERE t.iin = ? OR ? = 'all'
+		WHERE (t.iin = ? OR ? = 'all') AND (status = 2 OR status = 3)
 		UNION
 		SELECT c.id, c.password 
 		FROM companies c
 		JOIN IP ip ON CAST(SUBSTRING_INDEX(ip.company_code, '.', 1) AS UNSIGNED) = c.id
-		WHERE ip.iin = ? OR ? = 'all'
+		WHERE (ip.iin = ? OR ? = 'all') AND (status = 2 OR status = 3)
 		UNION
 		SELECT c.id, c.password 
 		FROM companies c
 		JOIN Individual ind ON CAST(SUBSTRING_INDEX(ind.company_code, '.', 1) AS UNSIGNED) = c.id
-		WHERE ind.iin = ? OR ? = 'all'
+		WHERE (ind.iin = ? OR ? = 'all') AND (status = 2 OR status = 3)
 	`, iin, iin, iin, iin, iin, iin)
 	if err != nil {
 		return nil, err
