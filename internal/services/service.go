@@ -133,26 +133,26 @@ func (s *IndividualService) UpdateContractIndividual(ctx context.Context, indivi
 }
 
 // In TOOService
-func (s *TOOService) SearchTOOsByBIN(ctx context.Context, iin, pass string) ([]models.TOO, error) {
-	return s.Repo.GetTOOsByBIN(ctx, iin, pass)
+func (s *TOOService) SearchTOOsByBIN(ctx context.Context, iin, pass, id string) ([]models.TOO, error) {
+	return s.Repo.GetTOOsByBIN(ctx, iin, pass, id)
 }
 
 // In IPService
-func (s *IPService) SearchIPsByIIN(ctx context.Context, iin, code string) ([]models.IP, error) {
-	return s.Repo.GetIPsByIIN(ctx, iin, code)
+func (s *IPService) SearchIPsByIIN(ctx context.Context, iin, code, id string) ([]models.IP, error) {
+	return s.Repo.GetIPsByIIN(ctx, iin, code, id)
 }
 
 // In IndividualService
-func (s *IndividualService) SearchIndividualsByIIN(ctx context.Context, iin, code string) ([]models.Individual, error) {
-	return s.Repo.GetIndividualsByIIN(ctx, iin, code)
+func (s *IndividualService) SearchIndividualsByIIN(ctx context.Context, iin, code, id string) ([]models.Individual, error) {
+	return s.Repo.GetIndividualsByIIN(ctx, iin, code, id)
 }
 
 type CompanyDataService struct {
 	Repo *repositories.CompanyDataRepo
 }
 
-func (s *CompanyDataService) GetAllDataByIIN(ctx context.Context, iin, pass string) ([]interface{}, error) {
-	return s.Repo.GetAllDataByIIN(ctx, iin, pass)
+func (s *CompanyDataService) GetAllDataByIIN(ctx context.Context, iin, pass, id string) ([]interface{}, error) {
+	return s.Repo.GetAllDataByIIN(ctx, iin, pass, id)
 }
 
 func (s *TOOService) SearchTOOByToken(ctx context.Context, token string) (models.TOO, error) {

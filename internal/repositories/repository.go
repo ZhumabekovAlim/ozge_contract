@@ -127,7 +127,7 @@ func (r *IndividualRepository) UpdateContractIndividual(ctx context.Context, ind
 }
 
 // For TOO (search by BIN)
-func (r *TOORepository) GetTOOsByBIN(ctx context.Context, iin, pass string) ([]models.TOO, error) {
+func (r *TOORepository) GetTOOsByBIN(ctx context.Context, iin, pass, id string) ([]models.TOO, error) {
 	var companyID int
 	var storedHashes []struct {
 		ID       int
@@ -181,11 +181,11 @@ func (r *TOORepository) GetTOOsByBIN(ctx context.Context, iin, pass string) ([]m
 	FROM TOO t
 	JOIN companies c ON CAST(SUBSTRING_INDEX(t.company_code, '.', 1) AS UNSIGNED) = c.id
 	LEFT JOIN discard d ON t.id = d.contract_id
-	WHERE (t.iin = ? OR ? = 'all') AND c.id = ? AND status != 1
+	WHERE (t.iin = ? OR ? = 'all') AND c.id = ? AND (t.id = ? OR ? = 'all') AND status != 1
 	ORDER BY t.created_at DESC
 	`
 
-	rows, err = r.Db.QueryContext(ctx, query, iin, iin, companyID)
+	rows, err = r.Db.QueryContext(ctx, query, iin, iin, id, id, companyID)
 	if err != nil {
 		return nil, err
 	}
@@ -217,7 +217,7 @@ func (r *TOORepository) GetTOOsByBIN(ctx context.Context, iin, pass string) ([]m
 }
 
 // For IP (search by IIN)
-func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin, pass string) ([]models.IP, error) {
+func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin, pass, id string) ([]models.IP, error) {
 	var companyID int
 	var storedHashes []struct {
 		ID       int
@@ -274,11 +274,11 @@ func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin, pass string) ([]mod
 	FROM IP ip
 	JOIN companies c ON CAST(SUBSTRING_INDEX(ip.company_code, '.', 1) AS UNSIGNED) = c.id
 	LEFT JOIN discard d ON ip.id = d.contract_id
-	 WHERE (ip.iin = ? OR ? = 'all') AND c.id = ? AND status != 1
+	 WHERE (ip.iin = ? OR ? = 'all') AND c.id = ? AND (ip.id = ? OR ? = 'all') AND status != 1
 	ORDER BY ip.created_at DESC
 	`
 
-	rows, err = r.Db.QueryContext(ctx, query, iin, iin, companyID)
+	rows, err = r.Db.QueryContext(ctx, query, iin, iin, id, id, companyID)
 	if err != nil {
 		return nil, err
 	}
@@ -310,7 +310,7 @@ func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin, pass string) ([]mod
 }
 
 // For Individual (search by IIN)
-func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, pass string) ([]models.Individual, error) {
+func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, pass, id string) ([]models.Individual, error) {
 	var companyID int
 	var storedHashes []struct {
 		ID       int
@@ -367,11 +367,11 @@ func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, pas
 	FROM Individual ind
 	JOIN companies c ON CAST(SUBSTRING_INDEX(ind.company_code, '.', 1) AS UNSIGNED) = c.id
 	LEFT JOIN discard d ON ind.id = d.contract_id
-	WHERE (ind.iin = ? OR ? = 'all') AND c.id = ? AND status != 1
+	WHERE (ind.iin = ? OR ? = 'all') AND c.id = ? AND (ind.id = ? OR ? = 'all') AND status != 1
 	ORDER BY ind.created_at DESC
 	`
 
-	rows, err = r.Db.QueryContext(ctx, query, iin, iin, companyID)
+	rows, err = r.Db.QueryContext(ctx, query, iin, iin, id, id, companyID)
 	if err != nil {
 		return nil, err
 	}
@@ -406,7 +406,7 @@ type CompanyDataRepo struct {
 	Db *sql.DB
 }
 
-func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string) ([]interface{}, error) {
+func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass, id string) ([]interface{}, error) {
 	var companyID int
 	var storedHashes []struct {
 		ID       int
@@ -475,7 +475,7 @@ func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string)
 			 FROM TOO t
 			 JOIN companies c ON CAST(SUBSTRING_INDEX(t.company_code, '.', 1) AS UNSIGNED) = c.id
 			 LEFT JOIN discard d ON t.id = d.contract_id
-			 WHERE (t.iin = ? OR ? = 'all') AND c.id = ? AND status != 1) 
+			 WHERE (t.iin = ? OR ? = 'all') AND c.id = ? AND (t.id = ? OR ? = 'all') AND status != 1) 
 			 
 			UNION ALL
 			
@@ -490,7 +490,7 @@ func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string)
 			 FROM IP ip
 			 JOIN companies c ON CAST(SUBSTRING_INDEX(ip.company_code, '.', 1) AS UNSIGNED) = c.id
 			 LEFT JOIN discard d ON ip.id = d.contract_id
-			 WHERE (ip.iin = ? OR ? = 'all') AND c.id = ? AND status != 1)
+			 WHERE (ip.iin = ? OR ? = 'all') AND c.id = ? AND (ip.id = ? OR ? = 'all') AND status != 1)
 		
 			UNION ALL
 			
@@ -505,12 +505,12 @@ func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string)
 			 FROM Individual ind
 			 JOIN companies c ON CAST(SUBSTRING_INDEX(ind.company_code, '.', 1) AS UNSIGNED) = c.id
 			 LEFT JOIN discard d ON ind.id = d.contract_id
-			 WHERE (ind.iin = ? OR ? = 'all') AND c.id = ? AND status != 1)
+			 WHERE (ind.iin = ? OR ? = 'all') AND c.id = ? AND (ind.id = ? OR ? = 'all') AND status != 1)
 		) AS combined
 		ORDER BY created_at DESC;
 	`
 
-	rows, err = r.Db.QueryContext(ctx, query, iin, iin, companyID, iin, iin, companyID, iin, iin, companyID)
+	rows, err = r.Db.QueryContext(ctx, query, iin, iin, companyID, id, id, iin, iin, companyID, id, id, iin, iin, companyID, id, id)
 	if err != nil {
 		return nil, err
 	}

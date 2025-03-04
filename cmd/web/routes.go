@@ -24,10 +24,10 @@ func (app *application) routes() http.Handler {
 	mux.Put("/individual", standardMiddleware.ThenFunc(app.individualHandler.UpdateUserContract))
 
 	// Поиск договоров на главной странице
-	mux.Get("/search/too/:iin/password/:pass", standardMiddleware.ThenFunc(app.tooHandler.SearchTOOs))
-	mux.Get("/search/ip/:iin/password/:pass", standardMiddleware.ThenFunc(app.ipHandler.SearchIPs))
-	mux.Get("/search/individual/:iin/password/:pass", standardMiddleware.ThenFunc(app.individualHandler.SearchIndividuals))
-	mux.Get("/search/all/:iin/password/:pass", standardMiddleware.ThenFunc(app.companyDataHandler.GetAllDataByIIN))
+	mux.Get("/search/too/:iin/password/:pass/id/:id", standardMiddleware.ThenFunc(app.tooHandler.SearchTOOs))
+	mux.Get("/search/ip/:iin/password/:pass/id/:id", standardMiddleware.ThenFunc(app.ipHandler.SearchIPs))
+	mux.Get("/search/individual/:iin/password/:pass/id/:id", standardMiddleware.ThenFunc(app.individualHandler.SearchIndividuals))
+	mux.Get("/search/all/:iin/password/:pass/id/:id", standardMiddleware.ThenFunc(app.companyDataHandler.GetAllDataByIIN))
 
 	// Поиск договоров по QR коду
 	mux.Get("/search/too/token/:token", standardMiddleware.ThenFunc(app.tooHandler.SearchTOOsByToken))
