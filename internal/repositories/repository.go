@@ -427,36 +427,51 @@ func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string)
 
 	// 4. Получаем данные из всех таблиц (TOO, IP, Individual) с учетом company_id
 	query := `
-	SELECT * FROM (
-    (SELECT 'TOO' as source, t.id, COALESCE(t.name, ''), COALESCE(t.bin, ''), COALESCE(t.bank_details, ''), 
-            COALESCE(t.email, ''), COALESCE(t.signer, ''), COALESCE(t.iin, ''), 
-            COALESCE(t.company_code, ''), COALESCE(t.additional_information, ''), 
-            COALESCE(t.user_contract, ''), COALESCE(t.status, 0), t.created_at, t.updated_at
-     FROM TOO t
-     JOIN companies c ON CAST(SUBSTRING_INDEX(t.company_code, '.', 1) AS UNSIGNED) = c.id
-     WHERE t.iin = ? AND c.id = ?)
-     
-    UNION ALL
-    
-    (SELECT 'IP' as source, ip.id, COALESCE(ip.name, ''), COALESCE(ip.bin, ''), COALESCE(ip.bank_details, ''), 
-            COALESCE(ip.email, ''), COALESCE(ip.signer, ''), COALESCE(ip.iin, ''), 
-            COALESCE(ip.company_code, ''), COALESCE(ip.additional_information, ''), 
-            COALESCE(ip.user_contract, ''), COALESCE(ip.status, 0), ip.created_at, ip.updated_at
-     FROM IP ip
-     JOIN companies c ON CAST(SUBSTRING_INDEX(ip.company_code, '.', 1) AS UNSIGNED) = c.id
-     WHERE ip.iin = ? AND c.id = ?)
-
-    UNION ALL
-    
-    (SELECT 'Individual' as source, ind.id, COALESCE(ind.full_name, ''), '' AS bin, '' AS bank_details,
-            COALESCE(ind.email, ''), '' AS signer, COALESCE(ind.iin, ''), 
-            COALESCE(ind.company_code, ''), COALESCE(ind.additional_information, ''), 
-            COALESCE(ind.user_contract, ''), COALESCE(ind.status, 0), ind.created_at, ind.updated_at
-     FROM Individual ind
-     JOIN companies c ON CAST(SUBSTRING_INDEX(ind.company_code, '.', 1) AS UNSIGNED) = c.id
-     WHERE ind.iin = ? AND c.id = ?)
-) AS combined
-ORDER BY created_at DESC;
+		SELECT * FROM (
+			(SELECT 'TOO' as source, t.id, COALESCE(t.name, ''), COALESCE(t.bin, ''), COALESCE(t.bank_details, ''), 
+					COALESCE(t.email, ''), COALESCE(t.signer, ''), COALESCE(t.iin, ''), 
+					COALESCE(t.company_code, ''), COALESCE(t.additional_information, ''), 
+					COALESCE(t.user_contract, ''), COALESCE(t.status, 0), t.created_at, t.updated_at,
+					d.id, COALESCE(d.full_name, ''), COALESCE(d.iin, ''), COALESCE(d.phone_number, ''), 
+					COALESCE(d.contract_id, 0), COALESCE(d.reason, ''), COALESCE(d.company_name, ''), 
+					COALESCE(d.bin, ''), COALESCE(d.signer, ''), COALESCE(d.contract_path, ''), 
+					COALESCE(d.token, ''), d.created_at, d.updated_at
+			 FROM TOO t
+			 JOIN companies c ON CAST(SUBSTRING_INDEX(t.company_code, '.', 1) AS UNSIGNED) = c.id
+			 LEFT JOIN discard d ON t.id = d.contract_id
+			 WHERE t.iin = ? AND c.id = ?)
+			 
+			UNION ALL
+			
+			(SELECT 'IP' as source, ip.id, COALESCE(ip.name, ''), COALESCE(ip.bin, ''), COALESCE(ip.bank_details, ''), 
+					COALESCE(ip.email, ''), COALESCE(ip.signer, ''), COALESCE(ip.iin, ''), 
+					COALESCE(ip.company_code, ''), COALESCE(ip.additional_information, ''), 
+					COALESCE(ip.user_contract, ''), COALESCE(ip.status, 0), ip.created_at, ip.updated_at,
+					d.id, COALESCE(d.full_name, ''), COALESCE(d.iin, ''), COALESCE(d.phone_number, ''), 
+					COALESCE(d.contract_id, 0), COALESCE(d.reason, ''), COALESCE(d.company_name, ''), 
+					COALESCE(d.bin, ''), COALESCE(d.signer, ''), COALESCE(d.contract_path, ''), 
+					COALESCE(d.token, ''), d.created_at, d.updated_at
+			 FROM IP ip
+			 JOIN companies c ON CAST(SUBSTRING_INDEX(ip.company_code, '.', 1) AS UNSIGNED) = c.id
+			 LEFT JOIN discard d ON ip.id = d.contract_id
+			 WHERE ip.iin = ? AND c.id = ?)
+		
+			UNION ALL
+			
+			(SELECT 'Individual' as source, ind.id, COALESCE(ind.full_name, ''), '' AS bin, '' AS bank_details,
+					COALESCE(ind.email, ''), '' AS signer, COALESCE(ind.iin, ''), 
+					COALESCE(ind.company_code, ''), COALESCE(ind.additional_information, ''), 
+					COALESCE(ind.user_contract, ''), COALESCE(ind.status, 0), ind.created_at, ind.updated_at,
+					d.id, COALESCE(d.full_name, ''), COALESCE(d.iin, ''), COALESCE(d.phone_number, ''), 
+					COALESCE(d.contract_id, 0), COALESCE(d.reason, ''), COALESCE(d.company_name, ''), 
+					COALESCE(d.bin, ''), COALESCE(d.signer, ''), COALESCE(d.contract_path, ''), 
+					COALESCE(d.token, ''), d.created_at, d.updated_at
+			 FROM Individual ind
+			 JOIN companies c ON CAST(SUBSTRING_INDEX(ind.company_code, '.', 1) AS UNSIGNED) = c.id
+			 LEFT JOIN discard d ON ind.id = d.contract_id
+			 WHERE ind.iin = ? AND c.id = ?)
+		) AS combined
+		ORDER BY created_at DESC;
 	`
 
 	rows, err = r.Db.QueryContext(ctx, query, iin, companyID, iin, companyID, iin, companyID)
@@ -483,17 +498,28 @@ ORDER BY created_at DESC;
 			Status                int
 			CreatedAt             string
 			UpdatedAt             string
+			Discard               *models.Discard
 		}
 
+		var discard models.Discard
 		err = rows.Scan(
 			&record.Source, &record.ID, &record.Name, &record.BIN, &record.BankDetails,
 			&record.Email, &record.Signer, &record.IIN, &record.CompanyCode,
 			&record.AdditionalInformation, &record.UserContract, &record.Status,
 			&record.CreatedAt, &record.UpdatedAt,
+			&discard.ID, &discard.FullName, &discard.IIN, &discard.PhoneNumber,
+			&discard.ContractID, &discard.Reason, &discard.CompanyName,
+			&discard.BIN, &discard.Signer, &discard.ContractPath,
+			&discard.Token, &discard.CreatedAt, &discard.UpdatedAt,
 		)
 
 		if err != nil {
 			return nil, err
+		}
+
+		// Если discard не пустой, добавляем его
+		if discard.ID != 0 {
+			record.Discard = &discard
 		}
 
 		results = append(results, record)
