@@ -185,7 +185,7 @@ func (r *TOORepository) GetTOOsByBIN(ctx context.Context, iin, pass, id string) 
 	ORDER BY t.created_at DESC
 	`
 
-	rows, err = r.Db.QueryContext(ctx, query, iin, iin, id, id, companyID)
+	rows, err = r.Db.QueryContext(ctx, query, iin, iin, companyID, id, id)
 	if err != nil {
 		return nil, err
 	}
@@ -278,7 +278,7 @@ func (r *IPRepository) GetIPsByIIN(ctx context.Context, iin, pass, id string) ([
 	ORDER BY ip.created_at DESC
 	`
 
-	rows, err = r.Db.QueryContext(ctx, query, iin, iin, id, id, companyID)
+	rows, err = r.Db.QueryContext(ctx, query, iin, iin, companyID, id, id)
 	if err != nil {
 		return nil, err
 	}
@@ -371,7 +371,7 @@ func (r *IndividualRepository) GetIndividualsByIIN(ctx context.Context, iin, pas
 	ORDER BY ind.created_at DESC
 	`
 
-	rows, err = r.Db.QueryContext(ctx, query, iin, iin, id, id, companyID)
+	rows, err = r.Db.QueryContext(ctx, query, iin, iin, companyID, id, id)
 	if err != nil {
 		return nil, err
 	}
