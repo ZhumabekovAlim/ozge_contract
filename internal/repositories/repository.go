@@ -435,7 +435,7 @@ func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string)
 					COALESCE(d.id, 0) as discard_id, COALESCE(d.full_name, ''), COALESCE(d.iin, ''), COALESCE(d.phone_number, ''), 
 					COALESCE(d.contract_id, 0), COALESCE(d.reason, ''), COALESCE(d.company_name, ''), 
 					COALESCE(d.bin, ''), COALESCE(d.signer, ''), COALESCE(d.contract_path, ''), 
-					COALESCE(d.token, ''), d.created_at as discard_created_at, d.updated_at as discard_updated_at
+					COALESCE(d.token, ''), COALESCE(d.created_at, NOW()) AS discard_created_at, COALESCE(d.updated_at, NOW()) AS discard_updated_at
 			 FROM TOO t
 			 JOIN companies c ON CAST(SUBSTRING_INDEX(t.company_code, '.', 1) AS UNSIGNED) = c.id
 			 LEFT JOIN discard d ON t.id = d.contract_id
@@ -450,7 +450,7 @@ func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string)
 					COALESCE(d.id, 0)  as discard_id, COALESCE(d.full_name, ''), COALESCE(d.iin, ''), COALESCE(d.phone_number, ''), 
 					COALESCE(d.contract_id, 0), COALESCE(d.reason, ''), COALESCE(d.company_name, ''), 
 					COALESCE(d.bin, ''), COALESCE(d.signer, ''), COALESCE(d.contract_path, ''), 
-					COALESCE(d.token, ''), d.created_at as discard_created_at, d.updated_at as discard_updated_at
+					COALESCE(d.token, ''), COALESCE(d.created_at, NOW()) AS discard_created_at, COALESCE(d.updated_at, NOW()) AS discard_updated_at
 			 FROM IP ip
 			 JOIN companies c ON CAST(SUBSTRING_INDEX(ip.company_code, '.', 1) AS UNSIGNED) = c.id
 			 LEFT JOIN discard d ON ip.id = d.contract_id
@@ -465,7 +465,7 @@ func (r *CompanyDataRepo) GetAllDataByIIN(ctx context.Context, iin, pass string)
 					COALESCE(d.id, 0) as discard_id, COALESCE(d.full_name, ''), COALESCE(d.iin, ''), COALESCE(d.phone_number, ''), 
 					COALESCE(d.contract_id, 0), COALESCE(d.reason, ''), COALESCE(d.company_name, ''), 
 					COALESCE(d.bin, ''), COALESCE(d.signer, ''), COALESCE(d.contract_path, ''), 
-					COALESCE(d.token, ''), d.created_at as discard_created_at, d.updated_at as discard_updated_at
+					COALESCE(d.token, ''), COALESCE(d.created_at, NOW()) AS discard_created_at, COALESCE(d.updated_at, NOW()) AS discard_updated_at
 			 FROM Individual ind
 			 JOIN companies c ON CAST(SUBSTRING_INDEX(ind.company_code, '.', 1) AS UNSIGNED) = c.id
 			 LEFT JOIN discard d ON ind.id = d.contract_id
