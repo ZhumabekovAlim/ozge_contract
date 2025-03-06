@@ -45,7 +45,7 @@ func main() {
 		AllowCredentials: true,
 		AllowedHeaders:   []string{"*"},
 		ExposedHeaders:   []string{"Content-Length"},
-		MaxAge:           600,
+		MaxAge:           86400,
 	})
 
 	// HTTP → HTTPS редирект
@@ -70,6 +70,8 @@ func main() {
 		},
 		SessionTicketsDisabled:   false, // Включаем session tickets для быстрого соединения
 		PreferServerCipherSuites: false,
+		OCSPStaplingEnabled = false
+
 	}
 
 	// TCP-листенер с Keep-Alive
@@ -88,10 +90,11 @@ func main() {
 		Addr:              *addr,
 		ErrorLog:          errorLog,
 		Handler:           c.Handler(app.routes()),
-		IdleTimeout:       30 * time.Second, // Было 2 минуты
-		ReadTimeout:       5 * time.Second,  // Было 10 секунд
-		WriteTimeout:      10 * time.Second, // Было 15 секунд
+		IdleTimeout:       120 * time.Second, // Было 2 минуты
+		ReadTimeout:       5 * time.Second,   // Было 10 секунд
+		WriteTimeout:      10 * time.Second,  // Было 15 секунд
 		ReadHeaderTimeout: 2 * time.Second,
+		TLSConfig:         tlsConfig,
 	}
 	srv.SetKeepAlivesEnabled(true)
 
@@ -107,7 +110,6 @@ func main() {
 		errorLog.Fatal(err)
 	}
 
-	select {}
 }
 
 // Редирект HTTP → HTTPS с минимальной задержкой

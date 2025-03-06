@@ -182,7 +182,7 @@ func (r *TOORepository) GetTOOsByBIN(ctx context.Context, iin, pass, id string) 
 	JOIN companies c ON CAST(SUBSTRING_INDEX(t.company_code, '.', 1) AS UNSIGNED) = c.id
 	LEFT JOIN discard d ON t.id = d.contract_id
 	WHERE (t.iin = ? OR ? = 'all') AND c.id = ? AND (t.id = ? OR ? = 'all') AND status != 1
-	ORDER BY t.created_at DESC
+	ORDER BY t.created_at DESC 
 	`
 
 	rows, err = r.Db.QueryContext(ctx, query, iin, iin, companyID, id, id)
