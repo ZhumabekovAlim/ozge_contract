@@ -22,7 +22,7 @@ func main() {
 	if port != "" {
 		port = ":" + port
 	} else {
-		port = ":443"
+		port = ":4001"
 	}
 
 	addr := flag.String("addr", port, "HTTPS network address")
@@ -48,14 +48,6 @@ func main() {
 		MaxAge:           86400,
 	})
 
-	// HTTP → HTTPS редирект
-	go func() {
-		err := http.ListenAndServe(":80", http.HandlerFunc(redirectToHTTPS))
-		if err != nil {
-			log.Fatal("HTTP redirect server error:", err)
-		}
-	}()
-
 	go func() {
 		log.Println(http.ListenAndServe("localhost:6060", nil))
 	}()
@@ -70,7 +62,6 @@ func main() {
 		},
 		SessionTicketsDisabled:   false, // Включаем session tickets для быстрого соединения
 		PreferServerCipherSuites: false,
-		NextProtos:               []string{"http/1.1"},
 	}
 
 	// TCP-листенер с Keep-Alive
