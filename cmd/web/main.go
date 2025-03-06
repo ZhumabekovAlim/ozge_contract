@@ -70,8 +70,6 @@ func main() {
 		},
 		SessionTicketsDisabled:   false, // Включаем session tickets для быстрого соединения
 		PreferServerCipherSuites: false,
-		OCSPStaplingEnabled = false
-
 	}
 
 	// TCP-листенер с Keep-Alive
@@ -99,13 +97,13 @@ func main() {
 	srv.SetKeepAlivesEnabled(true)
 
 	// Пути к SSL-сертификатам Let's Encrypt
-	certFile := "/etc/letsencrypt/live/infosite.kz/fullchain.pem"
-	keyFile := "/etc/letsencrypt/live/infosite.kz/privkey.pem"
+	//certFile := "/etc/letsencrypt/live/infosite.kz/fullchain.pem"
+	//keyFile := "/etc/letsencrypt/live/infosite.kz/privkey.pem"
 
 	infoLog.Printf("Starting HTTPS server on %s", *addr)
 
 	tlsConfig.Time = func() time.Time { return time.Now().Add(60 * time.Second) }
-	err = srv.ServeTLS(listener, certFile, keyFile)
+	err = srv.Serve(listener)
 	if err != nil {
 		errorLog.Fatal(err)
 	}
