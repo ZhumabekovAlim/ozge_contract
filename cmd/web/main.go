@@ -70,6 +70,7 @@ func main() {
 		},
 		SessionTicketsDisabled:   false, // Включаем session tickets для быстрого соединения
 		PreferServerCipherSuites: false,
+		NextProtos:               []string{"http/1.1"},
 	}
 
 	// TCP-листенер с Keep-Alive
